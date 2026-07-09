@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drive61 — Sistema de Gestión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+/* =====================================================================
+   Drive61 — Estilos. Paleta real de la marca (drive61.com):
+   negro / gris oscuro + acento rojo.
+   ===================================================================== */
+:root{
+  --dark:      #1a1a1a;
+  --dark-2:    #3a3a3a;
+  --red:       #dd183b;
+  --red-2:     #e21824;
+  --red-dark:  #b11330;
+  --bg:        #f4f5f7;
+  --surface:   #ffffff;
+  --text:      #1a1a1a;
+  --muted:     #6b7280;
+  --border:    #e5e7eb;
+  --green:     #16a34a;
+  --amber:     #f59e0b;
+  --radius:    12px;
+  --shadow:    0 1px 3px rgba(0,0,0,.06), 0 6px 20px rgba(0,0,0,.05);
+  --font:      'Inter', system-ui, -apple-system, sans-serif;
+  --font-head: 'Montserrat', var(--font);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+.demo-banner{
+  background:linear-gradient(90deg,var(--red),var(--red-2));color:#fff;
+  font-size:12.5px;font-weight:600;text-align:center;padding:7px 14px;letter-spacing:.2px;
+}
+.demo-banner b{font-weight:800}
+
+.layout{display:flex;min-height:calc(100vh - 33px)}
+.sidebar{
+  width:238px;background:var(--dark);color:#e8e8e8;flex-shrink:0;
+  display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:calc(100vh - 33px)
+}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 22px}
+.brand-logo{
+  width:38px;height:38px;border-radius:9px;background:var(--red);color:#fff;
+  font-family:var(--font-head);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center
+}
+.brand-name{font-family:var(--font-head);font-weight:700;font-size:18px;letter-spacing:.5px}
+.brand-name span{color:var(--red)}
+.nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#7b7b7b;padding:14px 10px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cfcfcf;
+  font-size:14px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left
+}
+.nav-item .ic{width:18px;text-align:center;font-size:15px;opacity:.9}
+.nav-item:hover{background:#2a2a2a;color:#fff}
+.nav-item.active{background:var(--red);color:#fff}
+
+.sidebar-foot{margin-top:auto;font-size:11px;color:#6f6f6f;padding:12px 10px 0;border-top:1px solid #2c2c2c}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:15px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5
+}
+.topbar h1{font-family:var(--font-head);font-size:19px;font-weight:700}
+.topbar .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.pill-date{font-size:12.5px;color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:20px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--dark-2);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+
+.content{padding:26px;max-width:1240px;width:100%}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(186px,1fr));gap:16px;margin-bottom:22px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+.kpi.green::before{background:var(--green)} .kpi.amber::before{background:var(--amber)} .kpi.dark::before{background:var(--dark-2)}
+.kpi-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:600;font-family:var(--font-head)}
+.kpi-value{font-family:var(--font-head);font-size:29px;font-weight:800;margin-top:8px;line-height:1}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:7px}
+
+.grid-2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:22px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-head h3{font-family:var(--font-head);font-size:14.5px;font-weight:700}
+.card-head .count{margin-left:auto;font-size:12px;color:var(--muted)}
+.card-body{padding:16px 18px}
+
+.bars{display:flex;align-items:flex-end;gap:10px;height:180px;padding-top:8px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+.bar{width:100%;max-width:34px;background:linear-gradient(180deg,var(--red),var(--red-dark));border-radius:6px 6px 0 0;transition:height .4s ease}
+.bar-x{font-size:11px;color:var(--muted)}
+
+.alert{display:flex;gap:11px;padding:11px 12px;border-radius:10px;margin-bottom:8px;font-size:13px;line-height:1.4;border:1px solid transparent}
+.alert:last-child{margin-bottom:0}
+.alert .ai{font-size:15px}
+.alert.alta{background:#fdecef;border-color:#f7c9d3;color:#8a1023}
+.alert.media{background:#fff6e8;border-color:#f6e0b8;color:#8a5a06}
+.alert.baja{background:#eef2f7;border-color:#dfe6ee;color:#43506a}
+
+.table{width:100%;border-collapse:collapse;font-size:13.5px}
+.table th{text-align:left;font-family:var(--font-head);font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--border)}
+.table td{padding:11px 12px;border-bottom:1px solid var(--border)}
+.table tr:last-child td{border-bottom:none}
+.table tbody tr.click{cursor:pointer;transition:background .12s}
+.table tbody tr.click:hover{background:#faf7f8}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:var(--font-head);letter-spacing:.3px}
+.badge.alquilado{background:#e7f6ec;color:#0f7a37} .badge.disponible{background:#e8eefc;color:#2854c5}
+.badge.taller{background:#fff2e0;color:#b5730a} .badge.activo{background:#e7f6ec;color:#0f7a37}
+.badge.suspendido{background:#fdecef;color:#b11330} .badge.vigente{background:#e7f6ec;color:#0f7a37}
+.badge.por-vencer{background:#fff2e0;color:#b5730a} .badge.vencido{background:#fdecef;color:#b11330}
+.badge.pagado,.badge.ok,.badge.pagada{background:#e7f6ec;color:#0f7a37}
+.badge.pendiente,.badge.notificada,.badge.en-recupero,.badge.en-descargo{background:#fff2e0;color:#b5730a}
+.badge.firmado{background:#e7f6ec;color:#0f7a37}
+
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.dot.g{background:var(--green)} .dot.y{background:var(--amber)} .dot.r{background:var(--red)}
+.score{font-family:var(--font-head);font-weight:800}
+
+.search{width:100%;max-width:320px;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none;font-family:var(--font)}
+.search:focus{border-color:var(--red)}
+
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:14px;background:none;border:none}
+.back-link:hover{color:var(--red)}
+.ficha-head{display:flex;align-items:center;gap:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px}
+.ficha-ava{width:66px;height:66px;border-radius:50%;background:var(--dark);color:#fff;font-family:var(--font-head);font-weight:800;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ficha-id h2{font-family:var(--font-head);font-size:22px;font-weight:800}
+.ficha-id .meta{font-size:13px;color:var(--muted);margin-top:3px}
+.ficha-metrics{margin-left:auto;display:flex;gap:26px;text-align:center}
+.fm-val{font-family:var(--font-head);font-size:22px;font-weight:800}
+.fm-lab{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-top:2px}
+
+.ficha-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:820px){.ficha-grid{grid-template-columns:1fr}}
+.mini-list{list-style:none;font-size:13.5px}
+.mini-list li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.mini-list li:last-child{border-bottom:none}
+.mini-list .k{color:var(--muted);min-width:130px}
+.mini-list .v{font-weight:600}
+.mini-list .r{margin-left:auto}
+.empty{font-size:13px;color:var(--muted);font-style:italic;padding:6px 0}
+
+.timeline{list-style:none;font-size:13.5px}
+.timeline li{position:relative;padding:0 0 14px 20px;border-left:2px solid var(--border);margin-left:5px}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:-6px;top:2px;width:10px;height:10px;border-radius:50%;background:var(--red)}
+.timeline .tdate{font-size:11.5px;color:var(--muted)}
+
+.money-pos{color:var(--green);font-weight:700}
+.money-neg{color:var(--red);font-weight:700}
+
+.chat{background:#f0f2f5;border-radius:10px;padding:12px}
+.chat-msg{background:#fff;border-radius:9px;padding:9px 12px;font-size:13px;margin-bottom:8px;box-shadow:0 1px 1px rgba(0,0,0,.05)}
+.chat-msg:last-child{margin-bottom:0}
+.chat-meta{font-size:11px;color:var(--muted);margin-top:4px}
+.wa{color:#25d366;font-weight:700}
+
+</style>
+</head>
+<body>
+  <div class="demo-banner">
+    DEMO · Sistema Drive61 — Los datos mostrados son <b>de muestra</b> para la presentación. Base real del producto (se conecta a datos reales al aprobar).
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">D</div>
+        <div class="brand-name">Drive<span>61</span></div>
+      </div>
+
+      <div class="nav-label">Operación</div>
+      <button class="nav-item" data-route="dashboard"><span class="ic">▦</span> Tablero gerencial</button>
+      <button class="nav-item" data-route="conductores"><span class="ic">👤</span> Conductores</button>
+      <button class="nav-item" data-route="flota"><span class="ic">🚗</span> Flota</button>
+
+      <div class="nav-label">Automatización</div>
+      <button class="nav-item" data-route="telepeajes"><span class="ic">🛣️</span> Telepeajes</button>
+      <button class="nav-item" data-route="multas"><span class="ic">🚨</span> Multas</button>
+      <button class="nav-item" data-route="cobranzas"><span class="ic">💳</span> Cobranzas</button>
+      <button class="nav-item" data-route="ituran"><span class="ic">📍</span> Ituran / Scoring</button>
+
+      <div class="nav-label">Gestión</div>
+      <button class="nav-item" data-route="crm"><span class="ic">💬</span> CRM / WhatsApp</button>
+      <button class="nav-item" data-route="reportes"><span class="ic">📈</span> Reportes</button>
+
+      <div class="sidebar-foot">
+        Drive61 · Flota Uber<br>Sistema operativo inteligente
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="page-title">Tablero gerencial</h1>
+          <div class="sub" id="page-sub">Visión general de la operación en tiempo real</div>
+        </div>
+        <div class="topbar-right">
+          <span class="pill-date" id="today"></span>
+          <div class="avatar">GA</div>
+        </div>
+      </header>
+      <main class="content" id="content"></main>
+    </div>
+  </div>
+
+  <script>
+/* =====================================================================
+   Drive61 — Capa de datos
+   ---------------------------------------------------------------------
+   La UI consume los datos SOLO a través de `DB`.
+   Hoy `DB` usa datos de MUESTRA + guarda los cambios en el navegador
+   (localStorage). Al conectar Firebase (ver data-firebase.js) cada
+   método pasa a leer/escribir en Firestore SIN cambiar la interfaz.
+   Los datos aquí son DE MUESTRA para la presentación.
+   ===================================================================== */
+
+const DEMO = {
+  empresa: { nombre: "Drive61", modeloAlquiler: "Semanal por turnos de 12 hs", vehiculoPrincipal: "Fiat Cronos" },
+
+  autos: [
+    { id: "A1", patente: "AF461KT", modelo: "Fiat Cronos Drive 1.3", anio: 2024, estado: "alquilado",   km: 41250, ituran: true,  telepeaje: "TAG-8841", conductorId: "C1" },
+    { id: "A2", patente: "AG112MC", modelo: "Fiat Cronos Drive 1.3", anio: 2024, estado: "alquilado",   km: 38900, ituran: true,  telepeaje: "TAG-8842", conductorId: "C2" },
+    { id: "A3", patente: "AF889JD", modelo: "Fiat Cronos Precision", anio: 2023, estado: "alquilado",   km: 62100, ituran: true,  telepeaje: "TAG-8843", conductorId: "C3" },
+    { id: "A4", patente: "AG340RT", modelo: "Fiat Cronos Drive 1.3", anio: 2024, estado: "taller",      km: 51780, ituran: true,  telepeaje: "TAG-8844", conductorId: null },
+    { id: "A5", patente: "AF206LP", modelo: "Fiat Cronos Precision", anio: 2023, estado: "alquilado",   km: 70400, ituran: true,  telepeaje: "TAG-8845", conductorId: "C4" },
+    { id: "A6", patente: "AG501WQ", modelo: "Fiat Cronos Drive 1.3", anio: 2024, estado: "disponible",  km: 15200, ituran: true,  telepeaje: "TAG-8846", conductorId: null },
+    { id: "A7", patente: "AF733BN", modelo: "Fiat Cronos Drive 1.3", anio: 2024, estado: "alquilado",   km: 44870, ituran: true,  telepeaje: "TAG-8847", conductorId: "C5" },
+    { id: "A8", patente: "AG618XZ", modelo: "Fiat Cronos Precision", anio: 2023, estado: "alquilado",   km: 58230, ituran: true,  telepeaje: "TAG-8848", conductorId: "C6" },
+    { id: "A9", patente: "AF950CV", modelo: "Fiat Cronos Drive 1.3", anio: 2024, estado: "disponible",  km: 22600, ituran: true,  telepeaje: "TAG-8849", conductorId: null },
+    { id: "A10",patente: "AG777HK", modelo: "Fiat Cronos Precision", anio: 2023, estado: "alquilado",   km: 66940, ituran: false, telepeaje: "TAG-8850", conductorId: "C7" },
+  ],
+
+  conductores: [
+    { id:"C1", nombre:"Martín Sosa", dni:"34.201.556", telefono:"+54 9 11 5541-2210", estado:"activo", desde:"2025-02-11", autoId:"A1", scoring:92, saldo:0,
+      documentos:[{tipo:"Licencia de conducir",nro:"34201556",vence:"2027-05-02",estado:"vigente"},{tipo:"DNI",nro:"34.201.556",vence:null,estado:"vigente"},{tipo:"Licencia profesional (D1)",nro:"PROF-88231",vence:"2026-11-20",estado:"vigente"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2025-02-11",firma:"firmado",vigencia:"Vigente"},{tipo:"Anexo turno diurno",fecha:"2025-02-11",firma:"firmado",vigencia:"Vigente"}],
+      telepeajes:[{fecha:"2026-07-07 08:14",puesto:"Avellaneda",monto:780},{fecha:"2026-07-05 19:02",puesto:"Dock Sud",monto:780},{fecha:"2026-07-03 07:51",puesto:"Alsina",monto:520}],
+      multas:[],
+      cuenta:[{concepto:"Alquiler semana 27",fecha:"2026-07-07",monto:-42000,estado:"pagado"},{concepto:"Telepeajes semana 27",fecha:"2026-07-07",monto:-2080,estado:"pagado"},{concepto:"Pago recibido",fecha:"2026-07-07",monto:44080,estado:"ok"}],
+      comunicaciones:[{fecha:"2026-07-07 09:10",canal:"WhatsApp",texto:"Recordatorio de pago semana 27 enviado. Pagó."},{fecha:"2026-07-01 10:02",canal:"WhatsApp",texto:"Aviso: service programado para el A1 el 15/07."}],
+      timeline:[{fecha:"2026-07-07",ev:"Pago semana 27 acreditado"},{fecha:"2025-02-11",ev:"Alta y firma de contrato"}] },
+    { id:"C2", nombre:"Lucía Ferreyra", dni:"38.905.114", telefono:"+54 9 11 6620-8842", estado:"activo", desde:"2025-04-03", autoId:"A2", scoring:88, saldo:-12500,
+      documentos:[{tipo:"Licencia de conducir",nro:"38905114",vence:"2026-07-25",estado:"por-vencer"},{tipo:"DNI",nro:"38.905.114",vence:null,estado:"vigente"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2025-04-03",firma:"firmado",vigencia:"Vigente"}],
+      telepeajes:[{fecha:"2026-07-06 21:40",puesto:"Avellaneda",monto:780}],
+      multas:[{fecha:"2026-06-28",infraccion:"Exceso de velocidad",monto:45000,estado:"notificada"}],
+      cuenta:[{concepto:"Alquiler semana 27",fecha:"2026-07-07",monto:-42000,estado:"pendiente"},{concepto:"Multa (imputada)",fecha:"2026-06-28",monto:-45000,estado:"en-recupero"}],
+      comunicaciones:[{fecha:"2026-07-07 09:10",canal:"WhatsApp",texto:"Recordatorio de pago enviado. Sin respuesta."}],
+      timeline:[{fecha:"2026-06-28",ev:"Multa detectada e imputada"},{fecha:"2025-04-03",ev:"Alta y firma de contrato"}] },
+    { id:"C3", nombre:"Diego Quiroga", dni:"31.774.028", telefono:"+54 9 11 4408-1190", estado:"activo", desde:"2024-11-19", autoId:"A3", scoring:61, saldo:-84000,
+      documentos:[{tipo:"Licencia de conducir",nro:"31774028",vence:"2026-07-14",estado:"por-vencer"},{tipo:"Licencia profesional (D1)",nro:"PROF-55120",vence:"2026-08-02",estado:"por-vencer"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2024-11-19",firma:"firmado",vigencia:"Vigente"}],
+      telepeajes:[{fecha:"2026-07-06 02:30",puesto:"Alsina",monto:520}],
+      multas:[{fecha:"2026-06-15",infraccion:"Semáforo en rojo",monto:62000,estado:"en-descargo"},{fecha:"2026-05-30",infraccion:"Mal estacionado",monto:18000,estado:"pagada"}],
+      cuenta:[{concepto:"Alquiler semana 27",fecha:"2026-07-07",monto:-42000,estado:"pendiente"},{concepto:"Alquiler semana 26",fecha:"2026-06-30",monto:-42000,estado:"vencido"}],
+      comunicaciones:[{fecha:"2026-07-07 09:10",canal:"WhatsApp",texto:"2do recordatorio de deuda. Prometió pago 09/07."}],
+      timeline:[{fecha:"2026-07-02",ev:"Alerta de riesgo: scoring bajo + mora"},{fecha:"2024-11-19",ev:"Alta y firma de contrato"}] },
+    { id:"C4", nombre:"Rodrigo Paz", dni:"36.410.777", telefono:"+54 9 11 3312-7745", estado:"activo", desde:"2025-01-22", autoId:"A5", scoring:79, saldo:0,
+      documentos:[{tipo:"Licencia de conducir",nro:"36410777",vence:"2028-03-10",estado:"vigente"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2025-01-22",firma:"firmado",vigencia:"Vigente"}],
+      telepeajes:[{fecha:"2026-07-06 12:15",puesto:"Dock Sud",monto:780}], multas:[],
+      cuenta:[{concepto:"Alquiler semana 27",fecha:"2026-07-07",monto:-42000,estado:"pagado"}],
+      comunicaciones:[], timeline:[{fecha:"2025-01-22",ev:"Alta y firma de contrato"}] },
+    { id:"C5", nombre:"Emiliano Duarte", dni:"39.220.615", telefono:"+54 9 11 2298-5501", estado:"activo", desde:"2025-06-09", autoId:"A7", scoring:84, saldo:-42000,
+      documentos:[{tipo:"Licencia de conducir",nro:"39220615",vence:"2027-09-18",estado:"vigente"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2025-06-09",firma:"pendiente",vigencia:"Pendiente de firma"}],
+      telepeajes:[], multas:[],
+      cuenta:[{concepto:"Alquiler semana 27",fecha:"2026-07-07",monto:-42000,estado:"pendiente"}],
+      comunicaciones:[{fecha:"2026-07-07 09:10",canal:"WhatsApp",texto:"Recordatorio de firma de contrato pendiente."}],
+      timeline:[{fecha:"2025-06-09",ev:"Alta (contrato pendiente de firma)"}] },
+    { id:"C6", nombre:"Carla Medina", dni:"40.115.902", telefono:"+54 9 11 5077-3320", estado:"activo", desde:"2025-03-14", autoId:"A8", scoring:95, saldo:0,
+      documentos:[{tipo:"Licencia de conducir",nro:"40115902",vence:"2029-01-05",estado:"vigente"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2025-03-14",firma:"firmado",vigencia:"Vigente"}],
+      telepeajes:[{fecha:"2026-07-05 16:44",puesto:"Avellaneda",monto:780}], multas:[],
+      cuenta:[{concepto:"Alquiler semana 27",fecha:"2026-07-07",monto:-42000,estado:"pagado"}],
+      comunicaciones:[], timeline:[{fecha:"2025-03-14",ev:"Alta y firma de contrato"}] },
+    { id:"C7", nombre:"Julián Ávila", dni:"33.560.441", telefono:"+54 9 11 6690-1188", estado:"suspendido", desde:"2024-09-27", autoId:"A10", scoring:48, saldo:-126000,
+      documentos:[{tipo:"Licencia de conducir",nro:"33560441",vence:"2026-06-30",estado:"vencido"}],
+      contratos:[{tipo:"Contrato de alquiler",fecha:"2024-09-27",firma:"firmado",vigencia:"Suspendido"}],
+      telepeajes:[], multas:[{fecha:"2026-06-20",infraccion:"Exceso de velocidad",monto:45000,estado:"notificada"}],
+      cuenta:[{concepto:"Alquiler semana 26",fecha:"2026-06-30",monto:-42000,estado:"vencido"},{concepto:"Alquiler semana 25",fecha:"2026-06-23",monto:-42000,estado:"vencido"}],
+      comunicaciones:[{fecha:"2026-07-01 11:00",canal:"WhatsApp",texto:"Aviso de suspensión por mora y licencia vencida."}],
+      timeline:[{fecha:"2026-07-01",ev:"Suspendido: mora + licencia vencida"},{fecha:"2024-09-27",ev:"Alta y firma de contrato"}] },
+  ],
+
+  prospectos: [
+    { id:"P1", nombre:"Nahuel Ríos",    telefono:"+54 9 11 3345-9021", origen:"Web drive61.com", etapa:"nuevo",       fecha:"2026-07-08", nota:"Consultó por turno noche." },
+    { id:"P2", nombre:"Sofía Benítez",  telefono:"+54 9 11 5590-1177", origen:"WhatsApp",         etapa:"nuevo",       fecha:"2026-07-08", nota:"Pide requisitos y tarifas." },
+    { id:"P3", nombre:"Gastón Ledesma", telefono:"+54 9 11 6612-4408", origen:"Instagram",        etapa:"contactado",  fecha:"2026-07-06", nota:"Envió licencia. Falta DNI." },
+    { id:"P4", nombre:"Mariano Coria",  telefono:"+54 9 11 2201-8890", origen:"Referido",         etapa:"contactado",  fecha:"2026-07-05", nota:"Agendar cita para retiro." },
+    { id:"P5", nombre:"Paula Vera",     telefono:"+54 9 11 4478-3320", origen:"Web drive61.com",  etapa:"onboarding",  fecha:"2026-07-04", nota:"Documentación completa. Firma pendiente." },
+  ],
+};
+
+/* ---------- Persistencia local: hidrata DEMO desde localStorage ---------- */
+const STORE_KEY = 'drive61_state_v1';
+function _save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({ autos:DEMO.autos, conductores:DEMO.conductores, prospectos:DEMO.prospectos })); }catch(e){}
+}
+(function _load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    if(s){ if(s.autos) DEMO.autos=s.autos; if(s.conductores) DEMO.conductores=s.conductores; if(s.prospectos) DEMO.prospectos=s.prospectos; }
+  }catch(e){}
+})();
+const _id = (p) => p + Date.now().toString(36) + Math.floor(Math.random()*1000);
+const _hoy = () => new Date().toISOString().slice(0,10);
+
+/* ---------- DB: única puerta de acceso a datos ---------- */
+const DB = {
+  async getEmpresa()      { return DEMO.empresa; },
+  async getAutos()        { return DEMO.autos; },
+  async getVehiculo(id)   { return DEMO.autos.find(a=>a.id===id) || null; },
+  async getConductores()  { return DEMO.conductores; },
+  async getConductor(id)  { return DEMO.conductores.find(c=>c.id===id) || null; },
+  async getProspectos()   { return DEMO.prospectos; },
+
+  async getKPIs() {
+    const autos=DEMO.autos, conds=DEMO.conductores;
+    const alquilados=autos.filter(a=>a.estado==="alquilado").length;
+    const tarifa=42000;
+    const morosos=conds.filter(c=>(c.saldo||0)<0);
+    return {
+      autosTotal:autos.length, alquilados,
+      disponibles:autos.filter(a=>a.estado==="disponible").length,
+      taller:autos.filter(a=>a.estado==="taller").length,
+      ocupacion:autos.length?Math.round((alquilados/autos.length)*100):0,
+      ingresoSemanal:alquilados*tarifa,
+      conductoresActivos:conds.filter(c=>c.estado==="activo").length,
+      morosos:morosos.length,
+      deudaTotal:morosos.reduce((s,c)=>s+Math.abs(c.saldo||0),0),
+      scoringProm:conds.length?Math.round(conds.reduce((s,c)=>s+(c.scoring||0),0)/conds.length):0,
+    };
+  },
+
+  async getIngresosSemanales() {
+    return [
+      {semana:"S20",monto:294000},{semana:"S21",monto:336000},{semana:"S22",monto:336000},{semana:"S23",monto:378000},
+      {semana:"S24",monto:336000},{semana:"S25",monto:378000},{semana:"S26",monto:294000},{semana:"S27",monto:336000},
+    ];
+  },
+
+  async getAlertas() {
+    return [
+      {nivel:"alta", icono:"⚠️", texto:"Julián Ávila: licencia VENCIDA + mora de $126.000. Conductor suspendido."},
+      {nivel:"alta", icono:"💸", texto:"Diego Quiroga: 2 semanas de alquiler impagas ($84.000) y scoring 61."},
+      {nivel:"media",icono:"📄", texto:"Emiliano Duarte: contrato PENDIENTE de firma desde el alta."},
+      {nivel:"media",icono:"🪪", texto:"3 licencias por vencer en 30 días (Ferreyra, Quiroga, Ávila)."},
+      {nivel:"media",icono:"🚨", texto:"2 multas nuevas esta semana pendientes de imputación/recupero."},
+      {nivel:"baja", icono:"🔧", texto:"Auto A4 (AG340RT) en taller: service programado."},
+    ];
+  },
+
+  async getTelepeajesAll() {
+    const out=[];
+    DEMO.conductores.forEach(c=>{
+      const auto=DEMO.autos.find(a=>a.id===c.autoId);
+      (c.telepeajes||[]).forEach(t=> out.push({ fecha:t.fecha, puesto:t.puesto, monto:t.monto, patente:auto?auto.patente:'—', conductor:c.nombre, conductorId:c.id, estado:c.saldo<0?'imputado (a cobrar)':'conciliado' }));
+    });
+    return out.sort((a,b)=> a.fecha<b.fecha?1:-1);
+  },
+
+  async getMultasAll() {
+    const out=[];
+    DEMO.conductores.forEach(c=>{
+      const auto=DEMO.autos.find(a=>a.id===c.autoId);
+      (c.multas||[]).forEach(m=> out.push({ fecha:m.fecha, infraccion:m.infraccion, monto:m.monto, estado:m.estado, patente:auto?auto.patente:'—', conductor:c.nombre, conductorId:c.id }));
+    });
+    return out.sort((a,b)=> a.fecha<b.fecha?1:-1);
+  },
+
+  async getCobranzas() {
+    return DEMO.conductores.map(c=>{
+      const items=(c.cuenta||[]).filter(x=>x.monto<0 && ['pendiente','vencido','en-recupero'].includes(x.estado));
+      const aCobrar=items.reduce((s,x)=>s+Math.abs(x.monto),0);
+      return { id:c.id, nombre:c.nombre, telefono:c.telefono, saldo:c.saldo, aCobrar, vencido:(c.cuenta||[]).some(x=>x.estado==='vencido'), items };
+    }).filter(x=>x.aCobrar>0).sort((a,b)=>b.aCobrar-a.aCobrar);
+  },
+
+  async getScoringRanking() {
+    return DEMO.conductores.map(c=>{ const a=DEMO.autos.find(x=>x.id===c.autoId); return { nombre:c.nombre, scoring:c.scoring||0, patente:a?a.patente:'—', estado:c.estado, ituran:a?!!a.ituran:false }; }).sort((a,b)=>b.scoring-a.scoring);
+  },
+
+  async getComunicacionesAll() {
+    const out=[];
+    DEMO.conductores.forEach(c=> (c.comunicaciones||[]).forEach(m=> out.push({ ...m, conductor:c.nombre, conductorId:c.id })));
+    return out.sort((a,b)=> a.fecha<b.fecha?1:-1);
+  },
+
+  async getRentabilidad() {
+    const tarifa=42000;
+    return DEMO.autos.map(a=>{
+      const c=DEMO.conductores.find(x=>x.id===a.conductorId);
+      const ingreso=a.estado==='alquilado'?tarifa:0;
+      const costo=a.estado==='taller'?18000:9500;
+      return { patente:a.patente, modelo:a.modelo, estado:a.estado, conductor:c?c.nombre:'—', ingreso, costo, neto:ingreso-costo };
+    }).sort((x,y)=>y.neto-x.neto);
+  },
+
+  /* ---------- Escritura (CRUD) — hoy guarda en localStorage ---------- */
+  async addConductor(d){
+    const c={ id:_id('C'), nombre:d.nombre||'Sin nombre', dni:d.dni||'', telefono:d.telefono||'', estado:d.estado||'activo', desde:_hoy(), autoId:d.autoId||null, scoring:Number(d.scoring)||70, saldo:0, documentos:[], contratos:[], telepeajes:[], multas:[], cuenta:[], comunicaciones:[], timeline:[{fecha:_hoy(),ev:'Alta en el sistema'}] };
+    DEMO.conductores.push(c); _save(); return c;
+  },
+  async updateConductor(id,d){
+    const c=DEMO.conductores.find(x=>x.id===id); if(!c) return null;
+    if(d.nombre!=null) c.nombre=d.nombre;
+    if(d.dni!=null) c.dni=d.dni;
+    if(d.telefono!=null) c.telefono=d.telefono;
+    if(d.estado!=null) c.estado=d.estado;
+    if(d.scoring!=null && d.scoring!=='') c.scoring=Number(d.scoring);
+    _save(); return c;
+  },
+  async addAuto(d){
+    const a={ id:_id('A'), patente:d.patente||'', modelo:d.modelo||'Fiat Cronos', anio:Number(d.anio)||2024, estado:d.estado||'disponible', km:Number(d.km)||0, ituran:!!d.ituran, telepeaje:d.telepeaje||'', conductorId:null };
+    DEMO.autos.push(a); _save(); return a;
+  },
+  async updateAuto(id,d){
+    const a=DEMO.autos.find(x=>x.id===id); if(!a) return null;
+    if(d.patente!=null) a.patente=d.patente;
+    if(d.modelo!=null) a.modelo=d.modelo;
+    if(d.estado!=null) a.estado=d.estado;
+    if(d.km!=null && d.km!=='') a.km=Number(d.km);
+    _save(); return a;
+  },
+  async addProspecto(d){
+    const p={ id:_id('P'), nombre:d.nombre||'', telefono:d.telefono||'', origen:d.origen||'Manual', etapa:'nuevo', fecha:_hoy(), nota:d.nota||'' };
+    DEMO.prospectos.push(p); _save(); return p;
+  },
+  resetDemo(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} },
+};
+
+window.DEMO = DEMO;
+window.DB = DB;
+
+</script>
+  <script>
+/* =====================================================================
+   Drive61 — App (shell + router + módulos + CRUD + login/roles)
+   La UI sólo consume window.DB (ver data.js).
+   ===================================================================== */
+
+// ---------- Helpers ----------
+const $  = (s, r=document) => r.querySelector(s);
+const money = (n) => (n<0?'-':'') + '$' + Math.abs(n).toLocaleString('es-AR');
+const initials = (name) => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const scoreDot = (s) => s>=80 ? 'g' : s>=65 ? 'y' : 'r';
+const scoreLabel = (s) => s>=80 ? 'Bajo riesgo' : s>=65 ? 'Riesgo medio' : 'Alto riesgo';
+
+// Autenticación + roles (demo local; luego Firebase Auth)
+let USER = null;
+const ROLE_NAV = {
+  admin:       ['dashboard','conductores','flota','telepeajes','multas','cobranzas','ituran','crm','reportes'],
+  operaciones: ['dashboard','conductores','flota','telepeajes','multas','ituran','crm'],
+  cobranzas:   ['dashboard','conductores','cobranzas','reportes'],
+};
+const allowedRoutes = () => USER ? (ROLE_NAV[USER.role] || ROLE_NAV.admin) : ROLE_NAV.admin;
+
+const TITLES = {
+  dashboard:   { h:'Tablero gerencial',      s:'Visión general de la operación en tiempo real' },
+  conductores: { h:'Conductores',            s:'Portfolio 360° de cada conductor' },
+  flota:       { h:'Flota',                  s:'Vehículos, estado y ficha de cada unidad' },
+  telepeajes:  { h:'Telepeajes',             s:'Conciliación e imputación automática al conductor' },
+  multas:      { h:'Multas',                 s:'Detección, imputación y recupero de infracciones' },
+  cobranzas:   { h:'Cobranzas',              s:'Estado de cuenta y gestión de deuda' },
+  ituran:      { h:'Ituran / Scoring',       s:'Geolocalización, telemetría y comportamiento de manejo' },
+  crm:         { h:'CRM / WhatsApp',         s:'Captación de conductores y comunicaciones' },
+  reportes:    { h:'Reportes gerenciales',   s:'Rentabilidad y análisis para la toma de decisiones' },
+};
+
+// ---------- Router ----------
+const routes = {};
+function go(route, param){ location.hash = param ? `#/${route}/${param}` : `#/${route}`; }
+function render(){
+  const parts = (location.hash || '#/dashboard').replace(/^#\//,'').split('/');
+  const route = parts[0] || 'dashboard';
+  const param = parts[1];
+  if(!USER) return;
+  const _allow = allowedRoutes();
+  if(!_allow.includes(route)){ location.hash = '#/' + _allow[0]; return; }
+  document.querySelectorAll('.nav-item[data-route]').forEach(n=>
+    n.classList.toggle('active', n.dataset.route===route));
+  const t = TITLES[route] || TITLES.dashboard;
+  $('#page-title').textContent = t.h;
+  $('#page-sub').textContent = t.s;
+  (routes[route] || routes.dashboard)($('#content'), param);
+}
+
+// ---------- Tablero gerencial ----------
+routes.dashboard = async (root) => {
+  root.innerHTML = '<div class="empty">Cargando…</div>';
+  const [k, serie, alertas, autos, conds] = await Promise.all([
+    DB.getKPIs(), DB.getIngresosSemanales(), DB.getAlertas(), DB.getAutos(), DB.getConductores()
+  ]);
+  const maxSerie = Math.max(...serie.map(s=>s.monto));
+  const nombreDe = (id) => (conds.find(c=>c.id===id)||{}).nombre || '—';
+
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="kpi-label">Ocupación de flota</div>
+        <div class="kpi-value">${k.ocupacion}%</div>
+        <div class="kpi-sub">${k.alquilados} de ${k.autosTotal} autos trabajando</div></div>
+      <div class="kpi"><div class="kpi-label">Ingreso semanal</div>
+        <div class="kpi-value">${money(k.ingresoSemanal)}</div>
+        <div class="kpi-sub">Alquileres activos · semana en curso</div></div>
+      <div class="kpi amber"><div class="kpi-label">Morosidad</div>
+        <div class="kpi-value">${money(k.deudaTotal)}</div>
+        <div class="kpi-sub">${k.morosos} conductores con saldo deudor</div></div>
+      <div class="kpi dark"><div class="kpi-label">Scoring promedio</div>
+        <div class="kpi-value">${k.scoringProm}</div>
+        <div class="kpi-sub">Conducción (Ituran) · sobre 100</div></div>
+      <div class="kpi"><div class="kpi-label">Conductores activos</div>
+        <div class="kpi-value">${k.conductoresActivos}</div>
+        <div class="kpi-sub">${k.disponibles} disponibles · ${k.taller} en taller</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Ingresos por semana</h3><span class="count">Últimas 8 semanas</span></div>
+        <div class="card-body"><div class="bars">
+          ${serie.map(s=>`
+            <div class="bar-wrap" title="${s.semana}: ${money(s.monto)}">
+              <div class="bar" style="height:${Math.round(s.monto/maxSerie*100)}%"></div>
+              <div class="bar-x">${s.semana}</div>
+            </div>`).join('')}
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Alertas inteligentes</h3><span class="count">${alertas.length}</span></div>
+        <div class="card-body">
+          ${alertas.map(a=>`<div class="alert ${a.nivel}"><span class="ai">${a.icono}</span><span>${a.texto}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Estado de la flota</h3><span class="count">${autos.length} vehículos</span></div>
+      <table class="table">
+        <thead><tr><th>Patente</th><th>Modelo</th><th>Estado</th><th>Conductor</th><th>Telepeaje</th><th>Ituran</th><th>Km</th></tr></thead>
+        <tbody>
+          ${autos.map(a=>`
+            <tr>
+              <td><strong>${a.patente}</strong></td>
+              <td>${a.modelo}</td>
+              <td><span class="badge ${a.estado}">${a.estado}</span></td>
+              <td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty">—</span>'}</td>
+              <td>${a.telepeaje}</td>
+              <td>${a.ituran?'🟢 Conectado':'⚪ Sin equipo'}</td>
+              <td>${a.km.toLocaleString('es-AR')}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+};
+
+// ---------- Conductores (listado + Ficha 360) ----------
+routes.conductores = async (root, id) => {
+  if(id){ return renderFicha(root, id); }
+  root.innerHTML = '<div class="empty">Cargando…</div>';
+  const conds = await DB.getConductores();
+  const rows = (list) => list.map(c=>`
+    <tr class="click" data-id="${c.id}">
+      <td><strong>${c.nombre}</strong><div class="empty" style="font-style:normal">DNI ${c.dni}</div></td>
+      <td><span class="badge ${c.estado}">${c.estado}</span></td>
+      <td><span class="dot ${scoreDot(c.scoring)}"></span><span class="score">${c.scoring}</span>
+          <div class="empty" style="font-style:normal">${scoreLabel(c.scoring)}</div></td>
+      <td>${c.autoId||'—'}</td>
+      <td class="${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</td>
+      <td>${(c.multas&&c.multas.length)?`<span class="badge notificada">${c.multas.length}</span>`:'<span class="empty" style="font-style:normal">0</span>'}</td>
+      <td style="text-align:right;color:var(--muted)">Ver ficha ›</td>
+    </tr>`).join('');
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-head">
+        <h3>Conductores</h3>
+        <input class="search" id="q" placeholder="Buscar por nombre o DNI…">
+        <span class="count" id="cnt">${conds.length}</span>
+        <button class="btn-primary" id="nuevoCond">+ Nuevo conductor</button>
+      </div>
+      <table class="table">
+        <thead><tr><th>Conductor</th><th>Estado</th><th>Scoring</th><th>Auto</th><th>Saldo</th><th>Multas</th><th></th></tr></thead>
+        <tbody id="tb">${rows(conds)}</tbody>
+      </table>
+    </div>`;
+
+  const tb = $('#tb');
+  $('#nuevoCond').addEventListener('click', ()=> formConductor());
+  tb.addEventListener('click', e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) go('conductores', tr.dataset.id); });
+  $('#q').addEventListener('input', e=>{
+    const q=e.target.value.toLowerCase();
+    const f=conds.filter(c=>c.nombre.toLowerCase().includes(q)||c.dni.includes(q));
+    tb.innerHTML=rows(f); $('#cnt').textContent=f.length;
+  });
+};
+
+// ---------- Ficha 360° ----------
+async function renderFicha(root, id){
+  root.innerHTML = '<div class="empty">Cargando…</div>';
+  const c = await DB.getConductor(id);
+  if(!c){ root.innerHTML='<div class="empty">Conductor no encontrado.</div>'; return; }
+  const autos = await DB.getAutos();
+  const auto = autos.find(a=>a.id===c.autoId);
+
+  const docItems = (c.documentos||[]).map(d=>`
+    <li><span class="k">${d.tipo}</span><span class="v">${d.nro}</span>
+      <span class="r"><span class="badge ${d.estado}">${d.estado.replace('-',' ')}</span>
+      ${d.vence?`<div class="empty" style="font-style:normal;text-align:right">vence ${d.vence}</div>`:''}</span></li>`).join('') || '<div class="empty">Sin documentos cargados.</div>';
+
+  const contratoItems = (c.contratos||[]).map(k=>`
+    <li><span class="k">${k.tipo}</span><span class="v">${k.fecha}</span>
+      <span class="r"><span class="badge ${k.firma==='firmado'?'firmado':'pendiente'}">
+      ${k.firma==='firmado'?'✔ Firmado':'✎ Pendiente'}</span></span></li>`).join('') || '<div class="empty">Sin contratos.</div>';
+
+  const telItems = (c.telepeajes&&c.telepeajes.length) ? c.telepeajes.map(t=>`
+    <li><span class="k">${t.fecha}</span><span class="v">${t.puesto}</span>
+      <span class="r money-neg">${money(-t.monto)}</span></li>`).join('')
+    : '<div class="empty">Sin pasos de telepeaje registrados.</div>';
+
+  const multaItems = (c.multas&&c.multas.length) ? c.multas.map(m=>`
+    <li><span class="k">${m.fecha}</span><span class="v">${m.infraccion}</span>
+      <span class="r"><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span>
+      <div class="money-neg" style="text-align:right">${money(-m.monto)}</div></span></li>`).join('')
+    : '<div class="empty">Sin multas. 👏</div>';
+
+  const cuentaItems = (c.cuenta||[]).map(m=>`
+    <li><span class="k">${m.fecha}</span><span class="v">${m.concepto}</span>
+      <span class="r"><span class="${m.monto<0?'money-neg':'money-pos'}">${money(m.monto)}</span>
+      <div class="empty" style="font-style:normal;text-align:right">${m.estado}</div></span></li>`).join('') || '<div class="empty">Sin movimientos.</div>';
+
+  const comItems = (c.comunicaciones&&c.comunicaciones.length) ? c.comunicaciones.map(m=>`
+    <div class="chat-msg">${m.texto}<div class="chat-meta"><span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')
+    : '<div class="empty">Sin comunicaciones registradas.</div>';
+
+  const timeItems = (c.timeline||[]).map(t=>`<li><div class="tdate">${t.fecha}</div>${t.ev}</li>`).join('') || '<div class="empty">Sin eventos.</div>';
+
+  root.innerHTML = `
+    <button class="back-link" id="back">‹ Volver a conductores</button>
+    <button class="btn-ghost" id="editCond" style="float:right">✎ Editar</button>
+    <div class="ficha-head">
+      <div class="ficha-ava">${initials(c.nombre)}</div>
+      <div class="ficha-id">
+        <h2>${c.nombre}</h2>
+        <div class="meta">DNI ${c.dni} · ${c.telefono} · En Drive61 desde ${c.desde}</div>
+        <div style="margin-top:8px"><span class="badge ${c.estado}">${c.estado}</span></div>
+      </div>
+      <div class="ficha-metrics">
+        <div><div class="fm-val"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</div><div class="fm-lab">Scoring</div></div>
+        <div><div class="fm-val ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'$0'}</div><div class="fm-lab">Saldo</div></div>
+        <div><div class="fm-val">${auto?auto.patente:'—'}</div><div class="fm-lab">Auto asignado</div></div>
+      </div>
+    </div>
+
+    <div class="ficha-grid">
+      <div class="card"><div class="card-head"><h3>🪪 Documentación y vencimientos</h3></div>
+        <div class="card-body"><ul class="mini-list">${docItems}</ul></div></div>
+
+      <div class="card"><div class="card-head"><h3>📄 Contratos y firma digital</h3></div>
+        <div class="card-body"><ul class="mini-list">${contratoItems}</ul></div></div>
+
+      <div class="card"><div class="card-head"><h3>🚗 Vehículo asignado</h3></div>
+        <div class="card-body"><ul class="mini-list">
+          ${auto?`
+          <li><span class="k">Patente</span><span class="v">${auto.patente}</span></li>
+          <li><span class="k">Modelo</span><span class="v">${auto.modelo}</span></li>
+          <li><span class="k">Telepeaje</span><span class="v">${auto.telepeaje}</span></li>
+          <li><span class="k">Ituran</span><span class="v">${auto.ituran?'🟢 Conectado':'⚪ Sin equipo'}</span></li>
+          <li><span class="k">Km</span><span class="v">${auto.km.toLocaleString('es-AR')}</span></li>`
+          :'<div class="empty">Sin vehículo asignado.</div>'}
+        </ul></div></div>
+
+      <div class="card"><div class="card-head"><h3>🛣️ Telepeajes</h3><span class="count">imputados al conductor</span></div>
+        <div class="card-body"><ul class="mini-list">${telItems}</ul></div></div>
+
+      <div class="card"><div class="card-head"><h3>🚨 Multas</h3><span class="count">detección + recupero</span></div>
+        <div class="card-body"><ul class="mini-list">${multaItems}</ul></div></div>
+
+      <div class="card"><div class="card-head"><h3>💳 Estado de cuenta (cobranzas)</h3></div>
+        <div class="card-body"><ul class="mini-list">${cuentaItems}</ul></div></div>
+
+      <div class="card"><div class="card-head"><h3>💬 Comunicaciones (WhatsApp)</h3></div>
+        <div class="card-body"><div class="chat">${comItems}</div></div></div>
+
+      <div class="card"><div class="card-head"><h3>🕓 Línea de tiempo</h3></div>
+        <div class="card-body"><ul class="timeline">${timeItems}</ul></div></div>
+    </div>
+  `;
+  $('#back').addEventListener('click', ()=>go('conductores'));
+  const ec=$('#editCond'); if(ec) ec.addEventListener('click', ()=> formConductor(c));
+}
+
+// ---------- Flota ----------
+routes.flota = async (root, id) => {
+  const autos = await DB.getAutos();
+  const conds = await DB.getConductores();
+  const nombreDe = (cid) => (conds.find(c=>c.id===cid)||{}).nombre || '—';
+
+  if(id){
+    const a = autos.find(x=>x.id===id);
+    if(!a){ root.innerHTML='<div class="empty">Vehículo no encontrado.</div>'; return; }
+    const c = conds.find(x=>x.id===a.conductorId);
+    root.innerHTML = `
+      <button class="back-link" id="back">‹ Volver a la flota</button>
+      <button class="btn-ghost" id="editAuto" style="float:right">✎ Editar</button>
+      <div class="ficha-head">
+        <div class="ficha-ava" style="background:var(--red)">🚗</div>
+        <div class="ficha-id"><h2>${a.patente}</h2>
+          <div class="meta">${a.modelo} · ${a.anio}</div>
+          <div style="margin-top:8px"><span class="badge ${a.estado}">${a.estado}</span></div></div>
+        <div class="ficha-metrics">
+          <div><div class="fm-val">${a.km.toLocaleString('es-AR')}</div><div class="fm-lab">Km</div></div>
+          <div><div class="fm-val">${a.ituran?'🟢':'⚪'}</div><div class="fm-lab">Ituran</div></div>
+          <div><div class="fm-val" style="font-size:15px">${c?c.nombre.split(' ')[0]:'—'}</div><div class="fm-lab">Conductor</div></div>
+        </div></div>
+      <div class="ficha-grid">
+        <div class="card"><div class="card-head"><h3>Datos del vehículo</h3></div><div class="card-body"><ul class="mini-list">
+          <li><span class="k">Patente</span><span class="v">${a.patente}</span></li>
+          <li><span class="k">Modelo</span><span class="v">${a.modelo}</span></li>
+          <li><span class="k">Año</span><span class="v">${a.anio}</span></li>
+          <li><span class="k">Telepeaje (TAG)</span><span class="v">${a.telepeaje}</span></li>
+          <li><span class="k">Equipo Ituran</span><span class="v">${a.ituran?'Conectado':'Sin equipo'}</span></li>
+        </ul></div></div>
+        <div class="card"><div class="card-head"><h3>Conductor asignado</h3></div><div class="card-body">
+          ${c?`<ul class="mini-list">
+            <li><span class="k">Nombre</span><span class="v">${c.nombre}</span></li>
+            <li><span class="k">Scoring</span><span class="v"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</span></li>
+            <li><span class="k">Saldo</span><span class="v ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</span></li>
+            <li><span class="k"></span><span class="r"><button class="back-link" style="margin:0" data-goc="${c.id}">Ver ficha 360° ›</button></span></li>
+          </ul>`:'<div class="empty">Vehículo sin conductor asignado (disponible para alquilar).</div>'}
+        </div></div>
+      </div>`;
+    $('#back').addEventListener('click', ()=>go('flota'));
+    const gc=$('[data-goc]'); if(gc) gc.addEventListener('click', ()=>go('conductores', gc.dataset.goc));
+    const ea=$('#editAuto'); if(ea) ea.addEventListener('click', ()=> formAuto(a));
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="kpi-label">Alquilados</div><div class="kpi-value">${autos.filter(a=>a.estado==='alquilado').length}</div><div class="kpi-sub">trabajando en Uber</div></div>
+      <div class="kpi"><div class="kpi-label">Disponibles</div><div class="kpi-value">${autos.filter(a=>a.estado==='disponible').length}</div><div class="kpi-sub">listos para asignar</div></div>
+      <div class="kpi amber"><div class="kpi-label">En taller</div><div class="kpi-value">${autos.filter(a=>a.estado==='taller').length}</div><div class="kpi-sub">fuera de servicio</div></div>
+      <div class="kpi dark"><div class="kpi-label">Total flota</div><div class="kpi-value">${autos.length}</div><div class="kpi-sub">escalable a 500+</div></div>
+    </div>
+    <div class="card"><div class="card-head"><h3>Vehículos</h3><span class="count">${autos.length}</span><button class="btn-primary" id="nuevoAuto">+ Nuevo vehículo</button></div>
+      <table class="table"><thead><tr><th>Patente</th><th>Modelo</th><th>Estado</th><th>Conductor</th><th>Telepeaje</th><th>Ituran</th><th>Km</th><th></th></tr></thead>
+      <tbody id="tb">${autos.map(a=>`
+        <tr class="click" data-id="${a.id}">
+          <td><strong>${a.patente}</strong></td><td>${a.modelo}</td>
+          <td><span class="badge ${a.estado}">${a.estado}</span></td>
+          <td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty" style="font-style:normal">—</span>'}</td>
+          <td>${a.telepeaje}</td><td>${a.ituran?'🟢':'⚪'}</td><td>${a.km.toLocaleString('es-AR')}</td>
+          <td style="text-align:right;color:var(--muted)">Ver ›</td>
+        </tr>`).join('')}</tbody></table></div>`;
+  $('#nuevoAuto').addEventListener('click', ()=> formAuto());
+  $('#tb').addEventListener('click', e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) go('flota', tr.dataset.id); });
+};
+
+// ---------- Telepeajes ----------
+routes.telepeajes = async (root) => {
+  const tp = await DB.getTelepeajesAll();
+  const total = tp.reduce((s,t)=>s+t.monto,0);
+  const aCobrar = tp.filter(t=>t.estado.startsWith('imputado')).reduce((s,t)=>s+t.monto,0);
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Pasos registrados</div><div class="kpi-value">${tp.length}</div><div class="kpi-sub">período actual</div></div>
+      <div class="kpi dark"><div class="kpi-label">Consumo total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">conciliado por vehículo</div></div>
+      <div class="kpi amber"><div class="kpi-label">A imputar a conductores</div><div class="kpi-value">${money(aCobrar)}</div><div class="kpi-sub">se suma a su cuenta</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Conciliación automática</h3><span class="count">cada paso se asigna al conductor activo del vehículo</span></div>
+      <table class="table"><thead><tr><th>Fecha / hora</th><th>Puesto</th><th>Patente</th><th>Conductor imputado</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
+      <tbody>${tp.map(t=>`
+        <tr><td>${t.fecha}</td><td>${t.puesto}</td><td><strong>${t.patente}</strong></td>
+        <td>${t.conductor}</td><td><span class="badge ${t.estado.startsWith('imputado')?'pendiente':'pagado'}">${t.estado}</span></td>
+        <td style="text-align:right" class="money-neg">${money(-t.monto)}</td></tr>`).join('')}</tbody></table></div>`;
+};
+
+// ---------- Multas ----------
+routes.multas = async (root) => {
+  const ms = await DB.getMultasAll();
+  const total = ms.reduce((s,m)=>s+m.monto,0);
+  const aRecuperar = ms.filter(m=>m.estado!=='pagada').reduce((s,m)=>s+m.monto,0);
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Multas registradas</div><div class="kpi-value">${ms.length}</div><div class="kpi-sub">flota completa</div></div>
+      <div class="kpi amber"><div class="kpi-label">A recuperar</div><div class="kpi-value">${money(aRecuperar)}</div><div class="kpi-sub">imputadas a conductores</div></div>
+      <div class="kpi dark"><div class="kpi-label">Monto total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">histórico visible</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Infracciones</h3><span class="count">responsable identificado por cruce vehículo + asignación</span></div>
+      <table class="table"><thead><tr><th>Fecha</th><th>Infracción</th><th>Patente</th><th>Conductor responsable</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
+      <tbody>${ms.length?ms.map(m=>`
+        <tr><td>${m.fecha}</td><td>${m.infraccion}</td><td><strong>${m.patente}</strong></td>
+        <td>${m.conductor}</td><td><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span></td>
+        <td style="text-align:right" class="money-neg">${money(-m.monto)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Sin multas registradas.</td></tr>'}</tbody></table></div>`;
+};
+
+// ---------- Cobranzas ----------
+routes.cobranzas = async (root) => {
+  const cob = await DB.getCobranzas();
+  const total = cob.reduce((s,c)=>s+c.aCobrar,0);
+  const vencidos = cob.filter(c=>c.vencido).length;
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi amber"><div class="kpi-label">Total a cobrar</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">${cob.length} conductores con saldo</div></div>
+      <div class="kpi"><div class="kpi-label">Con cuota vencida</div><div class="kpi-value">${vencidos}</div><div class="kpi-sub">requieren gestión</div></div>
+      <div class="kpi green"><div class="kpi-label">Recordatorios</div><div class="kpi-value">WhatsApp</div><div class="kpi-sub">envío automático (demo)</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Gestión de deuda</h3><span class="count">ordenado por monto</span></div>
+      <table class="table"><thead><tr><th>Conductor</th><th>Teléfono</th><th>Estado</th><th style="text-align:right">A cobrar</th><th></th></tr></thead>
+      <tbody>${cob.map(c=>`
+        <tr><td><strong>${c.nombre}</strong></td><td>${c.telefono}</td>
+        <td>${c.vencido?'<span class="badge vencido">vencido</span>':'<span class="badge pendiente">pendiente</span>'}</td>
+        <td style="text-align:right" class="money-neg">${money(c.aCobrar)}</td>
+        <td style="text-align:right"><button class="back-link" style="margin:0;color:var(--green)" data-wa="${c.id}">💬 Recordar</button></td></tr>`).join('')}</tbody></table></div>`;
+  root.querySelectorAll('[data-wa]').forEach(b=> b.addEventListener('click', ()=> toast('Recordatorio de pago enviado por WhatsApp (demo).')));
+};
+
+// ---------- Ituran / Scoring ----------
+routes.ituran = async (root) => {
+  const rank = await DB.getScoringRanking();
+  const autos = await DB.getAutos();
+  const conectados = autos.filter(a=>a.ituran).length;
+  const pins = autos.map((a,i)=>{
+    const x = 12 + (i*8.5)%76, y = 15 + ((i*23)%68);
+    const col = a.estado==='taller' ? 'var(--amber)' : a.estado==='disponible' ? '#2854c5' : 'var(--red)';
+    return `<div title="${a.patente} · ${a.estado}" style="position:absolute;left:${x}%;top:${y}%;width:14px;height:14px;background:${col};border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`;
+  }).join('');
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="kpi-label">Equipos conectados</div><div class="kpi-value">${conectados}/${autos.length}</div><div class="kpi-sub">telemetría activa</div></div>
+      <div class="kpi dark"><div class="kpi-label">Scoring promedio</div><div class="kpi-value">${Math.round(rank.reduce((s,r)=>s+r.scoring,0)/rank.length)}</div><div class="kpi-sub">comportamiento de manejo</div></div>
+      <div class="kpi amber"><div class="kpi-label">Alto riesgo</div><div class="kpi-value">${rank.filter(r=>r.scoring<65).length}</div><div class="kpi-sub">requieren seguimiento</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><h3>Mapa de flota</h3><span class="count">posición en tiempo real (demo)</span></div>
+        <div class="card-body"><div style="position:relative;height:300px;border-radius:10px;overflow:hidden;background:linear-gradient(0deg,#e9eef2,#e9eef2),repeating-linear-gradient(0deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px),repeating-linear-gradient(90deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px)">
+          ${pins}
+          <div style="position:absolute;left:10px;bottom:10px;font-size:11px;color:#5b6675;background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px">🔴 alquilado · 🔵 disponible · 🟠 taller — Zona AMBA (demo)</div>
+        </div></div></div>
+      <div class="card"><div class="card-head"><h3>Ranking de conducción</h3><span class="count">scoring Ituran</span></div>
+        <table class="table"><thead><tr><th>Conductor</th><th>Auto</th><th style="text-align:right">Scoring</th></tr></thead>
+        <tbody>${rank.map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td><td>${r.patente}</td>
+          <td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table></div>
+    </div>`;
+};
+
+// ---------- CRM / WhatsApp ----------
+routes.crm = async (root) => {
+  const pros = await DB.getProspectos();
+  const coms = await DB.getComunicacionesAll();
+  const col = (etapa, titulo) => {
+    const items = pros.filter(p=>p.etapa===etapa);
+    return `<div class="card" style="flex:1;min-width:220px">
+      <div class="card-head"><h3>${titulo}</h3><span class="count">${items.length}</span></div>
+      <div class="card-body">${items.length?items.map(p=>`
+        <div style="border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:9px">
+          <strong style="font-size:13.5px">${p.nombre}</strong>
+          <div class="empty" style="font-style:normal;margin:3px 0">${p.telefono} · ${p.origen}</div>
+          <div style="font-size:12.5px;color:var(--muted)">${p.nota}</div>
+        </div>`).join(''):'<div class="empty">Sin prospectos.</div>'}</div></div>`;
+  };
+  root.innerHTML = `
+    <div style="margin-bottom:14px"><button class="btn-primary" id="nuevoPros">+ Nuevo prospecto</button></div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:22px">
+      ${col('nuevo','🆕 Nuevos')}
+      ${col('contactado','📞 Contactados')}
+      ${col('onboarding','📋 En onboarding')}
+    </div>
+    <div class="card"><div class="card-head"><h3>Comunicaciones recientes (WhatsApp)</h3><span class="count">bandeja unificada</span></div>
+      <div class="card-body"><div class="chat">${coms.map(m=>`
+        <div class="chat-msg">${m.texto}<div class="chat-meta"><strong>${m.conductor}</strong> · <span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')}</div></div></div>`;
+  $('#nuevoPros').addEventListener('click', ()=> formProspecto());
+};
+
+// ---------- Reportes ----------
+routes.reportes = async (root) => {
+  const [k, rent, rank] = await Promise.all([DB.getKPIs(), DB.getRentabilidad(), DB.getScoringRanking()]);
+  const netoTotal = rent.reduce((s,r)=>s+r.neto,0);
+  root.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="kpi-label">Resultado neto semanal</div><div class="kpi-value">${money(netoTotal)}</div><div class="kpi-sub">ingresos - costos (demo)</div></div>
+      <div class="kpi"><div class="kpi-label">Ingreso semanal</div><div class="kpi-value">${money(k.ingresoSemanal)}</div><div class="kpi-sub">alquileres activos</div></div>
+      <div class="kpi amber"><div class="kpi-label">Morosidad</div><div class="kpi-value">${money(k.deudaTotal)}</div><div class="kpi-sub">${k.morosos} conductores</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><h3>Rentabilidad por vehículo</h3><span class="count">semana en curso</span></div>
+        <table class="table"><thead><tr><th>Patente</th><th>Estado</th><th style="text-align:right">Ingreso</th><th style="text-align:right">Costo</th><th style="text-align:right">Neto</th></tr></thead>
+        <tbody>${rent.map(r=>`<tr><td><strong>${r.patente}</strong></td><td><span class="badge ${r.estado}">${r.estado}</span></td>
+          <td style="text-align:right" class="money-pos">${money(r.ingreso)}</td>
+          <td style="text-align:right" class="money-neg">${money(-r.costo)}</td>
+          <td style="text-align:right" class="${r.neto>=0?'money-pos':'money-neg'}">${money(r.neto)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="card"><div class="card-head"><h3>Mejores conductores</h3><span class="count">por scoring</span></div>
+        <table class="table"><thead><tr><th>Conductor</th><th style="text-align:right">Scoring</th></tr></thead>
+        <tbody>${rank.slice(0,6).map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td>
+          <td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table>
+        <div class="card-body"><div class="alert baja"><span class="ai">📤</span><span>En el sistema real, este reporte se envía automáticamente por WhatsApp/email cada lunes a la gerencia.</span></div></div></div>
+    </div>`;
+};
+
+// ---------- Formularios / toast (CRUD) ----------
+function toast(msg){
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 2200);
+}
+function openForm(title, fields, values, onSave){
+  values = values || {};
+  const body = fields.map(f=>{
+    if(f.type==='select'){
+      return `<div class="field"><label>${f.label}</label><select data-k="${f.k}">`+
+        f.options.map(o=>`<option value="${o}" ${String(values[f.k])===o?'selected':''}>${o}</option>`).join('')+
+        `</select></div>`;
+    }
+    const v = values[f.k]!=null ? String(values[f.k]).replace(/"/g,'&quot;') : '';
+    return `<div class="field"><label>${f.label}</label><input data-k="${f.k}" type="${f.type||'text'}" value="${v}"></div>`;
+  }).join('');
+  const ov = document.createElement('div'); ov.className='modal-bg';
+  ov.innerHTML = `<div class="modal"><div class="modal-h"><h3>${title}</h3><button class="x">&times;</button></div>`+
+    `<div class="modal-b">${body}</div>`+
+    `<div class="modal-f"><button class="btn-ghost" data-cancel>Cancelar</button><button class="btn-primary" data-ok>Guardar</button></div></div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.x').onclick=close;
+  ov.querySelector('[data-cancel]').onclick=close;
+  ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+  ov.querySelector('[data-ok]').onclick=async()=>{
+    const data={}; ov.querySelectorAll('[data-k]').forEach(i=> data[i.dataset.k]=i.value.trim());
+    await onSave(data); close();
+  };
+}
+function formConductor(existing){
+  const fields=[
+    {k:'nombre',label:'Nombre y apellido'},
+    {k:'dni',label:'DNI'},
+    {k:'telefono',label:'Teléfono'},
+    {k:'estado',label:'Estado',type:'select',options:['activo','onboarding','suspendido','baja']},
+    {k:'scoring',label:'Scoring (0-100)',type:'number'},
+  ];
+  openForm(existing?'Editar conductor':'Nuevo conductor', fields, existing||{estado:'activo',scoring:80}, async d=>{
+    if(existing){ await DB.updateConductor(existing.id,d); toast('Conductor actualizado ✓'); }
+    else { await DB.addConductor(d); toast('Conductor guardado ✓'); }
+    render();
+  });
+}
+function formAuto(existing){
+  const fields=[
+    {k:'patente',label:'Patente'},
+    {k:'modelo',label:'Modelo'},
+    {k:'anio',label:'Año',type:'number'},
+    {k:'estado',label:'Estado',type:'select',options:['disponible','alquilado','taller','baja']},
+    {k:'km',label:'Kilómetros',type:'number'},
+  ];
+  openForm(existing?'Editar vehículo':'Nuevo vehículo', fields, existing||{estado:'disponible',anio:2024,modelo:'Fiat Cronos'}, async d=>{
+    if(existing){ await DB.updateAuto(existing.id,d); toast('Vehículo actualizado ✓'); }
+    else { await DB.addAuto(d); toast('Vehículo guardado ✓'); }
+    render();
+  });
+}
+function formProspecto(){
+  const fields=[
+    {k:'nombre',label:'Nombre y apellido'},
+    {k:'telefono',label:'Teléfono'},
+    {k:'origen',label:'Origen',type:'select',options:['Web drive61.com','WhatsApp','Instagram','Referido','Manual']},
+    {k:'nota',label:'Nota'},
+  ];
+  openForm('Nuevo prospecto', fields, {origen:'Manual'}, async d=>{ await DB.addProspecto(d); toast('Prospecto guardado ✓'); render(); });
+}
+
+// ---------- Login + roles ----------
+function applyRole(){
+  const allow = allowedRoutes();
+  document.querySelectorAll('.nav-item[data-route]').forEach(n=>{
+    n.style.display = allow.includes(n.dataset.route) ? '' : 'none';
+  });
+  const av = document.querySelector('.avatar');
+  if(av && USER){ av.textContent=(USER.nombre||'U').slice(0,2).toUpperCase(); av.title=USER.nombre+' · '+USER.role; }
+  let chip = $('#userchip');
+  if(!chip){ chip=document.createElement('span'); chip.id='userchip'; chip.className='user-chip';
+    const tr=document.querySelector('.topbar-right'); if(tr) tr.insertBefore(chip, tr.firstChild); }
+  if(USER) chip.innerHTML = `<b>${USER.nombre}</b> · ${USER.role} <button class="lo" id="logoutBtn">Salir</button>`;
+  const lb=$('#logoutBtn'); if(lb) lb.onclick=logout;
+}
+function logout(){ try{ localStorage.removeItem('drive61_user'); }catch(e){} USER=null; showLogin(); }
+function showLogin(){
+  if($('#login-ov')) return;
+  const ov=document.createElement('div'); ov.id='login-ov';
+  ov.innerHTML = `<div class="login-card"><div class="lg">D</div>
+    <h2>Drive<span>61</span></h2><p>Sistema de gestión · ingresá para continuar</p>
+    <div class="field"><label>Tu nombre</label><input id="lg-name" value="Gerardo"></div>
+    <div class="field"><label>Rol</label><select id="lg-role">
+      <option value="admin">Administrador (todo)</option>
+      <option value="operaciones">Operaciones</option>
+      <option value="cobranzas">Cobranzas</option>
+    </select></div>
+    <button class="btn-primary" id="lg-go" style="width:100%;padding:12px;margin-top:6px">Ingresar</button></div>`;
+  document.body.appendChild(ov);
+  $('#lg-go').onclick=()=>{
+    USER={ nombre:($('#lg-name').value||'Usuario').trim(), role:$('#lg-role').value };
+    try{ localStorage.setItem('drive61_user', JSON.stringify(USER)); }catch(e){}
+    ov.remove(); applyRole();
+    const allow=allowedRoutes();
+    const cur=(location.hash||'').replace(/^#\//,'').split('/')[0];
+    if(!allow.includes(cur)) location.hash='#/'+allow[0];
+    render();
+  };
+}
+
+// ---------- Init ----------
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', ()=>{
+  const d = new Date();
+  $('#today').textContent = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.querySelectorAll('.nav-item[data-route]').forEach(n=>
+    n.addEventListener('click', ()=> go(n.dataset.route)));
+  try{ USER = JSON.parse(localStorage.getItem('drive61_user')||'null'); }catch(e){ USER=null; }
+  if(!USER){ showLogin(); }
+  else { applyRole(); render(); }
+});
+
+</script>
+</body>
+</html>

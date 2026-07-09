@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Drive61 — App del Conductor (preview)</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{ --dark:#1a1a1a; --red:#dd183b; --red-2:#e21824; --green:#16a34a; --amber:#f59e0b;
+         --muted:#6b7280; --border:#e5e7eb; --bg:#eceef1; --font:'Inter',sans-serif; --head:'Montserrat',sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 12px}
+  .demo-banner{background:linear-gradient(90deg,var(--red),var(--red-2));color:#fff;font-size:12px;font-weight:600;text-align:center;padding:7px 14px;border-radius:8px;margin-bottom:18px;max-width:420px}
+  .intro{max-width:420px;text-align:center;margin-bottom:16px;color:var(--muted);font-size:13px}
+  .intro b{color:var(--dark)}
+  /* phone */
+  .phone{width:360px;max-width:100%;background:#fff;border-radius:34px;box-shadow:0 12px 50px rgba(0,0,0,.22);overflow:hidden;border:9px solid #111;position:relative}
+  .status-bar{height:26px;background:var(--dark)}
+  .app-head{background:var(--dark);color:#fff;padding:14px 18px 20px;display:flex;align-items:center;gap:12px}
+  .ava{width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--head);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .app-head .hi{font-size:12px;color:#bdbdbd} .app-head .nm{font-family:var(--head);font-weight:700;font-size:16px}
+  .brand{margin-left:auto;font-family:var(--head);font-weight:800;font-size:15px}.brand span{color:var(--red)}
+  .screen{padding:16px;min-height:430px}
+  .card{border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:13px}
+  .card.dark{background:var(--dark);color:#fff;border:none}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-family:var(--head);font-weight:600}
+  .dark .lbl{color:#bdbdbd}
+  .big{font-family:var(--head);font-weight:800;font-size:27px;margin-top:5px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+  .row:last-child{border-bottom:none}
+  .btn{display:block;width:100%;background:var(--red);color:#fff;border:none;border-radius:11px;padding:13px;font-family:var(--head);font-weight:700;font-size:14px;margin-top:8px;cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--dark);border:1.5px solid var(--border)}
+  .pos{color:var(--green);font-weight:700}.neg{color:var(--red);font-weight:700}
+  .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;font-family:var(--head)}
+  .badge.g{background:#e7f6ec;color:#0f7a37}.badge.a{background:#fff2e0;color:#b5730a}
+  .score-ring{width:96px;height:96px;border-radius:50%;margin:6px auto;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--green) 0turn .92turn,#e5e7eb .92turn 1turn)}
+  .score-ring div{width:74px;height:74px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score-ring .n{font-family:var(--head);font-weight:800;font-size:24px;line-height:1}
+  .score-ring .t{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  h4{font-family:var(--head);font-size:14px;margin-bottom:4px}
+  .muted{color:var(--muted);font-size:12.5px}
+  .tabbar{display:flex;border-top:1px solid var(--border);background:#fff}
+  .tab{flex:1;padding:10px 4px 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600}
+  .tab .i{display:block;font-size:19px;margin-bottom:2px}
+  .tab.active{color:var(--red)}
+  .slot{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:9px;font-size:13px}
+  .slot.taken{opacity:.45}
+</style>
+</head>
+<body>
+  <div class="demo-banner">DEMO · App del CONDUCTOR (fase 2) — datos de muestra</div>
+  <div class="intro">Así vería <b>el conductor</b> su cuenta desde el celular: pagar el alquiler, ver multas, su scoring y reservar turno. Es el <b>complemento</b> del sistema interno.</div>
+
+  <div class="phone">
+    <div class="status-bar"></div>
+    <div class="app-head">
+      <div class="ava">MS</div>
+      <div><div class="hi">Hola,</div><div class="nm">Martín Sosa</div></div>
+      <div class="brand">Drive<span>61</span></div>
+    </div>
+    <div class="screen" id="screen"></div>
+    <div class="tabbar" id="tabbar"></div>
+  </div>
+
+<script>
+const D = {
+  saldo: 0, proximaCuota: 42000, vence: "Lun 13/07",
+  auto: { patente:"AF461KT", modelo:"Fiat Cronos", km:41250 },
+  scoring: 92,
+  multas: [],
+  cuenta: [
+    { c:"Alquiler semana 27", f:"07/07", m:-42000, e:"pagado" },
+    { c:"Telepeajes sem. 27", f:"07/07", m:-2080, e:"pagado" },
+    { c:"Pago recibido", f:"07/07", m:44080, e:"ok" },
+  ],
+  turnos: [
+    { t:"Lun 14/07 · Diurno 06–18", libre:true },
+    { t:"Lun 14/07 · Nocturno 18–06", libre:false },
+    { t:"Mar 15/07 · Diurno 06–18", libre:true },
+  ],
+};
+const money = n => (n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-AR');
+
+const screens = {
+  inicio: () => `
+    <div class="card dark">
+      <div class="lbl">Tu cuenta</div>
+      <div class="big" style="color:#7Cf0a0">Al día ✓</div>
+      <div style="font-size:12px;color:#bdbdbd;margin-top:4px">Próxima cuota: <b style="color:#fff">${money(D.proximaCuota)}</b> · vence ${D.vence}</div>
+      <button class="btn" onclick="pay()">Pagar ahora</button>
+    </div>
+    <div class="card">
+      <div class="row"><span class="muted">Tu auto</span><b>${D.auto.patente}</b></div>
+      <div class="row"><span class="muted">Modelo</span>${D.auto.modelo}</div>
+      <div class="row"><span class="muted">Multas activas</span><span class="badge g">0</span></div>
+      <div class="row"><span class="muted">Scoring de manejo</span><b class="pos">${D.scoring}</b></div>
+    </div>`,
+  pagar: () => `
+    <div class="card dark"><div class="lbl">A pagar esta semana</div><div class="big">${money(D.proximaCuota)}</div>
+      <div style="font-size:12px;color:#bdbdbd;margin-top:4px">Vence ${D.vence}</div></div>
+    <div class="card"><h4>Estado de cuenta</h4>
+      ${D.cuenta.map(x=>`<div class="row"><span>${x.c}<div class="muted">${x.f}</div></span><span class="${x.m<0?'neg':'pos'}">${money(x.m)}</span></div>`).join('')}
+    </div>
+    <button class="btn" onclick="pay()">Pagar con transferencia</button>
+    <button class="btn ghost" onclick="alert('DEMO: pago con tarjeta / MercadoPago')">Otro medio de pago</button>`,
+  multas: () => `
+    <div class="card"><h4>Mis multas</h4>
+      ${D.multas.length? D.multas.map(m=>`<div class="row"><span>${m.inf}<div class="muted">${m.f}</div></span><span class="neg">${money(-m.monto)}</span></div>`).join('')
+      : '<div style="text-align:center;padding:22px 0"><div style="font-size:34px">🎉</div><div class="muted">No tenés multas. ¡Seguí así!</div></div>'}
+    </div>
+    <div class="card"><div class="lbl">Scoring de manejo</div>
+      <div class="score-ring"><div><div class="n">${D.scoring}</div><div class="t">/ 100</div></div></div>
+      <div class="muted" style="text-align:center">Buen manejo = mejores condiciones y beneficios.</div>
+    </div>`,
+  reservar: () => `
+    <div class="card"><h4>Reservar turno</h4><div class="muted" style="margin-bottom:10px">Elegí tu turno de 12 hs.</div>
+      ${D.turnos.map((s,i)=>`<div class="slot ${s.libre?'':'taken'}">
+        <span>${s.t}</span>${s.libre?`<button class="btn" style="width:auto;margin:0;padding:7px 14px" onclick="reservar(${i})">Reservar</button>`:'<span class="badge a">ocupado</span>'}</div>`).join('')}
+    </div>
+    <div class="muted" style="text-align:center">Coincide con el flujo del sitio: Registrate → Agendá cita → Vinculate.</div>`,
+};
+const tabs = [["inicio","🏠","Inicio"],["pagar","💳","Pagar"],["multas","🚗","Multas"],["reservar","📅","Reservar"]];
+let cur = "inicio";
+function draw(){
+  document.getElementById('screen').innerHTML = screens[cur]();
+  document.getElementById('tabbar').innerHTML = tabs.map(t=>`<div class="tab ${t[0]===cur?'active':''}" onclick="nav('${t[0]}')"><span class="i">${t[1]}</span>${t[2]}</div>`).join('');
+}
+function nav(s){ cur=s; draw(); }
+function pay(){ alert('DEMO: se abriría el pago (transferencia / MercadoPago). Al confirmar, el saldo queda en cero y el sistema interno lo registra automáticamente.'); }
+function reservar(i){ alert('DEMO: turno reservado ('+D.turnos[i].t+'). En el sistema real queda agendado y el auto asignado.'); }
+draw();
+</script>
+</body>
+</html>
+ 
