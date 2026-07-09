@@ -33,10 +33,13 @@ button{font-family:inherit;cursor:pointer}
 .brand-name span{color:var(--red)}
 .nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#7b7b7b;padding:14px 10px 6px}
 .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cfcfcf;font-size:14px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left}
-.nav-item .ic{width:18px;text-align:center;font-size:15px;opacity:.9}
 .nav-item:hover{background:#2a2a2a;color:#fff}
 .nav-item.active{background:var(--red);color:#fff}
 .sidebar-foot{margin-top:auto;font-size:11px;color:#6f6f6f;padding:12px 10px 0;border-top:1px solid #2c2c2c}
+
+/* Íconos de navegación (SVG monocromo, heredan el color del texto) */
+.nav-item .ic{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;flex-shrink:0}
+.nav-item .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:15px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5}
@@ -46,6 +49,13 @@ button{font-family:inherit;cursor:pointer}
 .pill-date{font-size:12.5px;color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:20px}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--dark-2);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
 .content{padding:26px;max-width:1240px;width:100%}
+
+/* Indicador de conexión (tiempo real) */
+.conn{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--bg);padding:6px 12px;border-radius:20px;font-family:var(--font-head);letter-spacing:.2px}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:#9ca3af;flex-shrink:0}
+.conn.live{color:#15803d;background:#e7f6ec}
+.conn.live .conn-dot{background:#22c55e;animation:connpulse 1.4s ease-out infinite}
+@keyframes connpulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(186px,1fr));gap:16px;margin-bottom:22px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
@@ -182,19 +192,19 @@ button{font-family:inherit;cursor:pointer}
       </div>
 
       <div class="nav-label">Operación</div>
-      <button class="nav-item" data-route="dashboard"><span class="ic">▦</span> Tablero gerencial</button>
-      <button class="nav-item" data-route="conductores"><span class="ic">👤</span> Conductores</button>
-      <button class="nav-item" data-route="flota"><span class="ic">🚗</span> Flota</button>
+      <button class="nav-item" data-route="dashboard"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Tablero gerencial</button>
+      <button class="nav-item" data-route="conductores"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Conductores</button>
+      <button class="nav-item" data-route="flota"><span class="ic"><svg viewBox="0 0 24 24"><rect x="1" y="6" width="14" height="10" rx="1"/><path d="M15 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></span> Flota</button>
 
       <div class="nav-label">Automatización</div>
-      <button class="nav-item" data-route="telepeajes"><span class="ic">🛣️</span> Telepeajes</button>
-      <button class="nav-item" data-route="multas"><span class="ic">🚨</span> Multas</button>
-      <button class="nav-item" data-route="cobranzas"><span class="ic">💳</span> Cobranzas</button>
-      <button class="nav-item" data-route="ituran"><span class="ic">📍</span> Ituran / Scoring</button>
+      <button class="nav-item" data-route="telepeajes"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M12 7v10" stroke-dasharray="2 2"/></svg></span> Telepeajes</button>
+      <button class="nav-item" data-route="multas"><span class="ic"><svg viewBox="0 0 24 24"><path d="M10.3 4.3a2 2 0 0 1 3.4 0l7.4 12.3A2 2 0 0 1 19.4 20H4.6a2 2 0 0 1-1.7-3.4z"/><path d="M12 9v4"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></svg></span> Multas</button>
+      <button class="nav-item" data-route="cobranzas"><span class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span> Cobranzas</button>
+      <button class="nav-item" data-route="ituran"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20 10c0 5.5-8 11-8 11s-8-5.5-8-11a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.6"/></svg></span> Ituran / Scoring</button>
 
       <div class="nav-label">Gestión</div>
-      <button class="nav-item" data-route="crm"><span class="ic">💬</span> CRM / WhatsApp</button>
-      <button class="nav-item" data-route="reportes"><span class="ic">📈</span> Reportes</button>
+      <button class="nav-item" data-route="crm"><span class="ic"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/></svg></span> CRM / WhatsApp</button>
+      <button class="nav-item" data-route="reportes"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><rect x="7" y="12" width="3" height="5"/><rect x="12" y="8" width="3" height="9"/><rect x="17" y="5" width="3" height="12"/></svg></span> Reportes</button>
 
       <div class="sidebar-foot">
         Drive61 · Flota Uber<br>Sistema operativo inteligente
@@ -208,6 +218,7 @@ button{font-family:inherit;cursor:pointer}
           <div class="sub" id="page-sub">Visión general de la operación en tiempo real</div>
         </div>
         <div class="topbar-right">
+          <span class="conn" id="conn"><span class="conn-dot"></span> <span id="conn-txt">Conectando…</span></span>
           <span class="pill-date" id="today"></span>
           <div class="avatar">GA</div>
         </div>
@@ -1035,5 +1046,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
 });
 
 </script>
+  <script>
+    (function(){
+      var c=document.getElementById('conn'); if(!c) return;
+      if(window.__FB){ c.classList.add('live'); document.getElementById('conn-txt').textContent='Firebase · en tiempo real'; }
+      else { document.getElementById('conn-txt').textContent='Sincronización local (demo)'; }
+    })();
+  </script>
 </body>
 </html>
