@@ -44,12 +44,23 @@ export default async function handler(req, res) {
         messages: [{ role: 'user', content: pregunta || 'Hola' }]
       })
     });
-    const data = await r.json();
-    let reply = 'Sin respuesta.';
-    if (data && Array.isArray(data.content) && data.content[0] && data.content[0].text) reply = data.content[0].text;
-    else if (data && data.error) reply = 'El asistente devolvió un error: ' + (data.error.message || 'desconocido') + '. Revisá la API key o el nombre del modelo.';
+    const data = await r.json().catch(() => null);
+
+    let reply;
+    if (r.status === 429) {
+      reply = '😅 Uf, estoy recibiendo muchas consultas al mismo tiempo. Esperá unos segundos y volvé a preguntar. (Es un límite del proveedor de IA por hacer muchas preguntas seguidas, no una falla del sistema.)';
+    } else if (r.status === 529) {
+      reply = 'El servicio de IA está momentáneamente saturado. Probá de nuevo en unos segundos.';
+    } else if (!r.ok) {
+      const msg = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + r.status);
+      reply = 'El asistente tuvo un inconveniente (' + msg + '). Probá de nuevo en un momento; si sigue, revisá la API key o el nombre del modelo.';
+    } else if (data && Array.isArray(data.content) && data.content[0] && data.content[0].text) {
+      reply = data.content[0].text;
+    } else {
+      reply = 'No pude generar una respuesta esta vez. Probá reformular la pregunta o volvé a intentar en unos segundos.';
+    }
     res.status(200).json({ reply });
   } catch (e) {
-    res.status(200).json({ reply: 'No pude consultar al asistente en este momento (' + e.message + ').' });
+    res.status(200).json({ reply: 'No pude consultar al asistente en este momento (' + e.message + '). Probá de nuevo en unos segundos.' });
   }
 }
