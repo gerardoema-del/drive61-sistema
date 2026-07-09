@@ -175,7 +175,6 @@ button{font-family:inherit;cursor:pointer}
 .user-chip .lo{background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-head)}
 
 </style>
-  <!-- Exportación Excel / PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -207,6 +206,7 @@ button{font-family:inherit;cursor:pointer}
       <div class="nav-label">Gestión</div>
       <button class="nav-item" data-route="crm"><span class="ic"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/></svg></span> CRM / WhatsApp</button>
       <button class="nav-item" data-route="reportes"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><rect x="7" y="12" width="3" height="5"/><rect x="12" y="8" width="3" height="9"/><rect x="17" y="5" width="3" height="12"/></svg></span> Reportes</button>
+      <button class="nav-item" data-route="asistente"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 3h8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/></svg></span> Asistente IA</button>
 
       <div class="sidebar-foot">
         Drive61 · Flota Uber<br>Sistema operativo inteligente
@@ -1180,6 +1180,87 @@ window.addEventListener('DOMContentLoaded', ()=>{
       }));
     };
     paint();
+  };
+})();
+
+</script>
+  <script>
+/* =====================================================================
+   Drive61 — Asistente IA (Claude Sonnet) — cliente
+   Manda la pregunta + un snapshot de los datos reales a /api/chat
+   (función serverless que tiene la API key). Nunca hay key en el cliente.
+   ===================================================================== */
+(function(){
+  const DB = window.DB;
+  if(!DB) return;
+
+  try{ TITLES.asistente = { h:'Asistente IA', s:'Preguntale al sistema en lenguaje natural (Claude Sonnet)' }; }catch(e){}
+  try{ ['admin','operaciones','cobranzas'].forEach(r=>{ if(ROLE_NAV[r] && !ROLE_NAV[r].includes('asistente')) ROLE_NAV[r].push('asistente'); }); }catch(e){}
+
+  const st = document.createElement('style');
+  st.textContent = `
+    .ai-wrap{max-width:820px}
+    .ai-log{background:#f0f2f5;border:1px solid var(--border);border-radius:12px;padding:14px;min-height:320px;max-height:52vh;overflow:auto;margin-bottom:12px}
+    .ai-msg{max-width:82%;padding:10px 13px;border-radius:12px;font-size:13.5px;line-height:1.5;margin-bottom:10px;white-space:pre-wrap}
+    .ai-msg.u{background:var(--dark);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+    .ai-msg.a{background:#fff;border:1px solid var(--border);border-bottom-left-radius:4px}
+    .ai-msg.sys{background:#fff6e8;border:1px solid #f6e0b8;color:#8a5a06;font-size:12.5px}
+    .ai-row{display:flex;gap:10px}
+    .ai-input{flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);outline:none}
+    .ai-input:focus{border-color:var(--red)}
+    .ai-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .ai-chip{background:#fff;border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--muted)}
+    .ai-chip:hover{border-color:var(--red);color:var(--red)}
+    .ai-typing{font-size:12.5px;color:var(--muted);font-style:italic}
+  `;
+  document.head.appendChild(st);
+
+  async function armarContexto(){
+    const [k, conds, autos, cob] = await Promise.all([DB.getKPIs(), DB.getConductores(), DB.getAutos(), DB.getCobranzas()]);
+    let t = `RESUMEN: ${k.autosTotal} autos (${k.alquilados} alquilados, ${k.disponibles} disponibles, ${k.taller} en taller), ocupación ${k.ocupacion}%. Ingreso semanal $${k.ingresoSemanal}. Morosidad total $${k.deudaTotal} con ${k.morosos} conductores deudores. Scoring promedio ${k.scoringProm}. Conductores activos ${k.conductoresActivos}.\n\n`;
+    t += `CONDUCTORES:\n` + conds.map(c=>`- ${c.nombre} | DNI ${c.dni} | tel ${c.telefono} | estado ${c.estado} | auto ${c.autoId||'sin auto'} | scoring ${c.scoring} | saldo ${c.saldo} | multas ${(c.multas||[]).length}`).join('\n');
+    t += `\n\nAUTOS:\n` + autos.map(a=>`- ${a.patente} ${a.modelo} | estado ${a.estado} | km ${a.km} | ituran ${a.ituran?'sí':'no'} | conductor ${a.conductorId||'—'}`).join('\n');
+    t += `\n\nA COBRAR (deuda):\n` + (cob.length? cob.map(c=>`- ${c.nombre}: $${c.aCobrar}${c.vencido?' (VENCIDO)':''}`).join('\n') : 'nadie con deuda');
+    return t;
+  }
+
+  const CHIPS = [
+    '¿Quiénes me deben y cuánto?',
+    '¿Qué autos están sin trabajar?',
+    '¿A quién le cobro primero y por qué?',
+    '¿Qué conductores son de mayor riesgo?',
+  ];
+
+  routes.asistente = async (root) => {
+    root.innerHTML = `
+      <div class="ai-wrap">
+        <div class="card"><div class="card-head"><h3>💬 Asistente Drive61 (Claude Sonnet)</h3><span class="count">responde con tus datos</span></div>
+          <div class="card-body">
+            <div class="ai-chips">${CHIPS.map(c=>`<span class="ai-chip">${c}</span>`).join('')}</div>
+            <div class="ai-log" id="ai-log">
+              <div class="ai-msg a">¡Hola! Soy el asistente de Drive61. Preguntame sobre tus conductores, autos, deudas, multas, agenda o reportes y te respondo con los datos del sistema. Solo hablo de Drive61.</div>
+            </div>
+            <div class="ai-row"><input class="ai-input" id="ai-input" placeholder="Escribí tu pregunta…" autocomplete="off"><button class="btn-primary" id="ai-send" style="padding:0 20px">Enviar</button></div>
+          </div>
+        </div>
+      </div>`;
+    const log = $('#ai-log'), input = $('#ai-input');
+    const add = (txt, cls) => { const el=document.createElement('div'); el.className='ai-msg '+cls; el.textContent=txt; log.appendChild(el); log.scrollTop=log.scrollHeight; return el; };
+    const preguntar = async (q) => {
+      if(!q.trim()) return;
+      add(q, 'u'); input.value='';
+      const typing = add('El asistente está pensando…', 'a'); typing.classList.add('ai-typing');
+      try{
+        const contexto = await armarContexto();
+        const r = await fetch('/api/chat', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ pregunta:q, contexto }) });
+        const data = await r.json();
+        typing.remove();
+        add(data.reply || 'Sin respuesta.', data.reply && data.reply.startsWith('⚠️') ? 'sys' : 'a');
+      }catch(e){ typing.remove(); add('No pude contactar al asistente. Si estás abriendo el archivo localmente, el asistente funciona sólo en la versión publicada (Vercel), donde vive el backend seguro.', 'sys'); }
+    };
+    $('#ai-send').addEventListener('click', ()=> preguntar(input.value));
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') preguntar(input.value); });
+    root.querySelectorAll('.ai-chip').forEach(ch=> ch.addEventListener('click', ()=> preguntar(ch.textContent)));
   };
 })();
 
