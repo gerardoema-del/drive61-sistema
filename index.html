@@ -36,8 +36,6 @@ button{font-family:inherit;cursor:pointer}
 .nav-item:hover{background:#2a2a2a;color:#fff}
 .nav-item.active{background:var(--red);color:#fff}
 .sidebar-foot{margin-top:auto;font-size:11px;color:#6f6f6f;padding:12px 10px 0;border-top:1px solid #2c2c2c}
-
-/* Íconos de navegación (SVG monocromo, heredan el color del texto) */
 .nav-item .ic{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;flex-shrink:0}
 .nav-item .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
@@ -50,7 +48,6 @@ button{font-family:inherit;cursor:pointer}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--dark-2);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
 .content{padding:26px;max-width:1240px;width:100%}
 
-/* Indicador de conexión (tiempo real) */
 .conn{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--bg);padding:6px 12px;border-radius:20px;font-family:var(--font-head);letter-spacing:.2px}
 .conn-dot{width:8px;height:8px;border-radius:50%;background:#9ca3af;flex-shrink:0}
 .conn.live{color:#15803d;background:#e7f6ec}
@@ -69,7 +66,7 @@ button{font-family:inherit;cursor:pointer}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-.card-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .card-head h3{font-family:var(--font-head);font-size:14.5px;font-weight:700}
 .card-head .count{margin-left:auto;font-size:12px;color:var(--muted)}
 .card-body{padding:16px 18px}
@@ -99,14 +96,14 @@ button{font-family:inherit;cursor:pointer}
 .badge.suspendido{background:#fdecef;color:#b11330} .badge.vigente{background:#e7f6ec;color:#0f7a37}
 .badge.por-vencer{background:#fff2e0;color:#b5730a} .badge.vencido{background:#fdecef;color:#b11330}
 .badge.pagado,.badge.ok,.badge.pagada{background:#e7f6ec;color:#0f7a37}
-.badge.pendiente,.badge.notificada,.badge.en-recupero,.badge.en-descargo,.badge.onboarding,.badge.baja{background:#fff2e0;color:#b5730a}
+.badge.pendiente,.badge.notificada,.badge.en-recupero,.badge.en-descargo,.badge.onboarding,.badge.baja,.badge.detectada,.badge.imputada,.badge.recuperada{background:#fff2e0;color:#b5730a}
 .badge.firmado{background:#e7f6ec;color:#0f7a37}
 
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
 .dot.g{background:var(--green)} .dot.y{background:var(--amber)} .dot.r{background:var(--red)}
 .score{font-family:var(--font-head);font-weight:800}
 
-.search{width:100%;max-width:320px;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none;font-family:var(--font)}
+.search{width:100%;max-width:300px;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none;font-family:var(--font)}
 .search:focus{border-color:var(--red)}
 
 .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:14px;background:none;border:none}
@@ -144,11 +141,12 @@ button{font-family:inherit;cursor:pointer}
 .chat-meta{font-size:11px;color:var(--muted);margin-top:4px}
 .wa{color:#25d366;font-weight:700}
 
-/* ---------- Botones / formularios / modal (CRUD) ---------- */
 .btn-primary{background:var(--red);color:#fff;border:none;border-radius:9px;padding:8px 15px;font-family:var(--font-head);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
 .btn-primary:hover{background:var(--red-dark)}
-.btn-ghost{background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:9px;padding:8px 15px;font-family:var(--font-head);font-weight:700;font-size:13px;cursor:pointer}
+.btn-ghost{background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:9px;padding:8px 15px;font-family:var(--font-head);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
 .btn-ghost:hover{border-color:var(--red);color:var(--red)}
+.ico-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:13px;margin-left:4px;line-height:1}
+.ico-btn:hover{border-color:var(--red)}
 
 .modal-bg{position:fixed;inset:0;background:rgba(15,15,15,.55);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px}
 .modal{background:#fff;border-radius:14px;width:440px;max-width:100%;max-height:92vh;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.35)}
@@ -165,7 +163,6 @@ button{font-family:inherit;cursor:pointer}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:80;box-shadow:0 8px 30px rgba(0,0,0,.3);opacity:0;transition:opacity .25s,transform .25s}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 
-/* ---------- Login + usuario ---------- */
 #login-ov{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:100}
 .login-card{background:#fff;border-radius:16px;padding:34px 30px;width:340px;max-width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45)}
 .login-card .lg{width:54px;height:54px;border-radius:13px;background:var(--red);color:#fff;font-family:var(--font-head);font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
@@ -464,9 +461,77 @@ window.DB = DB;
 </script>
   <script>
 /* =====================================================================
+   Drive61 — CRUD manual de telepeajes y multas (+ borrados)
+   Se carga DESPUÉS de data.js. Agrega métodos a window.DB usando
+   window.DEMO. Aunque luego se automaticen (Ituran / patente.ar),
+   siempre se puede ingresar, editar y borrar a mano.
+   Al conectar Firebase, estos métodos escriben en Firestore.
+   ===================================================================== */
+(function(){
+  const DEMO = window.DEMO, DB = window.DB;
+  if(!DEMO || !DB) return;
+  const KEY = 'drive61_state_v1';
+  const save = () => { try{ localStorage.setItem(KEY, JSON.stringify({ autos:DEMO.autos, conductores:DEMO.conductores, prospectos:DEMO.prospectos })); }catch(e){} };
+  const gid = (p) => p + Date.now().toString(36) + Math.floor(Math.random()*1000);
+
+  // Asignar id a los items embebidos que no lo tengan (datos de muestra)
+  DEMO.conductores.forEach(c=>{
+    (c.telepeajes||[]).forEach(t=>{ if(!t.id) t.id = gid('T'); });
+    (c.multas||[]).forEach(m=>{ if(!m.id) m.id = gid('M'); });
+  });
+
+  Object.assign(DB, {
+    // Telepeajes de toda la flota (con id + conductorId para editar/borrar)
+    async getTelepeajesAll(){
+      const out=[];
+      DEMO.conductores.forEach(c=>{
+        const a=DEMO.autos.find(x=>x.id===c.autoId);
+        (c.telepeajes||[]).forEach(t=> out.push({ id:t.id, conductorId:c.id, fecha:t.fecha, puesto:t.puesto, monto:t.monto,
+          patente:a?a.patente:'—', conductor:c.nombre, estado: c.saldo<0 ? 'imputado (a cobrar)' : 'conciliado' }));
+      });
+      return out.sort((a,b)=> a.fecha<b.fecha?1:-1);
+    },
+    async addTelepeaje(cid,d){ const c=DEMO.conductores.find(x=>x.id===cid); if(!c) return null;
+      c.telepeajes=c.telepeajes||[]; const t={ id:gid('T'), fecha:d.fecha||'', puesto:d.puesto||'', monto:Number(d.monto)||0 };
+      c.telepeajes.push(t); save(); return t; },
+    async updateTelepeaje(cid,tid,d){ const c=DEMO.conductores.find(x=>x.id===cid); if(!c) return null;
+      const t=(c.telepeajes||[]).find(x=>x.id===tid); if(!t) return null;
+      if(d.fecha!=null) t.fecha=d.fecha; if(d.puesto!=null) t.puesto=d.puesto; if(d.monto!=null&&d.monto!=='') t.monto=Number(d.monto);
+      save(); return t; },
+    async deleteTelepeaje(cid,tid){ const c=DEMO.conductores.find(x=>x.id===cid); if(!c) return; c.telepeajes=(c.telepeajes||[]).filter(x=>x.id!==tid); save(); },
+
+    // Multas de toda la flota (con id + conductorId)
+    async getMultasAll(){
+      const out=[];
+      DEMO.conductores.forEach(c=>{
+        const a=DEMO.autos.find(x=>x.id===c.autoId);
+        (c.multas||[]).forEach(m=> out.push({ id:m.id, conductorId:c.id, fecha:m.fecha, infraccion:m.infraccion, monto:m.monto, estado:m.estado,
+          patente:a?a.patente:'—', conductor:c.nombre }));
+      });
+      return out.sort((a,b)=> a.fecha<b.fecha?1:-1);
+    },
+    async addMulta(cid,d){ const c=DEMO.conductores.find(x=>x.id===cid); if(!c) return null;
+      c.multas=c.multas||[]; const m={ id:gid('M'), fecha:d.fecha||'', infraccion:d.infraccion||'', monto:Number(d.monto)||0, estado:d.estado||'detectada' };
+      c.multas.push(m); save(); return m; },
+    async updateMulta(cid,mid,d){ const c=DEMO.conductores.find(x=>x.id===cid); if(!c) return null;
+      const m=(c.multas||[]).find(x=>x.id===mid); if(!m) return null;
+      if(d.fecha!=null) m.fecha=d.fecha; if(d.infraccion!=null) m.infraccion=d.infraccion; if(d.monto!=null&&d.monto!=='') m.monto=Number(d.monto); if(d.estado!=null) m.estado=d.estado;
+      save(); return m; },
+    async deleteMulta(cid,mid){ const c=DEMO.conductores.find(x=>x.id===cid); if(!c) return; c.multas=(c.multas||[]).filter(x=>x.id!==mid); save(); },
+
+    // Borrados de entidades principales
+    async deleteConductor(cid){ DEMO.conductores=DEMO.conductores.filter(c=>c.id!==cid); save(); },
+    async deleteAuto(aid){ DEMO.autos=DEMO.autos.filter(a=>a.id!==aid); save(); },
+    async deleteProspecto(pid){ DEMO.prospectos=DEMO.prospectos.filter(p=>p.id!==pid); save(); },
+  });
+})();
+
+</script>
+  <script>
+/* =====================================================================
    Drive61 — App (shell + router + módulos + CRUD + login/roles
-   + WhatsApp + exportar Excel/PDF + filtros)
-   La UI sólo consume window.DB (ver data.js).
+   + WhatsApp + exportar Excel/PDF + filtros + carga manual)
+   La UI sólo consume window.DB (ver data.js / data-crud.js).
    ===================================================================== */
 
 // ---------- Helpers ----------
@@ -486,7 +551,7 @@ const ROLE_NAV = {
 };
 const allowedRoutes = () => USER ? (ROLE_NAV[USER.role] || ROLE_NAV.admin) : ROLE_NAV.admin;
 
-// ---------- WhatsApp: abre el chat con el mensaje ya escrito ----------
+// ---------- WhatsApp ----------
 function waDigits(t){ return String(t||'').replace(/[^0-9]/g,''); }
 function openWA(telefono, msg){
   const p = waDigits(telefono);
@@ -514,24 +579,17 @@ function exportPDF(titulo, columnas, filas){
   doc.setFontSize(14); doc.setTextColor(26,26,26); doc.text('Drive61 — ' + titulo, 14, 15);
   doc.setFontSize(9); doc.setTextColor(120); doc.text('Generado: ' + new Date().toLocaleDateString('es-AR'), 14, 21);
   doc.autoTable({
-    startY: 25,
-    head: [columnas.map(c=>c.h)],
-    body: filas.map(f=>columnas.map(c=>f[c.k])),
-    styles: { fontSize: 8, cellPadding: 2.5 },
-    headStyles: { fillColor: [221,24,59], textColor: 255 },
+    startY: 25, head: [columnas.map(c=>c.h)], body: filas.map(f=>columnas.map(c=>f[c.k])),
+    styles: { fontSize: 8, cellPadding: 2.5 }, headStyles: { fillColor: [221,24,59], textColor: 255 },
     alternateRowStyles: { fillColor: [248,247,248] },
   });
   doc.save(titulo.replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf');
 }
-// Botones de exportación (HTML). Cablear con onExport(root, ()=>({name,cols,rows}))
-function exportBtns(){
-  return `<button class="btn-ghost xbtn" data-x="xls">⬇ Excel</button><button class="btn-ghost xbtn" data-x="pdf">⬇ PDF</button>`;
-}
+function exportBtns(){ return `<button class="btn-ghost" data-x="xls">⬇ Excel</button><button class="btn-ghost" data-x="pdf">⬇ PDF</button>`; }
 function onExport(root, getData){
   root.querySelectorAll('[data-x]').forEach(b=> b.addEventListener('click', ()=>{
     const d = getData();
-    if(b.dataset.x==='xls') exportExcel(d.name, d.rows);
-    else exportPDF(d.title||d.name, d.cols, d.rows);
+    if(b.dataset.x==='xls') exportExcel(d.name, d.rows); else exportPDF(d.title||d.name, d.cols, d.rows);
   }));
 }
 
@@ -539,8 +597,8 @@ const TITLES = {
   dashboard:   { h:'Tablero gerencial',      s:'Visión general de la operación en tiempo real' },
   conductores: { h:'Conductores',            s:'Portfolio 360° de cada conductor' },
   flota:       { h:'Flota',                  s:'Vehículos, estado y ficha de cada unidad' },
-  telepeajes:  { h:'Telepeajes',             s:'Conciliación e imputación automática al conductor' },
-  multas:      { h:'Multas',                 s:'Detección, imputación y recupero de infracciones' },
+  telepeajes:  { h:'Telepeajes',             s:'Carga manual, conciliación e imputación al conductor' },
+  multas:      { h:'Multas',                 s:'Carga manual, detección, imputación y recupero' },
   cobranzas:   { h:'Cobranzas',              s:'Estado de cuenta y gestión de deuda' },
   ituran:      { h:'Ituran / Scoring',       s:'Geolocalización, telemetría y comportamiento de manejo' },
   crm:         { h:'CRM / WhatsApp',         s:'Captación de conductores y comunicaciones' },
@@ -573,67 +631,35 @@ routes.dashboard = async (root) => {
   ]);
   const maxSerie = Math.max(...serie.map(s=>s.monto));
   const nombreDe = (id) => (conds.find(c=>c.id===id)||{}).nombre || '—';
-
   root.innerHTML = `
     <div class="kpi-grid">
-      <div class="kpi green"><div class="kpi-label">Ocupación de flota</div>
-        <div class="kpi-value">${k.ocupacion}%</div>
-        <div class="kpi-sub">${k.alquilados} de ${k.autosTotal} autos trabajando</div></div>
-      <div class="kpi"><div class="kpi-label">Ingreso semanal</div>
-        <div class="kpi-value">${money(k.ingresoSemanal)}</div>
-        <div class="kpi-sub">Alquileres activos · semana en curso</div></div>
-      <div class="kpi amber"><div class="kpi-label">Morosidad</div>
-        <div class="kpi-value">${money(k.deudaTotal)}</div>
-        <div class="kpi-sub">${k.morosos} conductores con saldo deudor</div></div>
-      <div class="kpi dark"><div class="kpi-label">Scoring promedio</div>
-        <div class="kpi-value">${k.scoringProm}</div>
-        <div class="kpi-sub">Conducción (Ituran) · sobre 100</div></div>
-      <div class="kpi"><div class="kpi-label">Conductores activos</div>
-        <div class="kpi-value">${k.conductoresActivos}</div>
-        <div class="kpi-sub">${k.disponibles} disponibles · ${k.taller} en taller</div></div>
+      <div class="kpi green"><div class="kpi-label">Ocupación de flota</div><div class="kpi-value">${k.ocupacion}%</div><div class="kpi-sub">${k.alquilados} de ${k.autosTotal} autos trabajando</div></div>
+      <div class="kpi"><div class="kpi-label">Ingreso semanal</div><div class="kpi-value">${money(k.ingresoSemanal)}</div><div class="kpi-sub">Alquileres activos · semana en curso</div></div>
+      <div class="kpi amber"><div class="kpi-label">Morosidad</div><div class="kpi-value">${money(k.deudaTotal)}</div><div class="kpi-sub">${k.morosos} conductores con saldo deudor</div></div>
+      <div class="kpi dark"><div class="kpi-label">Scoring promedio</div><div class="kpi-value">${k.scoringProm}</div><div class="kpi-sub">Conducción (Ituran) · sobre 100</div></div>
+      <div class="kpi"><div class="kpi-label">Conductores activos</div><div class="kpi-value">${k.conductoresActivos}</div><div class="kpi-sub">${k.disponibles} disponibles · ${k.taller} en taller</div></div>
     </div>
-
     <div class="grid-2">
       <div class="card">
         <div class="card-head"><h3>Ingresos por semana</h3><span class="count">Últimas 8 semanas</span></div>
         <div class="card-body"><div class="bars">
-          ${serie.map(s=>`
-            <div class="bar-wrap" title="${s.semana}: ${money(s.monto)}">
-              <div class="bar" style="height:${Math.round(s.monto/maxSerie*100)}%"></div>
-              <div class="bar-x">${s.semana}</div>
-            </div>`).join('')}
+          ${serie.map(s=>`<div class="bar-wrap" title="${s.semana}: ${money(s.monto)}"><div class="bar" style="height:${Math.round(s.monto/maxSerie*100)}%"></div><div class="bar-x">${s.semana}</div></div>`).join('')}
         </div></div>
       </div>
       <div class="card">
         <div class="card-head"><h3>Alertas inteligentes</h3><span class="count">${alertas.length}</span></div>
-        <div class="card-body">
-          ${alertas.map(a=>`<div class="alert ${a.nivel}"><span class="ai">${a.icono}</span><span>${a.texto}</span></div>`).join('')}
-        </div>
+        <div class="card-body">${alertas.map(a=>`<div class="alert ${a.nivel}"><span class="ai">${a.icono}</span><span>${a.texto}</span></div>`).join('')}</div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-head"><h3>Estado de la flota</h3><span class="count">${autos.length} vehículos</span></div>
-      <table class="table">
-        <thead><tr><th>Patente</th><th>Modelo</th><th>Estado</th><th>Conductor</th><th>Telepeaje</th><th>Ituran</th><th>Km</th></tr></thead>
-        <tbody>
-          ${autos.map(a=>`
-            <tr>
-              <td><strong>${a.patente}</strong></td>
-              <td>${a.modelo}</td>
-              <td><span class="badge ${a.estado}">${a.estado}</span></td>
-              <td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty">—</span>'}</td>
-              <td>${a.telepeaje}</td>
-              <td>${a.ituran?'🟢 Conectado':'⚪ Sin equipo'}</td>
-              <td>${a.km.toLocaleString('es-AR')}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+      <table class="table"><thead><tr><th>Patente</th><th>Modelo</th><th>Estado</th><th>Conductor</th><th>Telepeaje</th><th>Ituran</th><th>Km</th></tr></thead>
+        <tbody>${autos.map(a=>`<tr><td><strong>${a.patente}</strong></td><td>${a.modelo}</td><td><span class="badge ${a.estado}">${a.estado}</span></td>
+          <td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty">—</span>'}</td><td>${a.telepeaje}</td><td>${a.ituran?'🟢 Conectado':'⚪ Sin equipo'}</td><td>${a.km.toLocaleString('es-AR')}</td></tr>`).join('')}</tbody></table>
+    </div>`;
 };
 
-// ---------- Conductores (listado + Ficha 360) ----------
+// ---------- Conductores ----------
 routes.conductores = async (root, id) => {
   if(id){ return renderFicha(root, id); }
   root.innerHTML = '<div class="empty">Cargando…</div>';
@@ -643,42 +669,26 @@ routes.conductores = async (root, id) => {
     <tr class="click" data-id="${c.id}">
       <td><strong>${c.nombre}</strong><div class="empty" style="font-style:normal">DNI ${c.dni}</div></td>
       <td><span class="badge ${c.estado}">${c.estado}</span></td>
-      <td><span class="dot ${scoreDot(c.scoring)}"></span><span class="score">${c.scoring}</span>
-          <div class="empty" style="font-style:normal">${scoreLabel(c.scoring)}</div></td>
+      <td><span class="dot ${scoreDot(c.scoring)}"></span><span class="score">${c.scoring}</span><div class="empty" style="font-style:normal">${scoreLabel(c.scoring)}</div></td>
       <td>${c.autoId||'—'}</td>
       <td class="${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</td>
       <td>${(c.multas&&c.multas.length)?`<span class="badge notificada">${c.multas.length}</span>`:'<span class="empty" style="font-style:normal">0</span>'}</td>
       <td style="text-align:right;color:var(--muted)">Ver ficha ›</td>
     </tr>`).join('');
-
   root.innerHTML = `
     <div class="card">
-      <div class="card-head">
-        <h3>Conductores</h3>
-        <input class="search" id="q" placeholder="Buscar por nombre o DNI…">
-        <span class="count" id="cnt">${conds.length}</span>
-        ${exportBtns()}
-        <button class="btn-primary" id="nuevoCond">+ Nuevo conductor</button>
-      </div>
-      <table class="table">
-        <thead><tr><th>Conductor</th><th>Estado</th><th>Scoring</th><th>Auto</th><th>Saldo</th><th>Multas</th><th></th></tr></thead>
-        <tbody id="tb">${rows(conds)}</tbody>
-      </table>
-    </div>`;
-
+      <div class="card-head"><h3>Conductores</h3>
+        <input class="search" id="q" placeholder="Buscar por nombre o DNI…"><span class="count" id="cnt">${conds.length}</span>
+        ${exportBtns()}<button class="btn-primary" id="nuevoCond">+ Nuevo conductor</button></div>
+      <table class="table"><thead><tr><th>Conductor</th><th>Estado</th><th>Scoring</th><th>Auto</th><th>Saldo</th><th>Multas</th><th></th></tr></thead>
+        <tbody id="tb">${rows(conds)}</tbody></table></div>`;
   const tb = $('#tb');
   $('#nuevoCond').addEventListener('click', ()=> formConductor());
   tb.addEventListener('click', e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) go('conductores', tr.dataset.id); });
-  $('#q').addEventListener('input', e=>{
-    const q=e.target.value.toLowerCase();
-    vista=conds.filter(c=>c.nombre.toLowerCase().includes(q)||c.dni.includes(q));
-    tb.innerHTML=rows(vista); $('#cnt').textContent=vista.length;
-  });
-  onExport(root, ()=>({
-    name:'conductores', title:'Conductores',
+  $('#q').addEventListener('input', e=>{ const q=e.target.value.toLowerCase(); vista=conds.filter(c=>c.nombre.toLowerCase().includes(q)||c.dni.includes(q)); tb.innerHTML=rows(vista); $('#cnt').textContent=vista.length; });
+  onExport(root, ()=>({ name:'conductores', title:'Conductores',
     cols:[{h:'Nombre',k:'Nombre'},{h:'DNI',k:'DNI'},{h:'Teléfono',k:'Teléfono'},{h:'Estado',k:'Estado'},{h:'Scoring',k:'Scoring'},{h:'Auto',k:'Auto'},{h:'Saldo',k:'Saldo'}],
-    rows: vista.map(c=>({ Nombre:c.nombre, DNI:c.dni, 'Teléfono':c.telefono, Estado:c.estado, Scoring:c.scoring, Auto:c.autoId||'—', Saldo:c.saldo }))
-  }));
+    rows: vista.map(c=>({ Nombre:c.nombre, DNI:c.dni, 'Teléfono':c.telefono, Estado:c.estado, Scoring:c.scoring, Auto:c.autoId||'—', Saldo:c.saldo })) }));
 };
 
 // ---------- Ficha 360° ----------
@@ -688,101 +698,45 @@ async function renderFicha(root, id){
   if(!c){ root.innerHTML='<div class="empty">Conductor no encontrado.</div>'; return; }
   const autos = await DB.getAutos();
   const auto = autos.find(a=>a.id===c.autoId);
-
-  const docItems = (c.documentos||[]).map(d=>`
-    <li><span class="k">${d.tipo}</span><span class="v">${d.nro}</span>
-      <span class="r"><span class="badge ${d.estado}">${d.estado.replace('-',' ')}</span>
-      ${d.vence?`<div class="empty" style="font-style:normal;text-align:right">vence ${d.vence}</div>`:''}</span></li>`).join('') || '<div class="empty">Sin documentos cargados.</div>';
-
-  const contratoItems = (c.contratos||[]).map(k=>`
-    <li><span class="k">${k.tipo}</span><span class="v">${k.fecha}</span>
-      <span class="r"><span class="badge ${k.firma==='firmado'?'firmado':'pendiente'}">
-      ${k.firma==='firmado'?'✔ Firmado':'✎ Pendiente'}</span></span></li>`).join('') || '<div class="empty">Sin contratos.</div>';
-
-  const telItems = (c.telepeajes&&c.telepeajes.length) ? c.telepeajes.map(t=>`
-    <li><span class="k">${t.fecha}</span><span class="v">${t.puesto}</span>
-      <span class="r money-neg">${money(-t.monto)}</span></li>`).join('')
-    : '<div class="empty">Sin pasos de telepeaje registrados.</div>';
-
-  const multaItems = (c.multas&&c.multas.length) ? c.multas.map(m=>`
-    <li><span class="k">${m.fecha}</span><span class="v">${m.infraccion}</span>
-      <span class="r"><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span>
-      <div class="money-neg" style="text-align:right">${money(-m.monto)}</div></span></li>`).join('')
-    : '<div class="empty">Sin multas. 👏</div>';
-
-  const cuentaItems = (c.cuenta||[]).map(m=>`
-    <li><span class="k">${m.fecha}</span><span class="v">${m.concepto}</span>
-      <span class="r"><span class="${m.monto<0?'money-neg':'money-pos'}">${money(m.monto)}</span>
-      <div class="empty" style="font-style:normal;text-align:right">${m.estado}</div></span></li>`).join('') || '<div class="empty">Sin movimientos.</div>';
-
-  const comItems = (c.comunicaciones&&c.comunicaciones.length) ? c.comunicaciones.map(m=>`
-    <div class="chat-msg">${m.texto}<div class="chat-meta"><span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')
-    : '<div class="empty">Sin comunicaciones registradas.</div>';
-
+  const docItems = (c.documentos||[]).map(d=>`<li><span class="k">${d.tipo}</span><span class="v">${d.nro}</span><span class="r"><span class="badge ${d.estado}">${d.estado.replace('-',' ')}</span>${d.vence?`<div class="empty" style="font-style:normal;text-align:right">vence ${d.vence}</div>`:''}</span></li>`).join('') || '<div class="empty">Sin documentos cargados.</div>';
+  const contratoItems = (c.contratos||[]).map(k=>`<li><span class="k">${k.tipo}</span><span class="v">${k.fecha}</span><span class="r"><span class="badge ${k.firma==='firmado'?'firmado':'pendiente'}">${k.firma==='firmado'?'✔ Firmado':'✎ Pendiente'}</span></span></li>`).join('') || '<div class="empty">Sin contratos.</div>';
+  const telItems = (c.telepeajes&&c.telepeajes.length) ? c.telepeajes.map(t=>`<li><span class="k">${t.fecha}</span><span class="v">${t.puesto}</span><span class="r money-neg">${money(-t.monto)}</span></li>`).join('') : '<div class="empty">Sin pasos de telepeaje registrados.</div>';
+  const multaItems = (c.multas&&c.multas.length) ? c.multas.map(m=>`<li><span class="k">${m.fecha}</span><span class="v">${m.infraccion}</span><span class="r"><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span><div class="money-neg" style="text-align:right">${money(-m.monto)}</div></span></li>`).join('') : '<div class="empty">Sin multas. 👏</div>';
+  const cuentaItems = (c.cuenta||[]).map(m=>`<li><span class="k">${m.fecha}</span><span class="v">${m.concepto}</span><span class="r"><span class="${m.monto<0?'money-neg':'money-pos'}">${money(m.monto)}</span><div class="empty" style="font-style:normal;text-align:right">${m.estado}</div></span></li>`).join('') || '<div class="empty">Sin movimientos.</div>';
+  const comItems = (c.comunicaciones&&c.comunicaciones.length) ? c.comunicaciones.map(m=>`<div class="chat-msg">${m.texto}<div class="chat-meta"><span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('') : '<div class="empty">Sin comunicaciones registradas.</div>';
   const timeItems = (c.timeline||[]).map(t=>`<li><div class="tdate">${t.fecha}</div>${t.ev}</li>`).join('') || '<div class="empty">Sin eventos.</div>';
-
   root.innerHTML = `
     <button class="back-link" id="back">‹ Volver a conductores</button>
     <span style="float:right;display:flex;gap:8px">
       <button class="btn-ghost" id="waCond" style="color:#128c4a;border-color:#a7e4c1">💬 WhatsApp</button>
       <button class="btn-ghost" id="editCond">✎ Editar</button>
+      <button class="btn-ghost" id="delCond" style="color:var(--red);border-color:#f3c4cd">🗑 Borrar</button>
     </span>
     <div class="ficha-head">
       <div class="ficha-ava">${initials(c.nombre)}</div>
-      <div class="ficha-id">
-        <h2>${c.nombre}</h2>
-        <div class="meta">DNI ${c.dni} · ${c.telefono} · En Drive61 desde ${c.desde}</div>
-        <div style="margin-top:8px"><span class="badge ${c.estado}">${c.estado}</span></div>
-      </div>
+      <div class="ficha-id"><h2>${c.nombre}</h2><div class="meta">DNI ${c.dni} · ${c.telefono} · En Drive61 desde ${c.desde}</div><div style="margin-top:8px"><span class="badge ${c.estado}">${c.estado}</span></div></div>
       <div class="ficha-metrics">
         <div><div class="fm-val"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</div><div class="fm-lab">Scoring</div></div>
         <div><div class="fm-val ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'$0'}</div><div class="fm-lab">Saldo</div></div>
         <div><div class="fm-val">${auto?auto.patente:'—'}</div><div class="fm-lab">Auto asignado</div></div>
       </div>
     </div>
-
     <div class="ficha-grid">
-      <div class="card"><div class="card-head"><h3>🪪 Documentación y vencimientos</h3></div>
-        <div class="card-body"><ul class="mini-list">${docItems}</ul></div></div>
-
-      <div class="card"><div class="card-head"><h3>📄 Contratos y firma digital</h3></div>
-        <div class="card-body"><ul class="mini-list">${contratoItems}</ul></div></div>
-
-      <div class="card"><div class="card-head"><h3>🚗 Vehículo asignado</h3></div>
-        <div class="card-body"><ul class="mini-list">
-          ${auto?`
-          <li><span class="k">Patente</span><span class="v">${auto.patente}</span></li>
-          <li><span class="k">Modelo</span><span class="v">${auto.modelo}</span></li>
-          <li><span class="k">Telepeaje</span><span class="v">${auto.telepeaje}</span></li>
-          <li><span class="k">Ituran</span><span class="v">${auto.ituran?'🟢 Conectado':'⚪ Sin equipo'}</span></li>
-          <li><span class="k">Km</span><span class="v">${auto.km.toLocaleString('es-AR')}</span></li>`
-          :'<div class="empty">Sin vehículo asignado.</div>'}
-        </ul></div></div>
-
-      <div class="card"><div class="card-head"><h3>🛣️ Telepeajes</h3><span class="count">imputados al conductor</span></div>
-        <div class="card-body"><ul class="mini-list">${telItems}</ul></div></div>
-
-      <div class="card"><div class="card-head"><h3>🚨 Multas</h3><span class="count">detección + recupero</span></div>
-        <div class="card-body"><ul class="mini-list">${multaItems}</ul></div></div>
-
-      <div class="card"><div class="card-head"><h3>💳 Estado de cuenta (cobranzas)</h3></div>
-        <div class="card-body"><ul class="mini-list">${cuentaItems}</ul></div></div>
-
-      <div class="card"><div class="card-head"><h3>💬 Comunicaciones (WhatsApp)</h3></div>
-        <div class="card-body"><div class="chat">${comItems}</div></div></div>
-
-      <div class="card"><div class="card-head"><h3>🕓 Línea de tiempo</h3></div>
-        <div class="card-body"><ul class="timeline">${timeItems}</ul></div></div>
-    </div>
-  `;
+      <div class="card"><div class="card-head"><h3>🪪 Documentación y vencimientos</h3></div><div class="card-body"><ul class="mini-list">${docItems}</ul></div></div>
+      <div class="card"><div class="card-head"><h3>📄 Contratos y firma digital</h3></div><div class="card-body"><ul class="mini-list">${contratoItems}</ul></div></div>
+      <div class="card"><div class="card-head"><h3>🚗 Vehículo asignado</h3></div><div class="card-body"><ul class="mini-list">
+        ${auto?`<li><span class="k">Patente</span><span class="v">${auto.patente}</span></li><li><span class="k">Modelo</span><span class="v">${auto.modelo}</span></li><li><span class="k">Telepeaje</span><span class="v">${auto.telepeaje}</span></li><li><span class="k">Ituran</span><span class="v">${auto.ituran?'🟢 Conectado':'⚪ Sin equipo'}</span></li><li><span class="k">Km</span><span class="v">${auto.km.toLocaleString('es-AR')}</span></li>`:'<div class="empty">Sin vehículo asignado.</div>'}
+      </ul></div></div>
+      <div class="card"><div class="card-head"><h3>🛣️ Telepeajes</h3><span class="count">imputados al conductor</span></div><div class="card-body"><ul class="mini-list">${telItems}</ul></div></div>
+      <div class="card"><div class="card-head"><h3>🚨 Multas</h3><span class="count">detección + recupero</span></div><div class="card-body"><ul class="mini-list">${multaItems}</ul></div></div>
+      <div class="card"><div class="card-head"><h3>💳 Estado de cuenta (cobranzas)</h3></div><div class="card-body"><ul class="mini-list">${cuentaItems}</ul></div></div>
+      <div class="card"><div class="card-head"><h3>💬 Comunicaciones (WhatsApp)</h3></div><div class="card-body"><div class="chat">${comItems}</div></div></div>
+      <div class="card"><div class="card-head"><h3>🕓 Línea de tiempo</h3></div><div class="card-body"><ul class="timeline">${timeItems}</ul></div></div>
+    </div>`;
   $('#back').addEventListener('click', ()=>go('conductores'));
-  const ec=$('#editCond'); if(ec) ec.addEventListener('click', ()=> formConductor(c));
-  const wc=$('#waCond'); if(wc) wc.addEventListener('click', ()=>{
-    const base = c.saldo<0
-      ? msgDeuda({nombre:c.nombre, aCobrar:Math.abs(c.saldo), vencido:false})
-      : `Hola ${c.nombre}, te escribimos de Drive61.`;
-    openWA(c.telefono, base);
-  });
+  $('#editCond').addEventListener('click', ()=> formConductor(c));
+  $('#delCond').addEventListener('click', async ()=>{ if(confirm('¿Borrar al conductor '+c.nombre+'? Esta acción no se puede deshacer.')){ await DB.deleteConductor(c.id); toast('Conductor borrado'); go('conductores'); } });
+  $('#waCond').addEventListener('click', ()=>{ const base = c.saldo<0 ? msgDeuda({nombre:c.nombre, aCobrar:Math.abs(c.saldo), vencido:false}) : `Hola ${c.nombre}, te escribimos de Drive61.`; openWA(c.telefono, base); });
 }
 
 // ---------- Flota ----------
@@ -790,47 +744,34 @@ routes.flota = async (root, id) => {
   const autos = await DB.getAutos();
   const conds = await DB.getConductores();
   const nombreDe = (cid) => (conds.find(c=>c.id===cid)||{}).nombre || '—';
-
   if(id){
     const a = autos.find(x=>x.id===id);
     if(!a){ root.innerHTML='<div class="empty">Vehículo no encontrado.</div>'; return; }
     const c = conds.find(x=>x.id===a.conductorId);
     root.innerHTML = `
       <button class="back-link" id="back">‹ Volver a la flota</button>
-      <button class="btn-ghost" id="editAuto" style="float:right">✎ Editar</button>
+      <span style="float:right;display:flex;gap:8px">
+        <button class="btn-ghost" id="editAuto">✎ Editar</button>
+        <button class="btn-ghost" id="delAuto" style="color:var(--red);border-color:#f3c4cd">🗑 Borrar</button>
+      </span>
       <div class="ficha-head">
         <div class="ficha-ava" style="background:var(--red)">🚗</div>
-        <div class="ficha-id"><h2>${a.patente}</h2>
-          <div class="meta">${a.modelo} · ${a.anio}</div>
-          <div style="margin-top:8px"><span class="badge ${a.estado}">${a.estado}</span></div></div>
-        <div class="ficha-metrics">
-          <div><div class="fm-val">${a.km.toLocaleString('es-AR')}</div><div class="fm-lab">Km</div></div>
-          <div><div class="fm-val">${a.ituran?'🟢':'⚪'}</div><div class="fm-lab">Ituran</div></div>
-          <div><div class="fm-val" style="font-size:15px">${c?c.nombre.split(' ')[0]:'—'}</div><div class="fm-lab">Conductor</div></div>
-        </div></div>
+        <div class="ficha-id"><h2>${a.patente}</h2><div class="meta">${a.modelo} · ${a.anio}</div><div style="margin-top:8px"><span class="badge ${a.estado}">${a.estado}</span></div></div>
+        <div class="ficha-metrics"><div><div class="fm-val">${a.km.toLocaleString('es-AR')}</div><div class="fm-lab">Km</div></div><div><div class="fm-val">${a.ituran?'🟢':'⚪'}</div><div class="fm-lab">Ituran</div></div><div><div class="fm-val" style="font-size:15px">${c?c.nombre.split(' ')[0]:'—'}</div><div class="fm-lab">Conductor</div></div></div></div>
       <div class="ficha-grid">
         <div class="card"><div class="card-head"><h3>Datos del vehículo</h3></div><div class="card-body"><ul class="mini-list">
-          <li><span class="k">Patente</span><span class="v">${a.patente}</span></li>
-          <li><span class="k">Modelo</span><span class="v">${a.modelo}</span></li>
-          <li><span class="k">Año</span><span class="v">${a.anio}</span></li>
-          <li><span class="k">Telepeaje (TAG)</span><span class="v">${a.telepeaje}</span></li>
-          <li><span class="k">Equipo Ituran</span><span class="v">${a.ituran?'Conectado':'Sin equipo'}</span></li>
+          <li><span class="k">Patente</span><span class="v">${a.patente}</span></li><li><span class="k">Modelo</span><span class="v">${a.modelo}</span></li><li><span class="k">Año</span><span class="v">${a.anio}</span></li><li><span class="k">Telepeaje (TAG)</span><span class="v">${a.telepeaje}</span></li><li><span class="k">Equipo Ituran</span><span class="v">${a.ituran?'Conectado':'Sin equipo'}</span></li>
         </ul></div></div>
         <div class="card"><div class="card-head"><h3>Conductor asignado</h3></div><div class="card-body">
-          ${c?`<ul class="mini-list">
-            <li><span class="k">Nombre</span><span class="v">${c.nombre}</span></li>
-            <li><span class="k">Scoring</span><span class="v"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</span></li>
-            <li><span class="k">Saldo</span><span class="v ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</span></li>
-            <li><span class="k"></span><span class="r"><button class="back-link" style="margin:0" data-goc="${c.id}">Ver ficha 360° ›</button></span></li>
-          </ul>`:'<div class="empty">Vehículo sin conductor asignado (disponible para alquilar).</div>'}
+          ${c?`<ul class="mini-list"><li><span class="k">Nombre</span><span class="v">${c.nombre}</span></li><li><span class="k">Scoring</span><span class="v"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</span></li><li><span class="k">Saldo</span><span class="v ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</span></li><li><span class="k"></span><span class="r"><button class="back-link" style="margin:0" data-goc="${c.id}">Ver ficha 360° ›</button></span></li></ul>`:'<div class="empty">Vehículo sin conductor asignado (disponible para alquilar).</div>'}
         </div></div>
       </div>`;
     $('#back').addEventListener('click', ()=>go('flota'));
     const gc=$('[data-goc]'); if(gc) gc.addEventListener('click', ()=>go('conductores', gc.dataset.goc));
-    const ea=$('#editAuto'); if(ea) ea.addEventListener('click', ()=> formAuto(a));
+    $('#editAuto').addEventListener('click', ()=> formAuto(a));
+    $('#delAuto').addEventListener('click', async ()=>{ if(confirm('¿Borrar el vehículo '+a.patente+'?')){ await DB.deleteAuto(a.id); toast('Vehículo borrado'); go('flota'); } });
     return;
   }
-
   root.innerHTML = `
     <div class="kpi-grid">
       <div class="kpi green"><div class="kpi-label">Alquilados</div><div class="kpi-value">${autos.filter(a=>a.estado==='alquilado').length}</div><div class="kpi-sub">trabajando en Uber</div></div>
@@ -840,99 +781,86 @@ routes.flota = async (root, id) => {
     </div>
     <div class="card"><div class="card-head"><h3>Vehículos</h3><span class="count">${autos.length}</span>${exportBtns()}<button class="btn-primary" id="nuevoAuto">+ Nuevo vehículo</button></div>
       <table class="table"><thead><tr><th>Patente</th><th>Modelo</th><th>Estado</th><th>Conductor</th><th>Telepeaje</th><th>Ituran</th><th>Km</th><th></th></tr></thead>
-      <tbody id="tb">${autos.map(a=>`
-        <tr class="click" data-id="${a.id}">
-          <td><strong>${a.patente}</strong></td><td>${a.modelo}</td>
-          <td><span class="badge ${a.estado}">${a.estado}</span></td>
-          <td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty" style="font-style:normal">—</span>'}</td>
-          <td>${a.telepeaje}</td><td>${a.ituran?'🟢':'⚪'}</td><td>${a.km.toLocaleString('es-AR')}</td>
-          <td style="text-align:right;color:var(--muted)">Ver ›</td>
-        </tr>`).join('')}</tbody></table></div>`;
+      <tbody id="tb">${autos.map(a=>`<tr class="click" data-id="${a.id}"><td><strong>${a.patente}</strong></td><td>${a.modelo}</td><td><span class="badge ${a.estado}">${a.estado}</span></td><td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty" style="font-style:normal">—</span>'}</td><td>${a.telepeaje}</td><td>${a.ituran?'🟢':'⚪'}</td><td>${a.km.toLocaleString('es-AR')}</td><td style="text-align:right;color:var(--muted)">Ver ›</td></tr>`).join('')}</tbody></table></div>`;
   $('#nuevoAuto').addEventListener('click', ()=> formAuto());
   $('#tb').addEventListener('click', e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) go('flota', tr.dataset.id); });
-  onExport(root, ()=>({ name:'flota', title:'Flota',
-    cols:[{h:'Patente',k:'Patente'},{h:'Modelo',k:'Modelo'},{h:'Estado',k:'Estado'},{h:'Conductor',k:'Conductor'},{h:'Km',k:'Km'}],
-    rows: autos.map(a=>({ Patente:a.patente, Modelo:a.modelo, Estado:a.estado, Conductor:a.conductorId?nombreDe(a.conductorId):'—', Km:a.km }))
-  }));
+  onExport(root, ()=>({ name:'flota', title:'Flota', cols:[{h:'Patente',k:'Patente'},{h:'Modelo',k:'Modelo'},{h:'Estado',k:'Estado'},{h:'Conductor',k:'Conductor'},{h:'Km',k:'Km'}],
+    rows: autos.map(a=>({ Patente:a.patente, Modelo:a.modelo, Estado:a.estado, Conductor:a.conductorId?nombreDe(a.conductorId):'—', Km:a.km })) }));
 };
 
-// Barra de filtro por fechas reutilizable
+// Filtro por fechas reutilizable
 function filtroFechas(){
   return `<span style="display:inline-flex;align-items:center;gap:6px;margin-left:auto">
     <span style="font-size:11px;color:var(--muted);font-weight:600">Desde</span>
     <input type="date" id="fDesde" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px">
     <span style="font-size:11px;color:var(--muted);font-weight:600">Hasta</span>
     <input type="date" id="fHasta" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px">
-    <button class="btn-ghost" id="fLimpiar">Limpiar</button>
-  </span>`;
+    <button class="btn-ghost" id="fLimpiar">Limpiar</button></span>`;
 }
 function aplicarFiltroFechas(lista, campo){
   const d=$('#fDesde')&&$('#fDesde').value, h=$('#fHasta')&&$('#fHasta').value;
   return lista.filter(x=>{ const f=String(x[campo]||'').slice(0,10); return (!d||f>=d)&&(!h||f<=h); });
 }
+const rowActs = (tid,cid) => `<span style="white-space:nowrap"><button class="ico-btn" data-ed="${tid}|${cid}" title="Editar">✎</button><button class="ico-btn" data-del="${tid}|${cid}" title="Borrar" style="color:var(--red)">🗑</button></span>`;
 
-// ---------- Telepeajes ----------
+// ---------- Telepeajes (con carga manual) ----------
 routes.telepeajes = async (root) => {
-  const tp = await DB.getTelepeajesAll();
-  const draw = (list)=>{
+  const conds = await DB.getConductores();
+  const paint = async () => {
+    const tp = await DB.getTelepeajesAll();
+    const list = aplicarFiltroFechas(tp, 'fecha');
     const total = list.reduce((s,t)=>s+t.monto,0);
     const aCobrar = list.filter(t=>t.estado.startsWith('imputado')).reduce((s,t)=>s+t.monto,0);
-    return `
+    root.innerHTML = `
       <div class="kpi-grid">
         <div class="kpi"><div class="kpi-label">Pasos (filtrados)</div><div class="kpi-value">${list.length}</div><div class="kpi-sub">de ${tp.length} totales</div></div>
         <div class="kpi dark"><div class="kpi-label">Consumo total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">conciliado por vehículo</div></div>
         <div class="kpi amber"><div class="kpi-label">A imputar a conductores</div><div class="kpi-value">${money(aCobrar)}</div><div class="kpi-sub">se suma a su cuenta</div></div>
       </div>
       <div class="card">
-        <div class="card-head"><h3>Conciliación automática</h3>${filtroFechas()}${exportBtns()}</div>
-        <table class="table"><thead><tr><th>Fecha / hora</th><th>Puesto</th><th>Patente</th><th>Conductor imputado</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
-        <tbody>${list.map(t=>`
-          <tr><td>${t.fecha}</td><td>${t.puesto}</td><td><strong>${t.patente}</strong></td>
-          <td>${t.conductor}</td><td><span class="badge ${t.estado.startsWith('imputado')?'pendiente':'pagado'}">${t.estado}</span></td>
-          <td style="text-align:right" class="money-neg">${money(-t.monto)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Sin registros en el período.</td></tr>'}</tbody></table></div>`;
-  };
-  const paint=()=>{
-    const list=aplicarFiltroFechas(tp,'fecha');
-    root.innerHTML=draw(list);
+        <div class="card-head"><h3>Telepeajes</h3>${filtroFechas()}${exportBtns()}<button class="btn-primary" id="nuevoTP">+ Cargar telepeaje</button></div>
+        <table class="table"><thead><tr><th>Fecha / hora</th><th>Puesto</th><th>Patente</th><th>Conductor</th><th>Estado</th><th style="text-align:right">Monto</th><th></th></tr></thead>
+        <tbody>${list.map(t=>`<tr><td>${t.fecha}</td><td>${t.puesto}</td><td><strong>${t.patente}</strong></td><td>${t.conductor}</td>
+          <td><span class="badge ${t.estado.startsWith('imputado')?'pendiente':'pagado'}">${t.estado}</span></td>
+          <td style="text-align:right" class="money-neg">${money(-t.monto)}</td><td style="text-align:right">${rowActs(t.id,t.conductorId)}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Sin registros. Cargá uno con “+ Cargar telepeaje”.</td></tr>'}</tbody></table></div>`;
     $('#fDesde').addEventListener('change',paint); $('#fHasta').addEventListener('change',paint);
     $('#fLimpiar').addEventListener('click',()=>{ $('#fDesde').value=''; $('#fHasta').value=''; paint(); });
-    onExport(root, ()=>({ name:'telepeajes', title:'Telepeajes',
-      cols:[{h:'Fecha',k:'Fecha'},{h:'Puesto',k:'Puesto'},{h:'Patente',k:'Patente'},{h:'Conductor',k:'Conductor'},{h:'Estado',k:'Estado'},{h:'Monto',k:'Monto'}],
-      rows: list.map(t=>({ Fecha:t.fecha, Puesto:t.puesto, Patente:t.patente, Conductor:t.conductor, Estado:t.estado, Monto:t.monto }))
-    }));
+    $('#nuevoTP').addEventListener('click', ()=> formTelepeaje(conds, null, paint));
+    root.querySelectorAll('[data-ed]').forEach(b=> b.addEventListener('click', ()=>{ const [tid,cid]=b.dataset.ed.split('|'); const it=list.find(x=>x.id===tid); formTelepeaje(conds, {conductorId:cid, id:tid, fecha:it.fecha, puesto:it.puesto, monto:it.monto}, paint); }));
+    root.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', async ()=>{ const [tid,cid]=b.dataset.del.split('|'); if(confirm('¿Borrar este telepeaje?')){ await DB.deleteTelepeaje(cid,tid); toast('Telepeaje borrado'); paint(); } }));
+    onExport(root, ()=>({ name:'telepeajes', title:'Telepeajes', cols:[{h:'Fecha',k:'Fecha'},{h:'Puesto',k:'Puesto'},{h:'Patente',k:'Patente'},{h:'Conductor',k:'Conductor'},{h:'Estado',k:'Estado'},{h:'Monto',k:'Monto'}],
+      rows: list.map(t=>({ Fecha:t.fecha, Puesto:t.puesto, Patente:t.patente, Conductor:t.conductor, Estado:t.estado, Monto:t.monto })) }));
   };
   paint();
 };
 
-// ---------- Multas ----------
+// ---------- Multas (con carga manual) ----------
 routes.multas = async (root) => {
-  const ms = await DB.getMultasAll();
-  const draw=(list)=>{
+  const conds = await DB.getConductores();
+  const paint = async () => {
+    const ms = await DB.getMultasAll();
+    const list = aplicarFiltroFechas(ms, 'fecha');
     const total = list.reduce((s,m)=>s+m.monto,0);
     const aRecuperar = list.filter(m=>m.estado!=='pagada').reduce((s,m)=>s+m.monto,0);
-    return `
+    root.innerHTML = `
       <div class="kpi-grid">
         <div class="kpi"><div class="kpi-label">Multas (filtradas)</div><div class="kpi-value">${list.length}</div><div class="kpi-sub">de ${ms.length} totales</div></div>
         <div class="kpi amber"><div class="kpi-label">A recuperar</div><div class="kpi-value">${money(aRecuperar)}</div><div class="kpi-sub">imputadas a conductores</div></div>
         <div class="kpi dark"><div class="kpi-label">Monto total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">período visible</div></div>
       </div>
       <div class="card">
-        <div class="card-head"><h3>Infracciones</h3>${filtroFechas()}${exportBtns()}</div>
-        <table class="table"><thead><tr><th>Fecha</th><th>Infracción</th><th>Patente</th><th>Conductor responsable</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
-        <tbody>${list.length?list.map(m=>`
-          <tr><td>${m.fecha}</td><td>${m.infraccion}</td><td><strong>${m.patente}</strong></td>
-          <td>${m.conductor}</td><td><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span></td>
-          <td style="text-align:right" class="money-neg">${money(-m.monto)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Sin multas en el período.</td></tr>'}</tbody></table></div>`;
-  };
-  const paint=()=>{
-    const list=aplicarFiltroFechas(ms,'fecha');
-    root.innerHTML=draw(list);
+        <div class="card-head"><h3>Multas</h3>${filtroFechas()}${exportBtns()}<button class="btn-primary" id="nuevaMulta">+ Cargar multa</button></div>
+        <table class="table"><thead><tr><th>Fecha</th><th>Infracción</th><th>Patente</th><th>Conductor</th><th>Estado</th><th style="text-align:right">Monto</th><th></th></tr></thead>
+        <tbody>${list.length?list.map(m=>`<tr><td>${m.fecha}</td><td>${m.infraccion}</td><td><strong>${m.patente}</strong></td><td>${m.conductor}</td>
+          <td><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span></td><td style="text-align:right" class="money-neg">${money(-m.monto)}</td>
+          <td style="text-align:right">${rowActs(m.id,m.conductorId)}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Sin multas. Cargá una con “+ Cargar multa”.</td></tr>'}</tbody></table></div>`;
     $('#fDesde').addEventListener('change',paint); $('#fHasta').addEventListener('change',paint);
     $('#fLimpiar').addEventListener('click',()=>{ $('#fDesde').value=''; $('#fHasta').value=''; paint(); });
-    onExport(root, ()=>({ name:'multas', title:'Multas',
-      cols:[{h:'Fecha',k:'Fecha'},{h:'Infracción',k:'Infraccion'},{h:'Patente',k:'Patente'},{h:'Conductor',k:'Conductor'},{h:'Estado',k:'Estado'},{h:'Monto',k:'Monto'}],
-      rows: list.map(m=>({ Fecha:m.fecha, Infraccion:m.infraccion, Patente:m.patente, Conductor:m.conductor, Estado:m.estado, Monto:m.monto }))
-    }));
+    $('#nuevaMulta').addEventListener('click', ()=> formMulta(conds, null, paint));
+    root.querySelectorAll('[data-ed]').forEach(b=> b.addEventListener('click', ()=>{ const [mid,cid]=b.dataset.ed.split('|'); const it=list.find(x=>x.id===mid); formMulta(conds, {conductorId:cid, id:mid, fecha:it.fecha, infraccion:it.infraccion, monto:it.monto, estado:it.estado}, paint); }));
+    root.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', async ()=>{ const [mid,cid]=b.dataset.del.split('|'); if(confirm('¿Borrar esta multa?')){ await DB.deleteMulta(cid,mid); toast('Multa borrada'); paint(); } }));
+    onExport(root, ()=>({ name:'multas', title:'Multas', cols:[{h:'Fecha',k:'Fecha'},{h:'Infracción',k:'Infraccion'},{h:'Patente',k:'Patente'},{h:'Conductor',k:'Conductor'},{h:'Estado',k:'Estado'},{h:'Monto',k:'Monto'}],
+      rows: list.map(m=>({ Fecha:m.fecha, Infraccion:m.infraccion, Patente:m.patente, Conductor:m.conductor, Estado:m.estado, Monto:m.monto })) }));
   };
   paint();
 };
@@ -951,19 +879,10 @@ routes.cobranzas = async (root) => {
     <div class="card">
       <div class="card-head"><h3>Gestión de deuda</h3><span class="count">ordenado por monto</span>${exportBtns()}</div>
       <table class="table"><thead><tr><th>Conductor</th><th>Teléfono</th><th>Estado</th><th style="text-align:right">A cobrar</th><th></th></tr></thead>
-      <tbody>${cob.map((c,i)=>`
-        <tr><td><strong>${c.nombre}</strong></td><td>${c.telefono}</td>
-        <td>${c.vencido?'<span class="badge vencido">vencido</span>':'<span class="badge pendiente">pendiente</span>'}</td>
-        <td style="text-align:right" class="money-neg">${money(c.aCobrar)}</td>
-        <td style="text-align:right"><button class="btn-ghost" style="padding:6px 12px;color:#128c4a;border-color:#a7e4c1" data-wa="${i}">💬 Recordar deuda</button></td></tr>`).join('')}</tbody></table></div>`;
-  root.querySelectorAll('[data-wa]').forEach(b=> b.addEventListener('click', ()=>{
-    const c = cob[+b.dataset.wa];
-    openWA(c.telefono, msgDeuda(c));
-  }));
-  onExport(root, ()=>({ name:'cobranzas', title:'Cobranzas',
-    cols:[{h:'Conductor',k:'Conductor'},{h:'Teléfono',k:'Telefono'},{h:'Estado',k:'Estado'},{h:'A cobrar',k:'ACobrar'}],
-    rows: cob.map(c=>({ Conductor:c.nombre, Telefono:c.telefono, Estado:c.vencido?'vencido':'pendiente', ACobrar:c.aCobrar }))
-  }));
+      <tbody>${cob.map((c,i)=>`<tr><td><strong>${c.nombre}</strong></td><td>${c.telefono}</td><td>${c.vencido?'<span class="badge vencido">vencido</span>':'<span class="badge pendiente">pendiente</span>'}</td><td style="text-align:right" class="money-neg">${money(c.aCobrar)}</td><td style="text-align:right"><button class="btn-ghost" style="padding:6px 12px;color:#128c4a;border-color:#a7e4c1" data-wa="${i}">💬 Recordar deuda</button></td></tr>`).join('')}</tbody></table></div>`;
+  root.querySelectorAll('[data-wa]').forEach(b=> b.addEventListener('click', ()=>{ const c=cob[+b.dataset.wa]; openWA(c.telefono, msgDeuda(c)); }));
+  onExport(root, ()=>({ name:'cobranzas', title:'Cobranzas', cols:[{h:'Conductor',k:'Conductor'},{h:'Teléfono',k:'Telefono'},{h:'Estado',k:'Estado'},{h:'A cobrar',k:'ACobrar'}],
+    rows: cob.map(c=>({ Conductor:c.nombre, Telefono:c.telefono, Estado:c.vencido?'vencido':'pendiente', ACobrar:c.aCobrar })) }));
 };
 
 // ---------- Ituran / Scoring ----------
@@ -971,11 +890,7 @@ routes.ituran = async (root) => {
   const rank = await DB.getScoringRanking();
   const autos = await DB.getAutos();
   const conectados = autos.filter(a=>a.ituran).length;
-  const pins = autos.map((a,i)=>{
-    const x = 12 + (i*8.5)%76, y = 15 + ((i*23)%68);
-    const col = a.estado==='taller' ? 'var(--amber)' : a.estado==='disponible' ? '#2854c5' : 'var(--red)';
-    return `<div title="${a.patente} · ${a.estado}" style="position:absolute;left:${x}%;top:${y}%;width:14px;height:14px;background:${col};border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`;
-  }).join('');
+  const pins = autos.map((a,i)=>{ const x=12+(i*8.5)%76, y=15+((i*23)%68); const col=a.estado==='taller'?'var(--amber)':a.estado==='disponible'?'#2854c5':'var(--red)'; return `<div title="${a.patente} · ${a.estado}" style="position:absolute;left:${x}%;top:${y}%;width:14px;height:14px;background:${col};border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`; }).join('');
   root.innerHTML = `
     <div class="kpi-grid">
       <div class="kpi green"><div class="kpi-label">Equipos conectados</div><div class="kpi-value">${conectados}/${autos.length}</div><div class="kpi-sub">telemetría activa</div></div>
@@ -984,19 +899,13 @@ routes.ituran = async (root) => {
     </div>
     <div class="grid-2">
       <div class="card"><div class="card-head"><h3>Mapa de flota</h3><span class="count">alimentado por Ituran (demo)</span></div>
-        <div class="card-body"><div style="position:relative;height:300px;border-radius:10px;overflow:hidden;background:linear-gradient(0deg,#e9eef2,#e9eef2),repeating-linear-gradient(0deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px),repeating-linear-gradient(90deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px)">
-          ${pins}
-          <div style="position:absolute;left:10px;bottom:10px;font-size:11px;color:#5b6675;background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px">🔴 alquilado · 🔵 disponible · 🟠 taller — Zona AMBA (demo)</div>
-        </div></div></div>
+        <div class="card-body"><div style="position:relative;height:300px;border-radius:10px;overflow:hidden;background:linear-gradient(0deg,#e9eef2,#e9eef2),repeating-linear-gradient(0deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px),repeating-linear-gradient(90deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px)">${pins}<div style="position:absolute;left:10px;bottom:10px;font-size:11px;color:#5b6675;background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px">🔴 alquilado · 🔵 disponible · 🟠 taller — Zona AMBA (demo)</div></div></div></div>
       <div class="card"><div class="card-head"><h3>Ranking de conducción</h3>${exportBtns()}</div>
         <table class="table"><thead><tr><th>Conductor</th><th>Auto</th><th style="text-align:right">Scoring</th></tr></thead>
-        <tbody>${rank.map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td><td>${r.patente}</td>
-          <td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table></div>
+        <tbody>${rank.map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td><td>${r.patente}</td><td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table></div>
     </div>`;
-  onExport(root, ()=>({ name:'scoring', title:'Scoring de conduccion',
-    cols:[{h:'Conductor',k:'Conductor'},{h:'Auto',k:'Auto'},{h:'Scoring',k:'Scoring'}],
-    rows: rank.map(r=>({ Conductor:r.nombre, Auto:r.patente, Scoring:r.scoring }))
-  }));
+  onExport(root, ()=>({ name:'scoring', title:'Scoring de conduccion', cols:[{h:'Conductor',k:'Conductor'},{h:'Auto',k:'Auto'},{h:'Scoring',k:'Scoring'}],
+    rows: rank.map(r=>({ Conductor:r.nombre, Auto:r.patente, Scoring:r.scoring })) }));
 };
 
 // ---------- CRM / WhatsApp ----------
@@ -1005,29 +914,21 @@ routes.crm = async (root) => {
   const coms = await DB.getComunicacionesAll();
   const col = (etapa, titulo) => {
     const items = pros.filter(p=>p.etapa===etapa);
-    return `<div class="card" style="flex:1;min-width:220px">
-      <div class="card-head"><h3>${titulo}</h3><span class="count">${items.length}</span></div>
-      <div class="card-body">${items.length?items.map((p)=>`
-        <div style="border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:9px">
-          <strong style="font-size:13.5px">${p.nombre}</strong>
-          <div class="empty" style="font-style:normal;margin:3px 0">${p.telefono} · ${p.origen}</div>
-          <div style="font-size:12.5px;color:var(--muted)">${p.nota}</div>
-          <button class="btn-ghost" style="margin-top:8px;padding:5px 10px;color:#128c4a;border-color:#a7e4c1" data-wap="${esc(p.telefono)}" data-wan="${esc(p.nombre)}">💬 WhatsApp</button>
-        </div>`).join(''):'<div class="empty">Sin prospectos.</div>'}</div></div>`;
+    return `<div class="card" style="flex:1;min-width:220px"><div class="card-head"><h3>${titulo}</h3><span class="count">${items.length}</span></div>
+      <div class="card-body">${items.length?items.map((p)=>`<div style="border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:9px">
+        <strong style="font-size:13.5px">${p.nombre}</strong><div class="empty" style="font-style:normal;margin:3px 0">${p.telefono} · ${p.origen}</div>
+        <div style="font-size:12.5px;color:var(--muted)">${p.nota}</div>
+        <div style="margin-top:8px;display:flex;gap:6px"><button class="btn-ghost" style="padding:5px 10px;color:#128c4a;border-color:#a7e4c1" data-wap="${esc(p.telefono)}" data-wan="${esc(p.nombre)}">💬 WhatsApp</button><button class="ico-btn" data-delp="${p.id}" style="color:var(--red)" title="Borrar">🗑</button></div>
+      </div>`).join(''):'<div class="empty">Sin prospectos.</div>'}</div></div>`;
   };
   root.innerHTML = `
     <div style="margin-bottom:14px"><button class="btn-primary" id="nuevoPros">+ Nuevo prospecto</button></div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:22px">
-      ${col('nuevo','🆕 Nuevos')}
-      ${col('contactado','📞 Contactados')}
-      ${col('onboarding','📋 En onboarding')}
-    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:22px">${col('nuevo','🆕 Nuevos')}${col('contactado','📞 Contactados')}${col('onboarding','📋 En onboarding')}</div>
     <div class="card"><div class="card-head"><h3>Comunicaciones recientes (WhatsApp)</h3><span class="count">bandeja unificada</span></div>
-      <div class="card-body"><div class="chat">${coms.map(m=>`
-        <div class="chat-msg">${m.texto}<div class="chat-meta"><strong>${m.conductor}</strong> · <span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')}</div></div></div>`;
+      <div class="card-body"><div class="chat">${coms.map(m=>`<div class="chat-msg">${m.texto}<div class="chat-meta"><strong>${m.conductor}</strong> · <span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')}</div></div></div>`;
   $('#nuevoPros').addEventListener('click', ()=> formProspecto());
-  root.querySelectorAll('[data-wap]').forEach(b=> b.addEventListener('click', ()=>
-    openWA(b.dataset.wap, `Hola ${b.dataset.wan}, te contactamos de Drive61 por tu consulta para alquilar un auto y trabajar en Uber. ¿Cómo estás?`)));
+  root.querySelectorAll('[data-wap]').forEach(b=> b.addEventListener('click', ()=> openWA(b.dataset.wap, `Hola ${b.dataset.wan}, te contactamos de Drive61 por tu consulta para alquilar un auto y trabajar en Uber. ¿Cómo estás?`)));
+  root.querySelectorAll('[data-delp]').forEach(b=> b.addEventListener('click', async ()=>{ if(confirm('¿Borrar este prospecto?')){ await DB.deleteProspecto(b.dataset.delp); toast('Prospecto borrado'); render(); } }));
 };
 
 // ---------- Reportes ----------
@@ -1043,101 +944,78 @@ routes.reportes = async (root) => {
     <div class="grid-2">
       <div class="card"><div class="card-head"><h3>Rentabilidad por vehículo</h3>${exportBtns()}</div>
         <table class="table"><thead><tr><th>Patente</th><th>Estado</th><th style="text-align:right">Ingreso</th><th style="text-align:right">Costo</th><th style="text-align:right">Neto</th></tr></thead>
-        <tbody>${rent.map(r=>`<tr><td><strong>${r.patente}</strong></td><td><span class="badge ${r.estado}">${r.estado}</span></td>
-          <td style="text-align:right" class="money-pos">${money(r.ingreso)}</td>
-          <td style="text-align:right" class="money-neg">${money(-r.costo)}</td>
-          <td style="text-align:right" class="${r.neto>=0?'money-pos':'money-neg'}">${money(r.neto)}</td></tr>`).join('')}</tbody></table></div>
+        <tbody>${rent.map(r=>`<tr><td><strong>${r.patente}</strong></td><td><span class="badge ${r.estado}">${r.estado}</span></td><td style="text-align:right" class="money-pos">${money(r.ingreso)}</td><td style="text-align:right" class="money-neg">${money(-r.costo)}</td><td style="text-align:right" class="${r.neto>=0?'money-pos':'money-neg'}">${money(r.neto)}</td></tr>`).join('')}</tbody></table></div>
       <div class="card"><div class="card-head"><h3>Mejores conductores</h3><span class="count">por scoring</span></div>
         <table class="table"><thead><tr><th>Conductor</th><th style="text-align:right">Scoring</th></tr></thead>
-        <tbody>${rank.slice(0,6).map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td>
-          <td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table>
+        <tbody>${rank.slice(0,6).map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td><td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table>
         <div class="card-body"><div class="alert baja"><span class="ai">📤</span><span>En el sistema real, este reporte se envía automáticamente por WhatsApp/email cada lunes a la gerencia.</span></div></div></div>
     </div>`;
-  onExport(root, ()=>({ name:'rentabilidad', title:'Rentabilidad por vehiculo',
-    cols:[{h:'Patente',k:'Patente'},{h:'Estado',k:'Estado'},{h:'Ingreso',k:'Ingreso'},{h:'Costo',k:'Costo'},{h:'Neto',k:'Neto'}],
-    rows: rent.map(r=>({ Patente:r.patente, Estado:r.estado, Ingreso:r.ingreso, Costo:r.costo, Neto:r.neto }))
-  }));
+  onExport(root, ()=>({ name:'rentabilidad', title:'Rentabilidad por vehiculo', cols:[{h:'Patente',k:'Patente'},{h:'Estado',k:'Estado'},{h:'Ingreso',k:'Ingreso'},{h:'Costo',k:'Costo'},{h:'Neto',k:'Neto'}],
+    rows: rent.map(r=>({ Patente:r.patente, Estado:r.estado, Ingreso:r.ingreso, Costo:r.costo, Neto:r.neto })) }));
 };
 
-// ---------- Formularios / toast (CRUD) ----------
-function toast(msg){
-  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
-  document.body.appendChild(t); requestAnimationFrame(()=>t.classList.add('show'));
-  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 2200);
-}
+// ---------- Formularios / toast ----------
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); requestAnimationFrame(()=>t.classList.add('show')); setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); },2200); }
 function openForm(title, fields, values, onSave){
   values = values || {};
   const body = fields.map(f=>{
     if(f.type==='select'){
       return `<div class="field"><label>${f.label}</label><select data-k="${f.k}">`+
-        f.options.map(o=>`<option value="${o}" ${String(values[f.k])===o?'selected':''}>${o}</option>`).join('')+
+        f.options.map(o=>{ const v=(o&&o.v!==undefined)?o.v:o; const lab=(o&&o.label!==undefined)?o.label:o; return `<option value="${esc(v)}" ${String(values[f.k])===String(v)?'selected':''}>${esc(lab)}</option>`; }).join('')+
         `</select></div>`;
     }
     return `<div class="field"><label>${f.label}</label><input data-k="${f.k}" type="${f.type||'text'}" value="${esc(values[f.k])}"></div>`;
   }).join('');
-  const ov = document.createElement('div'); ov.className='modal-bg';
-  ov.innerHTML = `<div class="modal"><div class="modal-h"><h3>${title}</h3><button class="x">&times;</button></div>`+
-    `<div class="modal-b">${body}</div>`+
-    `<div class="modal-f"><button class="btn-ghost" data-cancel>Cancelar</button><button class="btn-primary" data-ok>Guardar</button></div></div>`;
+  const ov=document.createElement('div'); ov.className='modal-bg';
+  ov.innerHTML=`<div class="modal"><div class="modal-h"><h3>${title}</h3><button class="x">&times;</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn-ghost" data-cancel>Cancelar</button><button class="btn-primary" data-ok>Guardar</button></div></div>`;
   document.body.appendChild(ov);
   const close=()=>ov.remove();
-  ov.querySelector('.x').onclick=close;
-  ov.querySelector('[data-cancel]').onclick=close;
+  ov.querySelector('.x').onclick=close; ov.querySelector('[data-cancel]').onclick=close;
   ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
-  ov.querySelector('[data-ok]').onclick=async()=>{
-    const data={}; ov.querySelectorAll('[data-k]').forEach(i=> data[i.dataset.k]=i.value.trim());
-    await onSave(data); close();
-  };
+  ov.querySelector('[data-ok]').onclick=async()=>{ const data={}; ov.querySelectorAll('[data-k]').forEach(i=> data[i.dataset.k]=i.value.trim()); await onSave(data); close(); };
 }
 function formConductor(existing){
-  const fields=[
-    {k:'nombre',label:'Nombre y apellido'},
-    {k:'dni',label:'DNI'},
-    {k:'telefono',label:'Teléfono (con código país, ej +54 9 11...)'},
-    {k:'estado',label:'Estado',type:'select',options:['activo','onboarding','suspendido','baja']},
-    {k:'scoring',label:'Scoring (0-100)',type:'number'},
-  ];
-  openForm(existing?'Editar conductor':'Nuevo conductor', fields, existing||{estado:'activo',scoring:80}, async d=>{
-    if(existing){ await DB.updateConductor(existing.id,d); toast('Conductor actualizado ✓'); }
-    else { await DB.addConductor(d); toast('Conductor guardado ✓'); }
-    render();
-  });
+  const fields=[{k:'nombre',label:'Nombre y apellido'},{k:'dni',label:'DNI'},{k:'telefono',label:'Teléfono (con código país, ej +54 9 11...)'},{k:'estado',label:'Estado',type:'select',options:['activo','onboarding','suspendido','baja']},{k:'scoring',label:'Scoring (0-100)',type:'number'}];
+  openForm(existing?'Editar conductor':'Nuevo conductor', fields, existing||{estado:'activo',scoring:80}, async d=>{ if(existing){ await DB.updateConductor(existing.id,d); toast('Conductor actualizado ✓'); } else { await DB.addConductor(d); toast('Conductor guardado ✓'); } render(); });
 }
 function formAuto(existing){
-  const fields=[
-    {k:'patente',label:'Patente'},
-    {k:'modelo',label:'Modelo'},
-    {k:'anio',label:'Año',type:'number'},
-    {k:'estado',label:'Estado',type:'select',options:['disponible','alquilado','taller','baja']},
-    {k:'km',label:'Kilómetros',type:'number'},
-  ];
-  openForm(existing?'Editar vehículo':'Nuevo vehículo', fields, existing||{estado:'disponible',anio:2024,modelo:'Fiat Cronos'}, async d=>{
-    if(existing){ await DB.updateAuto(existing.id,d); toast('Vehículo actualizado ✓'); }
-    else { await DB.addAuto(d); toast('Vehículo guardado ✓'); }
-    render();
-  });
+  const fields=[{k:'patente',label:'Patente'},{k:'modelo',label:'Modelo'},{k:'anio',label:'Año',type:'number'},{k:'estado',label:'Estado',type:'select',options:['disponible','alquilado','taller','baja']},{k:'km',label:'Kilómetros',type:'number'}];
+  openForm(existing?'Editar vehículo':'Nuevo vehículo', fields, existing||{estado:'disponible',anio:2024,modelo:'Fiat Cronos'}, async d=>{ if(existing){ await DB.updateAuto(existing.id,d); toast('Vehículo actualizado ✓'); } else { await DB.addAuto(d); toast('Vehículo guardado ✓'); } render(); });
 }
 function formProspecto(){
-  const fields=[
-    {k:'nombre',label:'Nombre y apellido'},
-    {k:'telefono',label:'Teléfono'},
-    {k:'origen',label:'Origen',type:'select',options:['Web drive61.com','WhatsApp','Instagram','Referido','Manual']},
-    {k:'nota',label:'Nota'},
-  ];
+  const fields=[{k:'nombre',label:'Nombre y apellido'},{k:'telefono',label:'Teléfono'},{k:'origen',label:'Origen',type:'select',options:['Web drive61.com','WhatsApp','Instagram','Referido','Manual']},{k:'nota',label:'Nota'}];
   openForm('Nuevo prospecto', fields, {origen:'Manual'}, async d=>{ await DB.addProspecto(d); toast('Prospecto guardado ✓'); render(); });
+}
+function formTelepeaje(conds, existing, after){
+  const fields=[];
+  if(!existing) fields.push({k:'conductorId',label:'Conductor',type:'select',options:conds.map(c=>({v:c.id,label:c.nombre}))});
+  fields.push({k:'fecha',label:'Fecha y hora (AAAA-MM-DD hh:mm)'},{k:'puesto',label:'Puesto de peaje'},{k:'monto',label:'Monto',type:'number'});
+  const init = existing || { fecha:new Date().toISOString().slice(0,10)+' 00:00', conductorId: conds[0]&&conds[0].id };
+  openForm(existing?'Editar telepeaje':'Cargar telepeaje', fields, init, async d=>{
+    if(existing){ await DB.updateTelepeaje(existing.conductorId, existing.id, d); toast('Telepeaje actualizado ✓'); }
+    else { await DB.addTelepeaje(d.conductorId, d); toast('Telepeaje cargado ✓'); }
+    if(after) after();
+  });
+}
+function formMulta(conds, existing, after){
+  const fields=[];
+  if(!existing) fields.push({k:'conductorId',label:'Conductor',type:'select',options:conds.map(c=>({v:c.id,label:c.nombre}))});
+  fields.push({k:'fecha',label:'Fecha (AAAA-MM-DD)'},{k:'infraccion',label:'Infracción'},{k:'monto',label:'Monto',type:'number'},{k:'estado',label:'Estado',type:'select',options:['detectada','notificada','en-descargo','imputada','pagada','recuperada']});
+  const init = existing || { fecha:new Date().toISOString().slice(0,10), estado:'detectada', conductorId: conds[0]&&conds[0].id };
+  openForm(existing?'Editar multa':'Cargar multa', fields, init, async d=>{
+    if(existing){ await DB.updateMulta(existing.conductorId, existing.id, d); toast('Multa actualizada ✓'); }
+    else { await DB.addMulta(d.conductorId, d); toast('Multa cargada ✓'); }
+    if(after) after();
+  });
 }
 
 // ---------- Login + roles ----------
 function applyRole(){
   const allow = allowedRoutes();
-  document.querySelectorAll('.nav-item[data-route]').forEach(n=>{
-    n.style.display = allow.includes(n.dataset.route) ? '' : 'none';
-  });
-  const av = document.querySelector('.avatar');
-  if(av && USER){ av.textContent=(USER.nombre||'U').slice(0,2).toUpperCase(); av.title=USER.nombre+' · '+USER.role; }
+  document.querySelectorAll('.nav-item[data-route]').forEach(n=>{ n.style.display = allow.includes(n.dataset.route) ? '' : 'none'; });
+  const av = document.querySelector('.avatar'); if(av && USER){ av.textContent=(USER.nombre||'U').slice(0,2).toUpperCase(); av.title=USER.nombre+' · '+USER.role; }
   let chip = $('#userchip');
-  if(!chip){ chip=document.createElement('span'); chip.id='userchip'; chip.className='user-chip';
-    const tr=document.querySelector('.topbar-right'); if(tr) tr.insertBefore(chip, tr.firstChild); }
+  if(!chip){ chip=document.createElement('span'); chip.id='userchip'; chip.className='user-chip'; const tr=document.querySelector('.topbar-right'); if(tr) tr.insertBefore(chip, tr.firstChild); }
   if(USER) chip.innerHTML = `<b>${USER.nombre}</b> · ${USER.role} <button class="lo" id="logoutBtn">Salir</button>`;
   const lb=$('#logoutBtn'); if(lb) lb.onclick=logout;
 }
@@ -1145,25 +1023,12 @@ function logout(){ try{ localStorage.removeItem('drive61_user'); }catch(e){} USE
 function showLogin(){
   if($('#login-ov')) return;
   const ov=document.createElement('div'); ov.id='login-ov';
-  ov.innerHTML = `<div class="login-card"><div class="lg">D</div>
-    <h2>Drive<span>61</span></h2><p>Sistema de gestión · ingresá para continuar</p>
+  ov.innerHTML = `<div class="login-card"><div class="lg">D</div><h2>Drive<span>61</span></h2><p>Sistema de gestión · ingresá para continuar</p>
     <div class="field"><label>Tu nombre</label><input id="lg-name" value="Gerardo"></div>
-    <div class="field"><label>Rol</label><select id="lg-role">
-      <option value="admin">Administrador (todo)</option>
-      <option value="operaciones">Operaciones</option>
-      <option value="cobranzas">Cobranzas</option>
-    </select></div>
+    <div class="field"><label>Rol</label><select id="lg-role"><option value="admin">Administrador (todo)</option><option value="operaciones">Operaciones</option><option value="cobranzas">Cobranzas</option></select></div>
     <button class="btn-primary" id="lg-go" style="width:100%;padding:12px;margin-top:6px">Ingresar</button></div>`;
   document.body.appendChild(ov);
-  $('#lg-go').onclick=()=>{
-    USER={ nombre:($('#lg-name').value||'Usuario').trim(), role:$('#lg-role').value };
-    try{ localStorage.setItem('drive61_user', JSON.stringify(USER)); }catch(e){}
-    ov.remove(); applyRole();
-    const allow=allowedRoutes();
-    const cur=(location.hash||'').replace(/^#\//,'').split('/')[0];
-    if(!allow.includes(cur)) location.hash='#/'+allow[0];
-    render();
-  };
+  $('#lg-go').onclick=()=>{ USER={ nombre:($('#lg-name').value||'Usuario').trim(), role:$('#lg-role').value }; try{ localStorage.setItem('drive61_user', JSON.stringify(USER)); }catch(e){} ov.remove(); applyRole(); const allow=allowedRoutes(); const cur=(location.hash||'').replace(/^#\//,'').split('/')[0]; if(!allow.includes(cur)) location.hash='#/'+allow[0]; render(); };
 }
 
 // ---------- Init ----------
@@ -1171,11 +1036,9 @@ window.addEventListener('hashchange', render);
 window.addEventListener('DOMContentLoaded', ()=>{
   const d = new Date();
   $('#today').textContent = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  document.querySelectorAll('.nav-item[data-route]').forEach(n=>
-    n.addEventListener('click', ()=> go(n.dataset.route)));
+  document.querySelectorAll('.nav-item[data-route]').forEach(n=> n.addEventListener('click', ()=> go(n.dataset.route)));
   try{ USER = JSON.parse(localStorage.getItem('drive61_user')||'null'); }catch(e){ USER=null; }
-  if(!USER){ showLogin(); }
-  else { applyRole(); render(); }
+  if(!USER){ showLogin(); } else { applyRole(); render(); }
 });
 
 </script>
