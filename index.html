@@ -1189,6 +1189,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
    Drive61 — Asistente IA (Claude Sonnet) — cliente
    Manda la pregunta + un snapshot de los datos reales a /api/chat
    (función serverless que tiene la API key). Nunca hay key en el cliente.
+   Bloquea el envío mientras espera (para no disparar consultas de más).
    ===================================================================== */
 (function(){
   const DB = window.DB;
@@ -1208,10 +1209,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
     .ai-row{display:flex;gap:10px}
     .ai-input{flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);outline:none}
     .ai-input:focus{border-color:var(--red)}
+    .ai-input:disabled{background:#f4f5f7;color:var(--muted)}
     .ai-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
     .ai-chip{background:#fff;border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--muted)}
     .ai-chip:hover{border-color:var(--red);color:var(--red)}
-    .ai-typing{font-size:12.5px;color:var(--muted);font-style:italic}
+    .btn-primary:disabled{background:#c9a2ab;cursor:default}
+    .ai-typing{color:var(--muted);font-style:italic}
   `;
   document.head.appendChild(st);
 
@@ -1231,10 +1234,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
     '¿Qué conductores son de mayor riesgo?',
   ];
 
+  let busy = false;
+
   routes.asistente = async (root) => {
     root.innerHTML = `
       <div class="ai-wrap">
-        <div class="card"><div class="card-head"><h3>💬 Asistente Drive61 (Claude Sonnet)</h3><span class="count">responde con tus datos</span></div>
+        <div class="card"><div class="card-head"><h3>💬 Asistente Drive61 (Claude Sonnet)</h3><span class="count">responde con tus datos · una pregunta a la vez</span></div>
           <div class="card-body">
             <div class="ai-chips">${CHIPS.map(c=>`<span class="ai-chip">${c}</span>`).join('')}</div>
             <div class="ai-log" id="ai-log">
@@ -1244,21 +1249,25 @@ window.addEventListener('DOMContentLoaded', ()=>{
           </div>
         </div>
       </div>`;
-    const log = $('#ai-log'), input = $('#ai-input');
+    const log = $('#ai-log'), input = $('#ai-input'), btn = $('#ai-send');
     const add = (txt, cls) => { const el=document.createElement('div'); el.className='ai-msg '+cls; el.textContent=txt; log.appendChild(el); log.scrollTop=log.scrollHeight; return el; };
+    const setBusy = (b) => { busy=b; btn.disabled=b; input.disabled=b; btn.textContent = b ? 'Pensando…' : 'Enviar'; };
     const preguntar = async (q) => {
-      if(!q.trim()) return;
-      add(q, 'u'); input.value='';
+      q = (q||'').trim();
+      if(!q || busy) return;
+      add(q, 'u'); input.value=''; setBusy(true);
       const typing = add('El asistente está pensando…', 'a'); typing.classList.add('ai-typing');
       try{
         const contexto = await armarContexto();
         const r = await fetch('/api/chat', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ pregunta:q, contexto }) });
         const data = await r.json();
         typing.remove();
-        add(data.reply || 'Sin respuesta.', data.reply && data.reply.startsWith('⚠️') ? 'sys' : 'a');
-      }catch(e){ typing.remove(); add('No pude contactar al asistente. Si estás abriendo el archivo localmente, el asistente funciona sólo en la versión publicada (Vercel), donde vive el backend seguro.', 'sys'); }
+        const esSys = data.reply && (data.reply.startsWith('⚠️') || data.reply.startsWith('😅'));
+        add(data.reply || 'Sin respuesta.', esSys ? 'sys' : 'a');
+      }catch(e){ typing.remove(); add('No pude contactar al asistente. Si abriste el archivo localmente, el asistente funciona sólo en la versión publicada (Vercel), donde vive el backend seguro.', 'sys'); }
+      finally{ setBusy(false); input.focus(); }
     };
-    $('#ai-send').addEventListener('click', ()=> preguntar(input.value));
+    btn.addEventListener('click', ()=> preguntar(input.value));
     input.addEventListener('keydown', e=>{ if(e.key==='Enter') preguntar(input.value); });
     root.querySelectorAll('.ai-chip').forEach(ch=> ch.addEventListener('click', ()=> preguntar(ch.textContent)));
   };
