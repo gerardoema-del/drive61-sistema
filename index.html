@@ -178,6 +178,10 @@ button{font-family:inherit;cursor:pointer}
 .user-chip .lo{background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-head)}
 
 </style>
+  <!-- Exportación Excel / PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div class="demo-banner">
@@ -460,7 +464,8 @@ window.DB = DB;
 </script>
   <script>
 /* =====================================================================
-   Drive61 — App (shell + router + módulos + CRUD + login/roles)
+   Drive61 — App (shell + router + módulos + CRUD + login/roles
+   + WhatsApp + exportar Excel/PDF + filtros)
    La UI sólo consume window.DB (ver data.js).
    ===================================================================== */
 
@@ -470,6 +475,7 @@ const money = (n) => (n<0?'-':'') + '$' + Math.abs(n).toLocaleString('es-AR');
 const initials = (name) => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
 const scoreDot = (s) => s>=80 ? 'g' : s>=65 ? 'y' : 'r';
 const scoreLabel = (s) => s>=80 ? 'Bajo riesgo' : s>=65 ? 'Riesgo medio' : 'Alto riesgo';
+const esc = (s) => String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 // Autenticación + roles (demo local; luego Firebase Auth)
 let USER = null;
@@ -479,6 +485,55 @@ const ROLE_NAV = {
   cobranzas:   ['dashboard','conductores','cobranzas','reportes'],
 };
 const allowedRoutes = () => USER ? (ROLE_NAV[USER.role] || ROLE_NAV.admin) : ROLE_NAV.admin;
+
+// ---------- WhatsApp: abre el chat con el mensaje ya escrito ----------
+function waDigits(t){ return String(t||'').replace(/[^0-9]/g,''); }
+function openWA(telefono, msg){
+  const p = waDigits(telefono);
+  if(!p){ toast('Ese contacto no tiene teléfono cargado.'); return; }
+  window.open('https://wa.me/' + p + '?text=' + encodeURIComponent(msg), '_blank');
+}
+function msgDeuda(c){
+  return `Hola ${c.nombre}, te escribimos de Drive61. Registramos un saldo pendiente de ${money(c.aCobrar!=null?c.aCobrar:Math.abs(c.saldo||0))}`
+    + (c.vencido ? ' (con cuota vencida)' : '')
+    + `. Por favor regularizá tu pago a la brevedad para no interrumpir el servicio. ¡Gracias!`;
+}
+
+// ---------- Exportar Excel / PDF ----------
+function exportExcel(nombre, filas){
+  if(!window.XLSX){ toast('El módulo de Excel aún se está cargando, probá de nuevo.'); return; }
+  const ws = XLSX.utils.json_to_sheet(filas);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Datos');
+  XLSX.writeFile(wb, nombre + '_' + new Date().toISOString().slice(0,10) + '.xlsx');
+}
+function exportPDF(titulo, columnas, filas){
+  if(!window.jspdf){ toast('El módulo de PDF aún se está cargando, probá de nuevo.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(14); doc.setTextColor(26,26,26); doc.text('Drive61 — ' + titulo, 14, 15);
+  doc.setFontSize(9); doc.setTextColor(120); doc.text('Generado: ' + new Date().toLocaleDateString('es-AR'), 14, 21);
+  doc.autoTable({
+    startY: 25,
+    head: [columnas.map(c=>c.h)],
+    body: filas.map(f=>columnas.map(c=>f[c.k])),
+    styles: { fontSize: 8, cellPadding: 2.5 },
+    headStyles: { fillColor: [221,24,59], textColor: 255 },
+    alternateRowStyles: { fillColor: [248,247,248] },
+  });
+  doc.save(titulo.replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf');
+}
+// Botones de exportación (HTML). Cablear con onExport(root, ()=>({name,cols,rows}))
+function exportBtns(){
+  return `<button class="btn-ghost xbtn" data-x="xls">⬇ Excel</button><button class="btn-ghost xbtn" data-x="pdf">⬇ PDF</button>`;
+}
+function onExport(root, getData){
+  root.querySelectorAll('[data-x]').forEach(b=> b.addEventListener('click', ()=>{
+    const d = getData();
+    if(b.dataset.x==='xls') exportExcel(d.name, d.rows);
+    else exportPDF(d.title||d.name, d.cols, d.rows);
+  }));
+}
 
 const TITLES = {
   dashboard:   { h:'Tablero gerencial',      s:'Visión general de la operación en tiempo real' },
@@ -583,6 +638,7 @@ routes.conductores = async (root, id) => {
   if(id){ return renderFicha(root, id); }
   root.innerHTML = '<div class="empty">Cargando…</div>';
   const conds = await DB.getConductores();
+  let vista = conds.slice();
   const rows = (list) => list.map(c=>`
     <tr class="click" data-id="${c.id}">
       <td><strong>${c.nombre}</strong><div class="empty" style="font-style:normal">DNI ${c.dni}</div></td>
@@ -601,6 +657,7 @@ routes.conductores = async (root, id) => {
         <h3>Conductores</h3>
         <input class="search" id="q" placeholder="Buscar por nombre o DNI…">
         <span class="count" id="cnt">${conds.length}</span>
+        ${exportBtns()}
         <button class="btn-primary" id="nuevoCond">+ Nuevo conductor</button>
       </div>
       <table class="table">
@@ -614,9 +671,14 @@ routes.conductores = async (root, id) => {
   tb.addEventListener('click', e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) go('conductores', tr.dataset.id); });
   $('#q').addEventListener('input', e=>{
     const q=e.target.value.toLowerCase();
-    const f=conds.filter(c=>c.nombre.toLowerCase().includes(q)||c.dni.includes(q));
-    tb.innerHTML=rows(f); $('#cnt').textContent=f.length;
+    vista=conds.filter(c=>c.nombre.toLowerCase().includes(q)||c.dni.includes(q));
+    tb.innerHTML=rows(vista); $('#cnt').textContent=vista.length;
   });
+  onExport(root, ()=>({
+    name:'conductores', title:'Conductores',
+    cols:[{h:'Nombre',k:'Nombre'},{h:'DNI',k:'DNI'},{h:'Teléfono',k:'Teléfono'},{h:'Estado',k:'Estado'},{h:'Scoring',k:'Scoring'},{h:'Auto',k:'Auto'},{h:'Saldo',k:'Saldo'}],
+    rows: vista.map(c=>({ Nombre:c.nombre, DNI:c.dni, 'Teléfono':c.telefono, Estado:c.estado, Scoring:c.scoring, Auto:c.autoId||'—', Saldo:c.saldo }))
+  }));
 };
 
 // ---------- Ficha 360° ----------
@@ -661,7 +723,10 @@ async function renderFicha(root, id){
 
   root.innerHTML = `
     <button class="back-link" id="back">‹ Volver a conductores</button>
-    <button class="btn-ghost" id="editCond" style="float:right">✎ Editar</button>
+    <span style="float:right;display:flex;gap:8px">
+      <button class="btn-ghost" id="waCond" style="color:#128c4a;border-color:#a7e4c1">💬 WhatsApp</button>
+      <button class="btn-ghost" id="editCond">✎ Editar</button>
+    </span>
     <div class="ficha-head">
       <div class="ficha-ava">${initials(c.nombre)}</div>
       <div class="ficha-id">
@@ -712,6 +777,12 @@ async function renderFicha(root, id){
   `;
   $('#back').addEventListener('click', ()=>go('conductores'));
   const ec=$('#editCond'); if(ec) ec.addEventListener('click', ()=> formConductor(c));
+  const wc=$('#waCond'); if(wc) wc.addEventListener('click', ()=>{
+    const base = c.saldo<0
+      ? msgDeuda({nombre:c.nombre, aCobrar:Math.abs(c.saldo), vencido:false})
+      : `Hola ${c.nombre}, te escribimos de Drive61.`;
+    openWA(c.telefono, base);
+  });
 }
 
 // ---------- Flota ----------
@@ -767,7 +838,7 @@ routes.flota = async (root, id) => {
       <div class="kpi amber"><div class="kpi-label">En taller</div><div class="kpi-value">${autos.filter(a=>a.estado==='taller').length}</div><div class="kpi-sub">fuera de servicio</div></div>
       <div class="kpi dark"><div class="kpi-label">Total flota</div><div class="kpi-value">${autos.length}</div><div class="kpi-sub">escalable a 500+</div></div>
     </div>
-    <div class="card"><div class="card-head"><h3>Vehículos</h3><span class="count">${autos.length}</span><button class="btn-primary" id="nuevoAuto">+ Nuevo vehículo</button></div>
+    <div class="card"><div class="card-head"><h3>Vehículos</h3><span class="count">${autos.length}</span>${exportBtns()}<button class="btn-primary" id="nuevoAuto">+ Nuevo vehículo</button></div>
       <table class="table"><thead><tr><th>Patente</th><th>Modelo</th><th>Estado</th><th>Conductor</th><th>Telepeaje</th><th>Ituran</th><th>Km</th><th></th></tr></thead>
       <tbody id="tb">${autos.map(a=>`
         <tr class="click" data-id="${a.id}">
@@ -779,46 +850,91 @@ routes.flota = async (root, id) => {
         </tr>`).join('')}</tbody></table></div>`;
   $('#nuevoAuto').addEventListener('click', ()=> formAuto());
   $('#tb').addEventListener('click', e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) go('flota', tr.dataset.id); });
+  onExport(root, ()=>({ name:'flota', title:'Flota',
+    cols:[{h:'Patente',k:'Patente'},{h:'Modelo',k:'Modelo'},{h:'Estado',k:'Estado'},{h:'Conductor',k:'Conductor'},{h:'Km',k:'Km'}],
+    rows: autos.map(a=>({ Patente:a.patente, Modelo:a.modelo, Estado:a.estado, Conductor:a.conductorId?nombreDe(a.conductorId):'—', Km:a.km }))
+  }));
 };
+
+// Barra de filtro por fechas reutilizable
+function filtroFechas(){
+  return `<span style="display:inline-flex;align-items:center;gap:6px;margin-left:auto">
+    <span style="font-size:11px;color:var(--muted);font-weight:600">Desde</span>
+    <input type="date" id="fDesde" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px">
+    <span style="font-size:11px;color:var(--muted);font-weight:600">Hasta</span>
+    <input type="date" id="fHasta" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px">
+    <button class="btn-ghost" id="fLimpiar">Limpiar</button>
+  </span>`;
+}
+function aplicarFiltroFechas(lista, campo){
+  const d=$('#fDesde')&&$('#fDesde').value, h=$('#fHasta')&&$('#fHasta').value;
+  return lista.filter(x=>{ const f=String(x[campo]||'').slice(0,10); return (!d||f>=d)&&(!h||f<=h); });
+}
 
 // ---------- Telepeajes ----------
 routes.telepeajes = async (root) => {
   const tp = await DB.getTelepeajesAll();
-  const total = tp.reduce((s,t)=>s+t.monto,0);
-  const aCobrar = tp.filter(t=>t.estado.startsWith('imputado')).reduce((s,t)=>s+t.monto,0);
-  root.innerHTML = `
-    <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">Pasos registrados</div><div class="kpi-value">${tp.length}</div><div class="kpi-sub">período actual</div></div>
-      <div class="kpi dark"><div class="kpi-label">Consumo total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">conciliado por vehículo</div></div>
-      <div class="kpi amber"><div class="kpi-label">A imputar a conductores</div><div class="kpi-value">${money(aCobrar)}</div><div class="kpi-sub">se suma a su cuenta</div></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><h3>Conciliación automática</h3><span class="count">cada paso se asigna al conductor activo del vehículo</span></div>
-      <table class="table"><thead><tr><th>Fecha / hora</th><th>Puesto</th><th>Patente</th><th>Conductor imputado</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
-      <tbody>${tp.map(t=>`
-        <tr><td>${t.fecha}</td><td>${t.puesto}</td><td><strong>${t.patente}</strong></td>
-        <td>${t.conductor}</td><td><span class="badge ${t.estado.startsWith('imputado')?'pendiente':'pagado'}">${t.estado}</span></td>
-        <td style="text-align:right" class="money-neg">${money(-t.monto)}</td></tr>`).join('')}</tbody></table></div>`;
+  const draw = (list)=>{
+    const total = list.reduce((s,t)=>s+t.monto,0);
+    const aCobrar = list.filter(t=>t.estado.startsWith('imputado')).reduce((s,t)=>s+t.monto,0);
+    return `
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Pasos (filtrados)</div><div class="kpi-value">${list.length}</div><div class="kpi-sub">de ${tp.length} totales</div></div>
+        <div class="kpi dark"><div class="kpi-label">Consumo total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">conciliado por vehículo</div></div>
+        <div class="kpi amber"><div class="kpi-label">A imputar a conductores</div><div class="kpi-value">${money(aCobrar)}</div><div class="kpi-sub">se suma a su cuenta</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Conciliación automática</h3>${filtroFechas()}${exportBtns()}</div>
+        <table class="table"><thead><tr><th>Fecha / hora</th><th>Puesto</th><th>Patente</th><th>Conductor imputado</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
+        <tbody>${list.map(t=>`
+          <tr><td>${t.fecha}</td><td>${t.puesto}</td><td><strong>${t.patente}</strong></td>
+          <td>${t.conductor}</td><td><span class="badge ${t.estado.startsWith('imputado')?'pendiente':'pagado'}">${t.estado}</span></td>
+          <td style="text-align:right" class="money-neg">${money(-t.monto)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Sin registros en el período.</td></tr>'}</tbody></table></div>`;
+  };
+  const paint=()=>{
+    const list=aplicarFiltroFechas(tp,'fecha');
+    root.innerHTML=draw(list);
+    $('#fDesde').addEventListener('change',paint); $('#fHasta').addEventListener('change',paint);
+    $('#fLimpiar').addEventListener('click',()=>{ $('#fDesde').value=''; $('#fHasta').value=''; paint(); });
+    onExport(root, ()=>({ name:'telepeajes', title:'Telepeajes',
+      cols:[{h:'Fecha',k:'Fecha'},{h:'Puesto',k:'Puesto'},{h:'Patente',k:'Patente'},{h:'Conductor',k:'Conductor'},{h:'Estado',k:'Estado'},{h:'Monto',k:'Monto'}],
+      rows: list.map(t=>({ Fecha:t.fecha, Puesto:t.puesto, Patente:t.patente, Conductor:t.conductor, Estado:t.estado, Monto:t.monto }))
+    }));
+  };
+  paint();
 };
 
 // ---------- Multas ----------
 routes.multas = async (root) => {
   const ms = await DB.getMultasAll();
-  const total = ms.reduce((s,m)=>s+m.monto,0);
-  const aRecuperar = ms.filter(m=>m.estado!=='pagada').reduce((s,m)=>s+m.monto,0);
-  root.innerHTML = `
-    <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">Multas registradas</div><div class="kpi-value">${ms.length}</div><div class="kpi-sub">flota completa</div></div>
-      <div class="kpi amber"><div class="kpi-label">A recuperar</div><div class="kpi-value">${money(aRecuperar)}</div><div class="kpi-sub">imputadas a conductores</div></div>
-      <div class="kpi dark"><div class="kpi-label">Monto total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">histórico visible</div></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><h3>Infracciones</h3><span class="count">responsable identificado por cruce vehículo + asignación</span></div>
-      <table class="table"><thead><tr><th>Fecha</th><th>Infracción</th><th>Patente</th><th>Conductor responsable</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
-      <tbody>${ms.length?ms.map(m=>`
-        <tr><td>${m.fecha}</td><td>${m.infraccion}</td><td><strong>${m.patente}</strong></td>
-        <td>${m.conductor}</td><td><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span></td>
-        <td style="text-align:right" class="money-neg">${money(-m.monto)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Sin multas registradas.</td></tr>'}</tbody></table></div>`;
+  const draw=(list)=>{
+    const total = list.reduce((s,m)=>s+m.monto,0);
+    const aRecuperar = list.filter(m=>m.estado!=='pagada').reduce((s,m)=>s+m.monto,0);
+    return `
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Multas (filtradas)</div><div class="kpi-value">${list.length}</div><div class="kpi-sub">de ${ms.length} totales</div></div>
+        <div class="kpi amber"><div class="kpi-label">A recuperar</div><div class="kpi-value">${money(aRecuperar)}</div><div class="kpi-sub">imputadas a conductores</div></div>
+        <div class="kpi dark"><div class="kpi-label">Monto total</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">período visible</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Infracciones</h3>${filtroFechas()}${exportBtns()}</div>
+        <table class="table"><thead><tr><th>Fecha</th><th>Infracción</th><th>Patente</th><th>Conductor responsable</th><th>Estado</th><th style="text-align:right">Monto</th></tr></thead>
+        <tbody>${list.length?list.map(m=>`
+          <tr><td>${m.fecha}</td><td>${m.infraccion}</td><td><strong>${m.patente}</strong></td>
+          <td>${m.conductor}</td><td><span class="badge ${m.estado}">${m.estado.replace('-',' ')}</span></td>
+          <td style="text-align:right" class="money-neg">${money(-m.monto)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Sin multas en el período.</td></tr>'}</tbody></table></div>`;
+  };
+  const paint=()=>{
+    const list=aplicarFiltroFechas(ms,'fecha');
+    root.innerHTML=draw(list);
+    $('#fDesde').addEventListener('change',paint); $('#fHasta').addEventListener('change',paint);
+    $('#fLimpiar').addEventListener('click',()=>{ $('#fDesde').value=''; $('#fHasta').value=''; paint(); });
+    onExport(root, ()=>({ name:'multas', title:'Multas',
+      cols:[{h:'Fecha',k:'Fecha'},{h:'Infracción',k:'Infraccion'},{h:'Patente',k:'Patente'},{h:'Conductor',k:'Conductor'},{h:'Estado',k:'Estado'},{h:'Monto',k:'Monto'}],
+      rows: list.map(m=>({ Fecha:m.fecha, Infraccion:m.infraccion, Patente:m.patente, Conductor:m.conductor, Estado:m.estado, Monto:m.monto }))
+    }));
+  };
+  paint();
 };
 
 // ---------- Cobranzas ----------
@@ -830,17 +946,24 @@ routes.cobranzas = async (root) => {
     <div class="kpi-grid">
       <div class="kpi amber"><div class="kpi-label">Total a cobrar</div><div class="kpi-value">${money(total)}</div><div class="kpi-sub">${cob.length} conductores con saldo</div></div>
       <div class="kpi"><div class="kpi-label">Con cuota vencida</div><div class="kpi-value">${vencidos}</div><div class="kpi-sub">requieren gestión</div></div>
-      <div class="kpi green"><div class="kpi-label">Recordatorios</div><div class="kpi-value">WhatsApp</div><div class="kpi-sub">envío automático (demo)</div></div>
+      <div class="kpi green"><div class="kpi-label">Recordatorios</div><div class="kpi-value">WhatsApp</div><div class="kpi-sub">abre el chat con el mensaje listo</div></div>
     </div>
     <div class="card">
-      <div class="card-head"><h3>Gestión de deuda</h3><span class="count">ordenado por monto</span></div>
+      <div class="card-head"><h3>Gestión de deuda</h3><span class="count">ordenado por monto</span>${exportBtns()}</div>
       <table class="table"><thead><tr><th>Conductor</th><th>Teléfono</th><th>Estado</th><th style="text-align:right">A cobrar</th><th></th></tr></thead>
-      <tbody>${cob.map(c=>`
+      <tbody>${cob.map((c,i)=>`
         <tr><td><strong>${c.nombre}</strong></td><td>${c.telefono}</td>
         <td>${c.vencido?'<span class="badge vencido">vencido</span>':'<span class="badge pendiente">pendiente</span>'}</td>
         <td style="text-align:right" class="money-neg">${money(c.aCobrar)}</td>
-        <td style="text-align:right"><button class="back-link" style="margin:0;color:var(--green)" data-wa="${c.id}">💬 Recordar</button></td></tr>`).join('')}</tbody></table></div>`;
-  root.querySelectorAll('[data-wa]').forEach(b=> b.addEventListener('click', ()=> toast('Recordatorio de pago enviado por WhatsApp (demo).')));
+        <td style="text-align:right"><button class="btn-ghost" style="padding:6px 12px;color:#128c4a;border-color:#a7e4c1" data-wa="${i}">💬 Recordar deuda</button></td></tr>`).join('')}</tbody></table></div>`;
+  root.querySelectorAll('[data-wa]').forEach(b=> b.addEventListener('click', ()=>{
+    const c = cob[+b.dataset.wa];
+    openWA(c.telefono, msgDeuda(c));
+  }));
+  onExport(root, ()=>({ name:'cobranzas', title:'Cobranzas',
+    cols:[{h:'Conductor',k:'Conductor'},{h:'Teléfono',k:'Telefono'},{h:'Estado',k:'Estado'},{h:'A cobrar',k:'ACobrar'}],
+    rows: cob.map(c=>({ Conductor:c.nombre, Telefono:c.telefono, Estado:c.vencido?'vencido':'pendiente', ACobrar:c.aCobrar }))
+  }));
 };
 
 // ---------- Ituran / Scoring ----------
@@ -860,16 +983,20 @@ routes.ituran = async (root) => {
       <div class="kpi amber"><div class="kpi-label">Alto riesgo</div><div class="kpi-value">${rank.filter(r=>r.scoring<65).length}</div><div class="kpi-sub">requieren seguimiento</div></div>
     </div>
     <div class="grid-2">
-      <div class="card"><div class="card-head"><h3>Mapa de flota</h3><span class="count">posición en tiempo real (demo)</span></div>
+      <div class="card"><div class="card-head"><h3>Mapa de flota</h3><span class="count">alimentado por Ituran (demo)</span></div>
         <div class="card-body"><div style="position:relative;height:300px;border-radius:10px;overflow:hidden;background:linear-gradient(0deg,#e9eef2,#e9eef2),repeating-linear-gradient(0deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px),repeating-linear-gradient(90deg,transparent,transparent 38px,#d7dee6 38px,#d7dee6 40px)">
           ${pins}
           <div style="position:absolute;left:10px;bottom:10px;font-size:11px;color:#5b6675;background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px">🔴 alquilado · 🔵 disponible · 🟠 taller — Zona AMBA (demo)</div>
         </div></div></div>
-      <div class="card"><div class="card-head"><h3>Ranking de conducción</h3><span class="count">scoring Ituran</span></div>
+      <div class="card"><div class="card-head"><h3>Ranking de conducción</h3>${exportBtns()}</div>
         <table class="table"><thead><tr><th>Conductor</th><th>Auto</th><th style="text-align:right">Scoring</th></tr></thead>
         <tbody>${rank.map(r=>`<tr><td><span class="dot ${scoreDot(r.scoring)}"></span>${r.nombre}</td><td>${r.patente}</td>
           <td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table></div>
     </div>`;
+  onExport(root, ()=>({ name:'scoring', title:'Scoring de conduccion',
+    cols:[{h:'Conductor',k:'Conductor'},{h:'Auto',k:'Auto'},{h:'Scoring',k:'Scoring'}],
+    rows: rank.map(r=>({ Conductor:r.nombre, Auto:r.patente, Scoring:r.scoring }))
+  }));
 };
 
 // ---------- CRM / WhatsApp ----------
@@ -880,11 +1007,12 @@ routes.crm = async (root) => {
     const items = pros.filter(p=>p.etapa===etapa);
     return `<div class="card" style="flex:1;min-width:220px">
       <div class="card-head"><h3>${titulo}</h3><span class="count">${items.length}</span></div>
-      <div class="card-body">${items.length?items.map(p=>`
+      <div class="card-body">${items.length?items.map((p)=>`
         <div style="border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:9px">
           <strong style="font-size:13.5px">${p.nombre}</strong>
           <div class="empty" style="font-style:normal;margin:3px 0">${p.telefono} · ${p.origen}</div>
           <div style="font-size:12.5px;color:var(--muted)">${p.nota}</div>
+          <button class="btn-ghost" style="margin-top:8px;padding:5px 10px;color:#128c4a;border-color:#a7e4c1" data-wap="${esc(p.telefono)}" data-wan="${esc(p.nombre)}">💬 WhatsApp</button>
         </div>`).join(''):'<div class="empty">Sin prospectos.</div>'}</div></div>`;
   };
   root.innerHTML = `
@@ -898,6 +1026,8 @@ routes.crm = async (root) => {
       <div class="card-body"><div class="chat">${coms.map(m=>`
         <div class="chat-msg">${m.texto}<div class="chat-meta"><strong>${m.conductor}</strong> · <span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')}</div></div></div>`;
   $('#nuevoPros').addEventListener('click', ()=> formProspecto());
+  root.querySelectorAll('[data-wap]').forEach(b=> b.addEventListener('click', ()=>
+    openWA(b.dataset.wap, `Hola ${b.dataset.wan}, te contactamos de Drive61 por tu consulta para alquilar un auto y trabajar en Uber. ¿Cómo estás?`)));
 };
 
 // ---------- Reportes ----------
@@ -911,7 +1041,7 @@ routes.reportes = async (root) => {
       <div class="kpi amber"><div class="kpi-label">Morosidad</div><div class="kpi-value">${money(k.deudaTotal)}</div><div class="kpi-sub">${k.morosos} conductores</div></div>
     </div>
     <div class="grid-2">
-      <div class="card"><div class="card-head"><h3>Rentabilidad por vehículo</h3><span class="count">semana en curso</span></div>
+      <div class="card"><div class="card-head"><h3>Rentabilidad por vehículo</h3>${exportBtns()}</div>
         <table class="table"><thead><tr><th>Patente</th><th>Estado</th><th style="text-align:right">Ingreso</th><th style="text-align:right">Costo</th><th style="text-align:right">Neto</th></tr></thead>
         <tbody>${rent.map(r=>`<tr><td><strong>${r.patente}</strong></td><td><span class="badge ${r.estado}">${r.estado}</span></td>
           <td style="text-align:right" class="money-pos">${money(r.ingreso)}</td>
@@ -923,6 +1053,10 @@ routes.reportes = async (root) => {
           <td style="text-align:right"><span class="score">${r.scoring}</span></td></tr>`).join('')}</tbody></table>
         <div class="card-body"><div class="alert baja"><span class="ai">📤</span><span>En el sistema real, este reporte se envía automáticamente por WhatsApp/email cada lunes a la gerencia.</span></div></div></div>
     </div>`;
+  onExport(root, ()=>({ name:'rentabilidad', title:'Rentabilidad por vehiculo',
+    cols:[{h:'Patente',k:'Patente'},{h:'Estado',k:'Estado'},{h:'Ingreso',k:'Ingreso'},{h:'Costo',k:'Costo'},{h:'Neto',k:'Neto'}],
+    rows: rent.map(r=>({ Patente:r.patente, Estado:r.estado, Ingreso:r.ingreso, Costo:r.costo, Neto:r.neto }))
+  }));
 };
 
 // ---------- Formularios / toast (CRUD) ----------
@@ -939,8 +1073,7 @@ function openForm(title, fields, values, onSave){
         f.options.map(o=>`<option value="${o}" ${String(values[f.k])===o?'selected':''}>${o}</option>`).join('')+
         `</select></div>`;
     }
-    const v = values[f.k]!=null ? String(values[f.k]).replace(/"/g,'&quot;') : '';
-    return `<div class="field"><label>${f.label}</label><input data-k="${f.k}" type="${f.type||'text'}" value="${v}"></div>`;
+    return `<div class="field"><label>${f.label}</label><input data-k="${f.k}" type="${f.type||'text'}" value="${esc(values[f.k])}"></div>`;
   }).join('');
   const ov = document.createElement('div'); ov.className='modal-bg';
   ov.innerHTML = `<div class="modal"><div class="modal-h"><h3>${title}</h3><button class="x">&times;</button></div>`+
@@ -960,7 +1093,7 @@ function formConductor(existing){
   const fields=[
     {k:'nombre',label:'Nombre y apellido'},
     {k:'dni',label:'DNI'},
-    {k:'telefono',label:'Teléfono'},
+    {k:'telefono',label:'Teléfono (con código país, ej +54 9 11...)'},
     {k:'estado',label:'Estado',type:'select',options:['activo','onboarding','suspendido','baja']},
     {k:'scoring',label:'Scoring (0-100)',type:'number'},
   ];
