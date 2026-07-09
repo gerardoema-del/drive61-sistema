@@ -8,72 +8,43 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
 /* =====================================================================
-   Drive61 — Estilos. Paleta real de la marca (drive61.com):
-   negro / gris oscuro + acento rojo.
+   Drive61 — Estilos. Paleta real de la marca: negro/gris + rojo.
    ===================================================================== */
 :root{
-  --dark:      #1a1a1a;
-  --dark-2:    #3a3a3a;
-  --red:       #dd183b;
-  --red-2:     #e21824;
-  --red-dark:  #b11330;
-  --bg:        #f4f5f7;
-  --surface:   #ffffff;
-  --text:      #1a1a1a;
-  --muted:     #6b7280;
-  --border:    #e5e7eb;
-  --green:     #16a34a;
-  --amber:     #f59e0b;
-  --radius:    12px;
-  --shadow:    0 1px 3px rgba(0,0,0,.06), 0 6px 20px rgba(0,0,0,.05);
-  --font:      'Inter', system-ui, -apple-system, sans-serif;
-  --font-head: 'Montserrat', var(--font);
+  --dark:#1a1a1a; --dark-2:#3a3a3a; --red:#dd183b; --red-2:#e21824; --red-dark:#b11330;
+  --bg:#f4f5f7; --surface:#ffffff; --text:#1a1a1a; --muted:#6b7280; --border:#e5e7eb;
+  --green:#16a34a; --amber:#f59e0b; --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.06), 0 6px 20px rgba(0,0,0,.05);
+  --font:'Inter', system-ui, -apple-system, sans-serif; --font-head:'Montserrat', var(--font);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 
-.demo-banner{
-  background:linear-gradient(90deg,var(--red),var(--red-2));color:#fff;
-  font-size:12.5px;font-weight:600;text-align:center;padding:7px 14px;letter-spacing:.2px;
-}
+.demo-banner{background:linear-gradient(90deg,var(--red),var(--red-2));color:#fff;font-size:12.5px;font-weight:600;text-align:center;padding:7px 14px;letter-spacing:.2px}
 .demo-banner b{font-weight:800}
 
 .layout{display:flex;min-height:calc(100vh - 33px)}
-.sidebar{
-  width:238px;background:var(--dark);color:#e8e8e8;flex-shrink:0;
-  display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:calc(100vh - 33px)
-}
+.sidebar{width:238px;background:var(--dark);color:#e8e8e8;flex-shrink:0;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:calc(100vh - 33px)}
 .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 22px}
-.brand-logo{
-  width:38px;height:38px;border-radius:9px;background:var(--red);color:#fff;
-  font-family:var(--font-head);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center
-}
+.brand-logo{width:38px;height:38px;border-radius:9px;background:var(--red);color:#fff;font-family:var(--font-head);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center}
 .brand-name{font-family:var(--font-head);font-weight:700;font-size:18px;letter-spacing:.5px}
 .brand-name span{color:var(--red)}
 .nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#7b7b7b;padding:14px 10px 6px}
-.nav-item{
-  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cfcfcf;
-  font-size:14px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left
-}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cfcfcf;font-size:14px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left}
 .nav-item .ic{width:18px;text-align:center;font-size:15px;opacity:.9}
 .nav-item:hover{background:#2a2a2a;color:#fff}
 .nav-item.active{background:var(--red);color:#fff}
-
 .sidebar-foot{margin-top:auto;font-size:11px;color:#6f6f6f;padding:12px 10px 0;border-top:1px solid #2c2c2c}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
-.topbar{
-  background:var(--surface);border-bottom:1px solid var(--border);
-  padding:15px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5
-}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:15px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5}
 .topbar h1{font-family:var(--font-head);font-size:19px;font-weight:700}
 .topbar .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
 .pill-date{font-size:12.5px;color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:20px}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--dark-2);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
-
 .content{padding:26px;max-width:1240px;width:100%}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(186px,1fr));gap:16px;margin-bottom:22px}
@@ -118,7 +89,7 @@ button{font-family:inherit;cursor:pointer}
 .badge.suspendido{background:#fdecef;color:#b11330} .badge.vigente{background:#e7f6ec;color:#0f7a37}
 .badge.por-vencer{background:#fff2e0;color:#b5730a} .badge.vencido{background:#fdecef;color:#b11330}
 .badge.pagado,.badge.ok,.badge.pagada{background:#e7f6ec;color:#0f7a37}
-.badge.pendiente,.badge.notificada,.badge.en-recupero,.badge.en-descargo{background:#fff2e0;color:#b5730a}
+.badge.pendiente,.badge.notificada,.badge.en-recupero,.badge.en-descargo,.badge.onboarding,.badge.baja{background:#fff2e0;color:#b5730a}
 .badge.firmado{background:#e7f6ec;color:#0f7a37}
 
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
@@ -162,6 +133,39 @@ button{font-family:inherit;cursor:pointer}
 .chat-msg:last-child{margin-bottom:0}
 .chat-meta{font-size:11px;color:var(--muted);margin-top:4px}
 .wa{color:#25d366;font-weight:700}
+
+/* ---------- Botones / formularios / modal (CRUD) ---------- */
+.btn-primary{background:var(--red);color:#fff;border:none;border-radius:9px;padding:8px 15px;font-family:var(--font-head);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-ghost{background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:9px;padding:8px 15px;font-family:var(--font-head);font-weight:700;font-size:13px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--red);color:var(--red)}
+
+.modal-bg{position:fixed;inset:0;background:rgba(15,15,15,.55);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px}
+.modal{background:#fff;border-radius:14px;width:440px;max-width:100%;max-height:92vh;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.modal-h{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center}
+.modal-h h3{font-family:var(--font-head);font-size:16px;font-weight:700}
+.modal-h .x{margin-left:auto;background:none;border:none;font-size:22px;line-height:1;color:var(--muted);cursor:pointer}
+.modal-b{padding:18px 20px}
+.modal-f{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:5px;font-family:var(--font-head)}
+.field input,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);outline:none;background:#fff}
+.field input:focus,.field select:focus{border-color:var(--red)}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:80;box-shadow:0 8px 30px rgba(0,0,0,.3);opacity:0;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+/* ---------- Login + usuario ---------- */
+#login-ov{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-card{background:#fff;border-radius:16px;padding:34px 30px;width:340px;max-width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.login-card .lg{width:54px;height:54px;border-radius:13px;background:var(--red);color:#fff;font-family:var(--font-head);font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.login-card h2{font-family:var(--font-head);font-size:20px;margin-bottom:3px}
+.login-card h2 span{color:var(--red)}
+.login-card p{font-size:12.5px;color:var(--muted);margin-bottom:20px}
+.login-card .field{text-align:left}
+.user-chip{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted)}
+.user-chip b{color:var(--text)}
+.user-chip .lo{background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-head)}
 
 </style>
 </head>
