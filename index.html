@@ -1046,12 +1046,11 @@ window.addEventListener('DOMContentLoaded', ()=>{
   <script>
 /* =====================================================================
    Drive61 — Agenda (calendario de asignación de autos)
-   Portado del sistema de reservas de wewellness (index_reservas.html):
-   grilla recurso × día. Acá: CONDUCTORES (filas) × DÍAS de la semana
-   (columnas), con turno diurno/nocturno de 12 hs en cada celda, el auto
-   asignado visible, y bloqueo de días (licencia / taller).
-   Se carga DESPUÉS de app.js. Guarda en localStorage (luego Firestore,
-   igual que wewellness: colección con onSnapshot en tiempo real).
+   Portado de wewellness (index_reservas.html): grilla recurso × día.
+   Acá: CONDUCTORES (filas) × DÍAS de la semana (columnas), con turno
+   diurno/nocturno de 12 hs, auto asignado por celda, y BLOQUEO de
+   días/turnos (licencia, taller, suspensión) — igual que wewellness.
+   Guarda en localStorage (luego Firestore con onSnapshot en tiempo real).
    ===================================================================== */
 (function(){
   const DB = window.DB, DEMO = window.DEMO;
@@ -1061,7 +1060,6 @@ window.addEventListener('DOMContentLoaded', ()=>{
   const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const lunes = (base) => { const t=new Date(base); t.setHours(0,0,0,0); t.setDate(t.getDate()-((t.getDay()+6)%7)); return t; };
 
-  // Seed inicial (semana actual) si no hay nada guardado
   function seed(){
     const arr=[]; const mon=lunes(new Date());
     const activos = DEMO.conductores.filter(c=>c.estado==='activo' && c.autoId);
@@ -1082,11 +1080,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
     async deleteAsignacion(id){ DEMO.asignaciones = DEMO.asignaciones.filter(a=>a.id!==id); save(); },
   });
 
-  // Registrar en menú, títulos y roles (definidos en app.js, accesibles a nivel global)
-  try{ TITLES.agenda = { h:'Agenda', s:'Asignación de autos por conductor, día y turno (12 hs)' }; }catch(e){}
+  try{ TITLES.agenda = { h:'Agenda', s:'Asignación de autos y bloqueos por conductor, día y turno (12 hs)' }; }catch(e){}
   try{ ['admin','operaciones'].forEach(r=>{ if(ROLE_NAV[r] && !ROLE_NAV[r].includes('agenda')) ROLE_NAV[r].splice(3,0,'agenda'); }); }catch(e){}
 
-  // Estilos propios (inyectados, sin tocar styles.css)
   const st = document.createElement('style');
   st.textContent = `
     .ag-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
@@ -1105,6 +1101,25 @@ window.addEventListener('DOMContentLoaded', ()=>{
   `;
   document.head.appendChild(st);
 
+  // Formulario de bloqueo dedicado (estilo wewellness "Bloquear Horario")
+  function formBloqueo(conds, prefill, after){
+    prefill = prefill || {};
+    openForm('🔒 Bloquear día / turno', [
+      {k:'conductorId',label:'Conductor',type:'select',options:conds.map(c=>({v:c.id,label:c.nombre}))},
+      {k:'fecha',label:'Fecha',type:'date'},
+      {k:'alcance',label:'Alcance',type:'select',options:[
+        {v:'ambos',label:'Día completo (diurno + nocturno)'},
+        {v:'diurno',label:'Solo turno diurno (06–18)'},
+        {v:'nocturno',label:'Solo turno nocturno (18–06)'},
+      ]},
+      {k:'nota',label:'Motivo (licencia, taller, etc.)'},
+    ], Object.assign({ alcance:'ambos', conductorId:(conds[0]&&conds[0].id) }, prefill), async d=>{
+      if(!d.fecha){ toast('Elegí una fecha.'); return; }
+      await DB.addAsignacion({ conductorId:d.conductorId, fecha:d.fecha, turno:d.alcance, tipo:'bloqueo', nota:d.nota });
+      toast('Bloqueo agregado 🔒'); if(after) after();
+    });
+  }
+
   let agWeek = null;
   routes.agenda = async (root) => {
     const [conds, autos] = await Promise.all([DB.getConductores(), DB.getAutos()]);
@@ -1118,10 +1133,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
       const todayS = ymd(new Date());
       const slot = (c,f,turno) => {
         const list = asigs.filter(a=>a.conductorId===c.id && a.fecha===f && (a.turno===turno||a.turno==='ambos'));
-        if(list.length){ const a=list[0];
-          if(a.tipo==='bloqueo') return `<span class="ag-slot bloq" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>🔒 ${a.nota||'Bloqueado'}</span>`;
-          return `<span class="ag-slot asig" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>${patente(a.autoId)}</span>`;
-        }
+        const bloq = list.find(a=>a.tipo==='bloqueo');
+        if(bloq) return `<span class="ag-slot bloq" data-id="${bloq.id}" data-act="del"><span class="tt">${turno}</span>🔒 ${bloq.nota||'Bloqueado'}</span>`;
+        if(list.length){ const a=list[0]; return `<span class="ag-slot asig" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>${patente(a.autoId)}</span>`; }
         return `<span class="ag-slot empty" data-c="${c.id}" data-f="${f}" data-t="${turno}" data-act="add"><span class="tt">${turno}</span>+</span>`;
       };
       root.innerHTML = `
@@ -1129,6 +1143,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
           <button class="btn-ghost" id="agPrev">‹ Semana</button>
           <button class="btn-ghost" id="agHoy">Hoy</button>
           <button class="btn-ghost" id="agNext">Semana ›</button>
+          <button class="btn-ghost" id="agBloq" style="color:#4b5563">🔒 Bloquear día / turno</button>
           <strong style="margin-left:8px">${days[0].toLocaleDateString('es-AR')} — ${days[6].toLocaleDateString('es-AR')}</strong>
           <span style="margin-left:auto;font-size:12px;color:var(--muted)">🟩 asignado · ⬜ libre · 🔒 bloqueado — turnos de 12 hs (diurno 06–18 · nocturno 18–06)</span>
         </div>
@@ -1144,16 +1159,23 @@ window.addEventListener('DOMContentLoaded', ()=>{
       $('#agPrev').onclick = ()=>{ agWeek.setDate(agWeek.getDate()-7); paint(); };
       $('#agNext').onclick = ()=>{ agWeek.setDate(agWeek.getDate()+7); paint(); };
       $('#agHoy').onclick  = ()=>{ agWeek = lunes(new Date()); paint(); };
+      $('#agBloq').onclick = ()=> formBloqueo(conds, { fecha: todayS }, paint);
       root.querySelectorAll('[data-act="del"]').forEach(el=> el.addEventListener('click', async ()=>{ if(confirm('¿Quitar esta asignación / bloqueo?')){ await DB.deleteAsignacion(el.dataset.id); toast('Actualizado'); paint(); } }));
       root.querySelectorAll('[data-act="add"]').forEach(el=> el.addEventListener('click', ()=>{
         const cid=el.dataset.c, f=el.dataset.f, turno=el.dataset.t; const c=conds.find(x=>x.id===cid);
         openForm(`Asignar / bloquear — ${turno}`, [
-          {k:'tipo',label:'Acción',type:'select',options:[{v:'asignacion',label:'Asignar auto'},{v:'bloqueo',label:'Bloquear (licencia / taller)'}]},
-          {k:'autoId',label:'Auto',type:'select',options:autos.map(a=>({v:a.id,label:a.patente+' · '+a.modelo}))},
-          {k:'nota',label:'Nota (opcional)'},
+          {k:'tipo',label:'Acción',type:'select',options:[
+            {v:'asignacion',label:'Asignar auto (este turno)'},
+            {v:'bloqueo',label:'Bloquear este turno'},
+            {v:'bloqueo-dia',label:'Bloquear día completo'},
+          ]},
+          {k:'autoId',label:'Auto (si asignás)',type:'select',options:autos.map(a=>({v:a.id,label:a.patente+' · '+a.modelo}))},
+          {k:'nota',label:'Nota / motivo (opcional)'},
         ], { tipo:'asignacion', autoId: (c&&c.autoId) || (autos[0]&&autos[0].id) }, async d=>{
-          await DB.addAsignacion({ conductorId:cid, fecha:f, turno, tipo:d.tipo, autoId: d.tipo==='bloqueo'?null:d.autoId, nota:d.nota });
-          toast(d.tipo==='bloqueo' ? 'Día bloqueado' : 'Auto asignado ✓'); paint();
+          if(d.tipo==='bloqueo-dia'){ await DB.addAsignacion({ conductorId:cid, fecha:f, turno:'ambos', tipo:'bloqueo', nota:d.nota }); toast('Día completo bloqueado 🔒'); }
+          else if(d.tipo==='bloqueo'){ await DB.addAsignacion({ conductorId:cid, fecha:f, turno, tipo:'bloqueo', nota:d.nota }); toast('Turno bloqueado 🔒'); }
+          else { await DB.addAsignacion({ conductorId:cid, fecha:f, turno, tipo:'asignacion', autoId:d.autoId, nota:d.nota }); toast('Auto asignado ✓'); }
+          paint();
         });
       }));
     };
