@@ -250,7 +250,7 @@ D.telefono = D.telefono || "+54 9 11 5541-2210";
 D.socio = socioNro(D.dni, D.apellido);
 function isLogged(){ try{ return localStorage.getItem("drive61_sesion")==="1"; }catch(e){ return false; } }
 function ultimos4(t){ return String(t||"").replace(/\D/g,"").slice(-4); }
-function loginSocio(){ var dni=(document.getElementById("lg-dni").value||""), t4=(document.getElementById("lg-tel4").value||""); if(String(dni).replace(/\D/g,"").length>=6 && String(t4).replace(/\D/g,"").length>=3){ try{ localStorage.setItem("drive61_sesion","1"); }catch(e){} feedback("¡Bienvenido!", function(){ histStack=[]; cur="inicio"; draw(); }); } else { alert("No pudimos validar tus datos. Revisá tu DNI y los últimos 4 dígitos de tu teléfono."); } }
+function loginSocio(){ var dni=(document.getElementById("lg-dni").value||""), t4=(document.getElementById("lg-tel4").value||""); if(String(dni).replace(/\D/g,"") && String(t4).replace(/\D/g,"")){ try{ localStorage.setItem("drive61_sesion","1"); }catch(e){} feedback("¡Bienvenido!", function(){ histStack=[]; cur="inicio"; draw(); }); } else { alert("No pudimos validar tus datos. Revisá tu DNI y los últimos 4 dígitos de tu teléfono."); } }
 function logoutSocio(){ try{ localStorage.removeItem("drive61_sesion"); }catch(e){} histStack=[]; cur="bienvenida"; draw(); }
 var money = function(n){ return (n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-AR'); };
 var INTAKE_KEY = 'drive61_intake_v1';
@@ -271,9 +271,9 @@ var screens = {
   },
   login: function(){ return ''
     + '<div class="card"><h4>Ingresar como socio</h4>'
-    + '<div class="muted" style="margin-bottom:12px">Verificá tu identidad con tu <b>DNI</b> y los <b>últimos 4 dígitos de tu teléfono</b>. (Sirve si se te borró la sesión del celular.)</div>'
-    + '<div class="field"><label>DNI</label><input id="lg-dni" inputmode="numeric" placeholder="34.201.556"></div>'
-    + '<div class="field"><label>Últimos 4 del teléfono</label><input id="lg-tel4" inputmode="numeric" maxlength="4" placeholder="2210"></div>'
+    + '<div class="muted" style="margin-bottom:12px">Ingresá con tu <b>DNI</b> y los <b>últimos 4 dígitos de tu teléfono</b>. <b>Demo:</b> ya cargamos un socio de prueba (DNI 34.201.556, tel. term. 2210) — tocá <b>Ingresar</b> para ver la cuenta.</div>'
+    + '<div class="field"><label>DNI</label><input id="lg-dni" inputmode="numeric" value="34.201.556"></div>'
+    + '<div class="field"><label>Últimos 4 del teléfono</label><input id="lg-tel4" inputmode="numeric" maxlength="4" value="2210"></div>'
     + '<button class="btn" onclick="loginSocio()">Ingresar</button>'
     + '<div class="muted" style="text-align:center;margin-top:8px;font-size:11px">¿Todavía no tenés N° de socio? Primero solicitá tu auto.</div></div>';
   },

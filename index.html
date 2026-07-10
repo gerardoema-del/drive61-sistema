@@ -551,11 +551,25 @@ const esc = (s) => String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt
 let USER = null;
 const ROLE_NAV = {
   admin:       ['dashboard','conductores','flota','telepeajes','multas','cobranzas','ituran','crm','reportes'],
-  operaciones: ['dashboard','conductores','flota','telepeajes','multas','ituran','crm'],
+  operaciones: ['conductores','flota','telepeajes','multas','ituran','crm'],
   cobranzas:   ['dashboard','conductores','cobranzas','reportes'],
 };
 const ROLE_LABELS = { admin:'Dueño', operaciones:'Operaciones', cobranzas:'Cobranzas' };
 const roleLabel = r => ROLE_LABELS[r] || r;
+const canMoney = () => !USER || USER.role==='admin' || USER.role==='cobranzas';
+// Tarifas: base (aplica a NUEVOS conductores) + override por conductor (los actuales conservan la suya)
+const Tarifas = {
+  BASE_KEY:'drive61_tarifas_v1', COND_KEY:'drive61_tarifas_cond_v1',
+  DEF:{ dia:250000, medioDia:150000 },
+  base(){ try{ return Object.assign({}, this.DEF, JSON.parse(localStorage.getItem(this.BASE_KEY)||'{}')); }catch(e){ return Object.assign({}, this.DEF); } },
+  setBase(t){ try{ localStorage.setItem(this.BASE_KEY, JSON.stringify({ dia:Number(t.dia)||this.DEF.dia, medioDia:Number(t.medioDia)||this.DEF.medioDia })); }catch(e){} },
+  _ov(){ try{ return JSON.parse(localStorage.getItem(this.COND_KEY)||'{}'); }catch(e){ return {}; } },
+  hasOverride(id){ return !!this._ov()[id]; },
+  forConductor(id){ const o=this._ov()[id]; return o ? Object.assign({}, this.base(), o) : this.base(); },
+  setForConductor(id,t){ const all=this._ov(); all[id]={ dia:Number(t.dia)||this.base().dia, medioDia:Number(t.medioDia)||this.base().medioDia }; try{ localStorage.setItem(this.COND_KEY, JSON.stringify(all)); }catch(e){} },
+  clearConductor(id){ const all=this._ov(); delete all[id]; try{ localStorage.setItem(this.COND_KEY, JSON.stringify(all)); }catch(e){} }
+};
+window.Tarifas = Tarifas;
 const allowedRoutes = () => USER ? (ROLE_NAV[USER.role] || ROLE_NAV.admin) : ROLE_NAV.admin;
 
 // ---------- WhatsApp ----------
@@ -678,7 +692,7 @@ routes.conductores = async (root, id) => {
       <td><span class="badge ${c.estado}">${c.estado}</span></td>
       <td><span class="dot ${scoreDot(c.scoring)}"></span><span class="score">${c.scoring}</span><div class="empty" style="font-style:normal">${scoreLabel(c.scoring)}</div></td>
       <td>${c.autoId||'—'}</td>
-      <td class="${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</td>
+      ${canMoney()?`<td class="${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</td>`:''}
       <td>${(c.multas&&c.multas.length)?`<span class="badge notificada">${c.multas.length}</span>`:'<span class="empty" style="font-style:normal">0</span>'}</td>
       <td style="text-align:right;color:var(--muted)">Ver ficha ›</td>
     </tr>`).join('');
@@ -687,7 +701,7 @@ routes.conductores = async (root, id) => {
       <div class="card-head"><h3>Conductores</h3>
         <input class="search" id="q" placeholder="Buscar por nombre o DNI…"><span class="count" id="cnt">${conds.length}</span>
         ${exportBtns()}<button class="btn-primary" id="nuevoCond">+ Nuevo conductor</button></div>
-      <table class="table"><thead><tr><th>Conductor</th><th>Estado</th><th>Scoring</th><th>Auto</th><th>Saldo</th><th>Multas</th><th></th></tr></thead>
+      <table class="table"><thead><tr><th>Conductor</th><th>Estado</th><th>Scoring</th><th>Auto</th>${canMoney()?'<th>Saldo</th>':''}<th>Multas</th><th></th></tr></thead>
         <tbody id="tb">${rows(conds)}</tbody></table></div>`;
   const tb = $('#tb');
   $('#nuevoCond').addEventListener('click', ()=> formConductor());
@@ -724,7 +738,7 @@ async function renderFicha(root, id){
       <div class="ficha-id"><h2>${c.nombre}</h2><div class="meta">Socio N° <b>${socioNro(c.dni,c.nombre)}</b> · DNI ${c.dni} · ${c.telefono} · desde ${c.desde}</div><div style="margin-top:8px"><span class="badge ${c.estado}">${c.estado}</span></div></div>
       <div class="ficha-metrics">
         <div><div class="fm-val"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</div><div class="fm-lab">Scoring</div></div>
-        <div><div class="fm-val ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'$0'}</div><div class="fm-lab">Saldo</div></div>
+        ${canMoney()?`<div><div class="fm-val ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'$0'}</div><div class="fm-lab">Saldo</div></div>`:''}
         <div><div class="fm-val">${auto?auto.patente:'—'}</div><div class="fm-lab">Auto asignado</div></div>
       </div>
     </div>
@@ -736,13 +750,15 @@ async function renderFicha(root, id){
       </ul></div></div>
       <div class="card"><div class="card-head"><h3>🛣️ Telepeajes</h3><span class="count">imputados al conductor</span></div><div class="card-body"><ul class="mini-list">${telItems}</ul></div></div>
       <div class="card"><div class="card-head"><h3>🚨 Multas</h3><span class="count">detección + recupero</span></div><div class="card-body"><ul class="mini-list">${multaItems}</ul></div></div>
-      <div class="card"><div class="card-head"><h3>💳 Estado de cuenta (cobranzas)</h3></div><div class="card-body"><ul class="mini-list">${cuentaItems}</ul></div></div>
+      ${canMoney()?`<div class="card"><div class="card-head"><h3>💳 Estado de cuenta (cobranzas)</h3></div><div class="card-body"><ul class="mini-list">${cuentaItems}</ul></div></div>`:''}
+      ${canMoney()?`<div class="card"><div class="card-head"><h3>💵 Tarifa del conductor</h3><span class="count">${Tarifas.hasOverride(c.id)?'personalizada':'tarifa base'}</span></div><div class="card-body"><ul class="mini-list"><li><span class="k">Día completo</span><span class="v">${money(Tarifas.forConductor(c.id).dia)}</span></li><li><span class="k">Medio día · turno 12 h</span><span class="v">${money(Tarifas.forConductor(c.id).medioDia)}</span></li></ul><button class="btn-ghost" id="editTarifa" style="margin-top:8px">✎ Ajustar tarifa de este conductor</button><div class="empty" style="font-style:normal;font-size:11.5px;margin-top:6px">La tarifa base para conductores nuevos se cambia desde el Tablero. Acá ajustás solo a ${(c.nombre||'').split(' ')[0]} (por las dudas: renegociación, promo, etc.).</div></div></div>`:''}
       <div class="card"><div class="card-head"><h3>💬 Comunicaciones (WhatsApp)</h3></div><div class="card-body"><div class="chat">${comItems}</div></div></div>
       <div class="card"><div class="card-head"><h3>🕓 Línea de tiempo</h3></div><div class="card-body"><ul class="timeline">${timeItems}</ul></div></div>
     </div>`;
   $('#back').addEventListener('click', ()=>go('conductores'));
   $('#editCond').addEventListener('click', ()=> formConductor(c));
   $('#delCond').addEventListener('click', async ()=>{ if(confirm('¿Borrar al conductor '+c.nombre+'? Esta acción no se puede deshacer.')){ await DB.deleteConductor(c.id); toast('Conductor borrado'); go('conductores'); } });
+  if($('#editTarifa')) $('#editTarifa').addEventListener('click', ()=>{ const t=Tarifas.forConductor(c.id); openForm('Tarifa de '+c.nombre, [{k:'dia',label:'Día completo ($)',type:'number'},{k:'medioDia',label:'Medio día · turno 12 h ($)',type:'number'}], {dia:t.dia, medioDia:t.medioDia}, async d=>{ Tarifas.setForConductor(c.id, {dia:d.dia, medioDia:d.medioDia}); toast('Tarifa de '+c.nombre+' actualizada ✓'); render(); }); });
   $('#waCond').addEventListener('click', ()=>{ const base = c.saldo<0 ? msgDeuda({nombre:c.nombre, aCobrar:Math.abs(c.saldo), vencido:false}) : `Hola ${c.nombre}, te escribimos de Drive61.`; openWA(c.telefono, base); });
 }
 
@@ -770,7 +786,7 @@ routes.flota = async (root, id) => {
           <li><span class="k">Patente</span><span class="v">${a.patente}</span></li><li><span class="k">Modelo</span><span class="v">${a.modelo}</span></li><li><span class="k">Año</span><span class="v">${a.anio}</span></li><li><span class="k">Telepeaje (TAG)</span><span class="v">${a.telepeaje}</span></li><li><span class="k">Equipo Ituran</span><span class="v">${a.ituran?'Conectado':'Sin equipo'}</span></li>
         </ul></div></div>
         <div class="card"><div class="card-head"><h3>Conductor asignado</h3></div><div class="card-body">
-          ${c?`<ul class="mini-list"><li><span class="k">Nombre</span><span class="v">${c.nombre}</span></li><li><span class="k">Scoring</span><span class="v"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</span></li><li><span class="k">Saldo</span><span class="v ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</span></li><li><span class="k"></span><span class="r"><button class="back-link" style="margin:0" data-goc="${c.id}">Ver ficha 360° ›</button></span></li></ul>`:'<div class="empty">Vehículo sin conductor asignado (disponible para alquilar).</div>'}
+          ${c?`<ul class="mini-list"><li><span class="k">Nombre</span><span class="v">${c.nombre}</span></li><li><span class="k">Scoring</span><span class="v"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</span></li>${canMoney()?`<li><span class="k">Saldo</span><span class="v ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'Al día'}</span></li>`:''}<li><span class="k"></span><span class="r"><button class="back-link" style="margin:0" data-goc="${c.id}">Ver ficha 360° ›</button></span></li></ul>`:'<div class="empty">Vehículo sin conductor asignado (disponible para alquilar).</div>'}
         </div></div>
       </div>`;
     $('#back').addEventListener('click', ()=>go('flota'));
@@ -983,7 +999,7 @@ function openForm(title, fields, values, onSave){
 }
 function formConductor(existing){
   const fields=[{k:'nombre',label:'Nombre y apellido'},{k:'dni',label:'DNI'},{k:'telefono',label:'Teléfono (con código país, ej +54 9 11...)'},{k:'estado',label:'Estado',type:'select',options:['activo','onboarding','suspendido','baja']},{k:'scoring',label:'Scoring (0-100)',type:'number'}];
-  openForm(existing?'Editar conductor':'Nuevo conductor', fields, existing||{estado:'activo',scoring:80}, async d=>{ if(existing){ await DB.updateConductor(existing.id,d); toast('Conductor actualizado ✓'); } else { await DB.addConductor(d); toast('Conductor guardado ✓'); } render(); });
+  openForm(existing?'Editar conductor':'Nuevo conductor', fields, existing||{estado:'activo',scoring:80}, async d=>{ if(existing){ await DB.updateConductor(existing.id,d); toast('Conductor actualizado ✓'); } else { const nc = await DB.addConductor(d); if(nc && nc.id) Tarifas.setForConductor(nc.id, Tarifas.base()); toast('Conductor guardado ✓'); } render(); });
 }
 function formAuto(existing){
   const fields=[{k:'patente',label:'Patente'},{k:'modelo',label:'Modelo'},{k:'anio',label:'Año',type:'number'},{k:'estado',label:'Estado',type:'select',options:['disponible','alquilado','taller','baja']},{k:'km',label:'Kilómetros',type:'number'}];
@@ -1030,12 +1046,25 @@ function logout(){ try{ localStorage.removeItem('drive61_user'); }catch(e){} USE
 function showLogin(){
   if($('#login-ov')) return;
   const ov=document.createElement('div'); ov.id='login-ov';
-  ov.innerHTML = `<div class="login-card"><div class="lg">D</div><h2>Drive<span>61</span></h2><p>Sistema de gestión · ingresá para continuar</p>
-    <div class="field"><label>Tu nombre</label><input id="lg-name" value="Alejandro"></div>
-    <div class="field"><label>Rol</label><select id="lg-role"><option value="admin">Dueño (acceso total)</option><option value="operaciones">Operaciones</option><option value="cobranzas">Cobranzas</option></select></div>
-    <button class="btn-primary" id="lg-go" style="width:100%;padding:12px;margin-top:6px">Ingresar</button></div>`;
+  const cuentas = [
+    { nombre:'Alejandro', role:'admin', desc:'Acceso total: tablero y finanzas, conductores, flota, agenda, cobranzas, reportes y documentos.' },
+    { nombre:'Operaciones', role:'operaciones', desc:'Operación diaria: agenda, conductores, flota, telepeajes, multas y documentos. NO ve dinero ni cobranzas.' },
+    { nombre:'Cobranzas', role:'cobranzas', desc:'Finanzas: cobranzas, reportes y cuenta de cada conductor.' }
+  ];
+  const entrar = (u) => { USER={ nombre:u.nombre, role:u.role }; try{ localStorage.setItem('drive61_user', JSON.stringify(USER)); }catch(e){} ov.remove(); applyRole(); const allow=allowedRoutes(); const cur=(location.hash||'').replace(/^#\//,'').split('/')[0]; if(!allow.includes(cur)) location.hash='#/'+allow[0]; render(); };
+  ov.innerHTML = `<div class="login-card"><div class="lg">D</div><h2>Drive<span>61</span></h2><p>Elegí con qué usuario entrar — cada rol ve cosas distintas.</p>
+    <div id="lg-list"></div>
+    <button class="btn-ghost" id="lg-otro" style="width:100%;margin-top:2px">Otro usuario…</button>
+    <div id="lg-custom" style="display:none;margin-top:10px">
+      <div class="field"><label>Tu nombre</label><input id="lg-name" placeholder="Nombre"></div>
+      <div class="field"><label>Rol</label><select id="lg-role"><option value="admin">Dueño (acceso total)</option><option value="operaciones">Operaciones (sin dinero)</option><option value="cobranzas">Cobranzas / Finanzas</option></select></div>
+      <button class="btn-primary" id="lg-go" style="width:100%;padding:11px">Ingresar</button>
+    </div></div>`;
   document.body.appendChild(ov);
-  $('#lg-go').onclick=()=>{ USER={ nombre:($('#lg-name').value||'Usuario').trim(), role:$('#lg-role').value }; try{ localStorage.setItem('drive61_user', JSON.stringify(USER)); }catch(e){} ov.remove(); applyRole(); const allow=allowedRoutes(); const cur=(location.hash||'').replace(/^#\//,'').split('/')[0]; if(!allow.includes(cur)) location.hash='#/'+allow[0]; render(); };
+  $('#lg-list').innerHTML = cuentas.map((u,i)=>`<button class="lg-user" data-i="${i}" style="display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;cursor:pointer"><b style="font-family:var(--font-head)">${u.nombre}</b> · <span style="color:var(--red);font-weight:600">${roleLabel(u.role)}</span><small style="display:block;color:var(--muted);font-size:11.5px;margin-top:3px;line-height:1.35">${u.desc}</small></button>`).join('');
+  $('#lg-list').querySelectorAll('[data-i]').forEach(b=> b.addEventListener('click', ()=> entrar(cuentas[+b.dataset.i])));
+  $('#lg-otro').onclick=()=>{ const c=$('#lg-custom'); c.style.display = (c.style.display==='none'?'block':'none'); };
+  $('#lg-go').onclick=()=> entrar({ nombre:($('#lg-name').value||'Usuario').trim(), role:$('#lg-role').value });
 }
 
 // ---------- Init ----------
@@ -1545,7 +1574,6 @@ window.addEventListener('DOMContentLoaded', ()=>{
   if(!DB) return;
   const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const kfmt = n => '$' + Math.round(n/1000) + 'k';
-  const TARIFA_SEM = 150000; // tarifa por turno (medio día, 12 hs) de referencia (demo)
 
   const st = document.createElement('style');
   st.textContent = `
@@ -1576,6 +1604,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
   routes.dashboard = async (root) => {
     root.innerHTML = '<div class="empty">Cargando…</div>';
+    const TARIFAS_B = (window.Tarifas ? window.Tarifas.base() : {dia:250000,medioDia:150000});
+    const TARIFA_SEM = TARIFAS_B.medioDia;
+    const esDueno = (typeof USER!=='undefined' && USER && USER.role==='admin');
     const [k, serie, alertas, autos, conds, asigs] = await Promise.all([
       DB.getKPIs(), DB.getIngresosSemanales(), DB.getAlertas(), DB.getAutos(), DB.getConductores(),
       DB.getAsignaciones ? DB.getAsignaciones() : Promise.resolve([])
@@ -1632,6 +1663,18 @@ window.addEventListener('DOMContentLoaded', ()=>{
         <div class="kpi"><div class="kpi-label">Conductores activos</div><div class="kpi-value">${k.conductoresActivos}</div><div class="kpi-sub">${k.disponibles} disponibles · ${k.taller} en taller</div></div>
       </div>
 
+      ${esDueno ? `<div class="card">
+        <div class="card-head"><h3>💵 Tarifas base (para conductores nuevos)</h3><span class="count">solo Dueño</span></div>
+        <div class="card-body">
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Estas tarifas se aplican a los <b>conductores nuevos</b> que ingresen de ahora en adelante. Los conductores actuales <b>conservan la suya</b> — se ajusta desde la ficha de cada uno.</div>
+          <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">
+            <div class="field" style="margin:0"><label>Día completo ($)</label><input id="tf-dia" type="number" value="${TARIFAS_B.dia}" style="width:150px"></div>
+            <div class="field" style="margin:0"><label>Medio día · turno 12 h ($)</label><input id="tf-medio" type="number" value="${TARIFAS_B.medioDia}" style="width:190px"></div>
+            <button class="btn-primary" id="tf-save">Guardar tarifas</button>
+          </div>
+        </div>
+      </div>` : ''}
+
       ${nuevosApp.length ? `<div class="card" style="border-left:4px solid var(--red);background:#fff5f6"><div class="card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <span style="font-size:24px">🆕</span>
         <div><b>${nuevosApp.length} solicitud(es) de conductor vía app</b><div class="muted" style="font-size:12.5px">${nuevosApp.slice(0,4).map(p=>esc(p.nombre)).join(', ')}${nuevosApp.length>4?'…':''} — esperando aprobación. Contactalos por WhatsApp desde el CRM.</div></div>
@@ -1686,6 +1729,14 @@ window.addEventListener('DOMContentLoaded', ()=>{
           <tbody>${autos.map(a=>`<tr><td><strong>${a.patente}</strong></td><td>${a.modelo}</td><td><span class="badge ${a.estado}">${a.estado}</span></td>
             <td>${a.conductorId?nombreDe(a.conductorId):'<span class="empty">—</span>'}</td><td>${a.telepeaje}</td><td>${a.ituran?'🟢 Conectado':'⚪ Sin equipo'}</td><td>${a.km.toLocaleString('es-AR')}</td></tr>`).join('')}</tbody></table>
       </div>`;
+
+    // Guardar tarifa base (solo Dueño)
+    const tfSave = root.querySelector('#tf-save');
+    if(tfSave) tfSave.addEventListener('click', ()=>{
+      window.Tarifas.setBase({ dia:root.querySelector('#tf-dia').value, medioDia:root.querySelector('#tf-medio').value });
+      try{ toast('Tarifas base actualizadas ✓'); }catch(e){}
+      routes.dashboard(root);
+    });
 
     // WhatsApp de ofertas
     root.querySelectorAll('[data-of]').forEach(b=> b.addEventListener('click', ()=>{
