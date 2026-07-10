@@ -1275,6 +1275,139 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
 </script>
   <script>
+/* =====================================================================
+   Drive61 — Reportes enriquecidos (estadísticas estilo wewellness)
+   + animaciones simples: números que cuentan, barras que crecen,
+   tarjetas que aparecen. Se carga DESPUÉS de app.js y SOBREESCRIBE
+   routes.reportes.
+   ===================================================================== */
+(function(){
+  const DB = window.DB;
+  if(!DB) return;
+
+  const st = document.createElement('style');
+  st.textContent = `
+    @keyframes repIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .rep-anim{opacity:0;animation:repIn .5s ease forwards}
+    .rep-bar-track{height:12px;background:var(--bg);border-radius:8px;overflow:hidden;margin-top:6px}
+    .rep-bar-fill{height:100%;border-radius:8px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+    .rep-bar-row{margin-bottom:14px}
+    .rep-bar-row:last-child{margin-bottom:0}
+    .rep-bar-head{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600}
+    .rep-bar-head .lbl{color:var(--muted)}
+    @keyframes vgrow{to{transform:scaleY(1)}}
+    .rep-vbars{display:flex;align-items:flex-end;gap:12px;height:150px;padding-top:6px}
+    .rep-vcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+    .rep-vbar{width:100%;max-width:70px;border-radius:7px 7px 0 0;transform:scaleY(0);transform-origin:bottom;animation:vgrow .9s cubic-bezier(.22,1,.36,1) forwards}
+    .rep-vlab{font-size:11.5px;color:var(--muted);text-align:center}
+    .rep-donut{width:120px;height:120px;transform:rotate(-90deg)}
+    .rep-donut circle{fill:none;stroke-width:5}
+    .rep-donut .bg{stroke:var(--border)}
+    .rep-donut .fg{stroke:var(--red);stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)}
+    .rep-occ{position:relative;display:flex;align-items:center;justify-content:center}
+    .rep-occ .num{position:absolute;font-family:var(--font-head);font-weight:800;font-size:26px}
+  `;
+  document.head.appendChild(st);
+
+  function countUp(el, target, money, suffix){
+    const dur=1000, start=performance.now();
+    function step(t){ let p=Math.min(1,(t-start)/dur); p=1-Math.pow(1-p,3);
+      const v=Math.round(target*p);
+      el.textContent=(money?('$'+v.toLocaleString('es-AR')):v)+(suffix||'');
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  routes.reportes = async (root) => {
+    const [k, rent, conds, ms] = await Promise.all([DB.getKPIs(), DB.getRentabilidad(), DB.getConductores(), DB.getMultasAll()]);
+    const cob = await DB.getCobranzas();
+
+    // Caja: facturado vs cobrado (de los movimientos de cuenta)
+    let facturado=0, cobrado=0;
+    conds.forEach(c=> (c.cuenta||[]).forEach(m=>{
+      if(m.monto<0 && /alquiler|telepeaje|multa/i.test(m.concepto||'')) facturado+=Math.abs(m.monto);
+      if(m.monto>0) cobrado+=m.monto;
+    }));
+    if(!facturado) facturado = k.ingresoSemanal;
+    const pctCobrado = facturado? Math.round(cobrado/facturado*100) : 0;
+
+    // Aging de deuda
+    const vencida = cob.filter(c=>c.vencido).reduce((s,c)=>s+c.aCobrar,0);
+    const pendiente = cob.filter(c=>!c.vencido).reduce((s,c)=>s+c.aCobrar,0);
+    const deudaMax = Math.max(vencida, pendiente, 1);
+
+    // Multas: generado vs recuperado
+    const multasGen = ms.reduce((s,m)=>s+m.monto,0);
+    const multasRec = ms.filter(m=>m.estado==='pagada'||m.estado==='recuperada').reduce((s,m)=>s+m.monto,0);
+
+    const netoTotal = rent.reduce((s,r)=>s+r.neto,0);
+    const rentMax = Math.max(...rent.map(r=>Math.abs(r.neto)),1);
+    const circ = 2*Math.PI*18; // circunferencia donut (r=18)
+
+    root.innerHTML = `
+      <div class="kpi-grid">
+        <div class="kpi green rep-anim" style="animation-delay:.02s"><div class="kpi-label">Resultado neto semanal</div><div class="kpi-value" data-count="${netoTotal}" data-money>$0</div><div class="kpi-sub">ingresos - costos (demo)</div></div>
+        <div class="kpi rep-anim" style="animation-delay:.08s"><div class="kpi-label">Facturado (semana)</div><div class="kpi-value" data-count="${facturado}" data-money>$0</div><div class="kpi-sub">alquileres + cargos</div></div>
+        <div class="kpi dark rep-anim" style="animation-delay:.14s"><div class="kpi-label">Cobrado (caja real)</div><div class="kpi-value" data-count="${cobrado}" data-money>$0</div><div class="kpi-sub">${pctCobrado}% de lo facturado</div></div>
+        <div class="kpi amber rep-anim" style="animation-delay:.2s"><div class="kpi-label">Morosidad</div><div class="kpi-value" data-count="${k.deudaTotal}" data-money>$0</div><div class="kpi-sub">${k.morosos} conductores</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card rep-anim" style="animation-delay:.1s"><div class="card-head"><h3>Caja — facturado vs. cobrado</h3><span class="count">semana en curso</span></div>
+          <div class="card-body">
+            <div class="rep-bar-row"><div class="rep-bar-head"><span class="lbl">Facturado</span><span>${money(facturado)}</span></div><div class="rep-bar-track"><div class="rep-bar-fill" data-w="100" style="background:var(--dark-2)"></div></div></div>
+            <div class="rep-bar-row"><div class="rep-bar-head"><span class="lbl">Cobrado</span><span class="money-pos">${money(cobrado)}</span></div><div class="rep-bar-track"><div class="rep-bar-fill" data-w="${pctCobrado}" style="background:var(--green)"></div></div></div>
+            <div class="rep-bar-row"><div class="rep-bar-head"><span class="lbl">Por cobrar</span><span class="money-neg">${money(facturado-cobrado)}</span></div><div class="rep-bar-track"><div class="rep-bar-fill" data-w="${100-pctCobrado}" style="background:var(--red)"></div></div></div>
+          </div></div>
+
+        <div class="card rep-anim" style="animation-delay:.16s"><div class="card-head"><h3>Ocupación de flota</h3><span class="count">${k.alquilados}/${k.autosTotal} autos</span></div>
+          <div class="card-body" style="display:flex;align-items:center;gap:22px;justify-content:center">
+            <div class="rep-occ">
+              <svg class="rep-donut" viewBox="0 0 42 42"><circle class="bg" cx="21" cy="21" r="18"/><circle class="fg" cx="21" cy="21" r="18" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" data-off="${circ*(1-k.ocupacion/100)}"/></svg>
+              <div class="num" data-count="${k.ocupacion}" data-suffix="%">0%</div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.8">
+              <div>🟢 Alquilados: <b style="color:var(--text)">${k.alquilados}</b></div>
+              <div>🔵 Disponibles: <b style="color:var(--text)">${k.disponibles}</b></div>
+              <div>🟠 En taller: <b style="color:var(--text)">${k.taller}</b></div>
+            </div>
+          </div></div>
+      </div>
+
+      <div class="card rep-anim" style="animation-delay:.22s"><div class="card-head"><h3>Rentabilidad por vehículo</h3><span class="count">${exportBtns()}</span></div>
+        <table class="table"><thead><tr><th>Patente</th><th>Estado</th><th>Rendimiento</th><th style="text-align:right">Ingreso</th><th style="text-align:right">Costo</th><th style="text-align:right">Neto</th></tr></thead>
+        <tbody>${rent.map(r=>`<tr><td><strong>${r.patente}</strong></td><td><span class="badge ${r.estado}">${r.estado}</span></td>
+          <td style="min-width:120px"><div class="rep-bar-track" style="max-width:120px"><div class="rep-bar-fill" data-w="${Math.round(Math.abs(r.neto)/rentMax*100)}" style="background:${r.neto>=0?'var(--green)':'var(--red)'}"></div></div></td>
+          <td style="text-align:right" class="money-pos">${money(r.ingreso)}</td><td style="text-align:right" class="money-neg">${money(-r.costo)}</td>
+          <td style="text-align:right" class="${r.neto>=0?'money-pos':'money-neg'}">${money(r.neto)}</td></tr>`).join('')}</tbody></table></div>
+
+      <div class="grid-2">
+        <div class="card rep-anim" style="animation-delay:.1s"><div class="card-head"><h3>Deuda por antigüedad</h3></div>
+          <div class="card-body"><div class="rep-vbars">
+            <div class="rep-vcol"><div class="rep-vbar" style="height:${Math.round(vencida/deudaMax*100)}%;background:linear-gradient(180deg,var(--red),var(--red-dark))"></div><div class="rep-vlab">Vencida<br><b class="money-neg">${money(vencida)}</b></div></div>
+            <div class="rep-vcol"><div class="rep-vbar" style="height:${Math.round(pendiente/deudaMax*100)}%;background:linear-gradient(180deg,var(--amber),#c77f08)"></div><div class="rep-vlab">Pendiente<br><b>${money(pendiente)}</b></div></div>
+          </div></div></div>
+
+        <div class="card rep-anim" style="animation-delay:.16s"><div class="card-head"><h3>Multas — generado vs. recuperado</h3></div>
+          <div class="card-body">
+            <div class="rep-bar-row"><div class="rep-bar-head"><span class="lbl">Generado</span><span>${money(multasGen)}</span></div><div class="rep-bar-track"><div class="rep-bar-fill" data-w="100" style="background:var(--dark-2)"></div></div></div>
+            <div class="rep-bar-row"><div class="rep-bar-head"><span class="lbl">Recuperado</span><span class="money-pos">${money(multasRec)}</span></div><div class="rep-bar-track"><div class="rep-bar-fill" data-w="${multasGen?Math.round(multasRec/multasGen*100):0}" style="background:var(--green)"></div></div></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:10px">Recupero: <b>${multasGen?Math.round(multasRec/multasGen*100):0}%</b>. El resto se imputa y sigue en gestión de cobranza.</div>
+          </div></div>
+      </div>`;
+
+    // ---- animaciones ----
+    root.querySelectorAll('[data-count]').forEach(el=> countUp(el, Number(el.dataset.count), el.hasAttribute('data-money'), el.dataset.suffix));
+    setTimeout(()=>{ root.querySelectorAll('.rep-bar-fill[data-w]').forEach(el=> el.style.width = el.dataset.w+'%'); }, 80);
+    setTimeout(()=>{ const fg=root.querySelector('.rep-donut .fg'); if(fg) fg.style.strokeDashoffset = fg.dataset.off; }, 120);
+    onExport(root, ()=>({ name:'rentabilidad', title:'Rentabilidad por vehiculo', cols:[{h:'Patente',k:'Patente'},{h:'Estado',k:'Estado'},{h:'Ingreso',k:'Ingreso'},{h:'Costo',k:'Costo'},{h:'Neto',k:'Neto'}],
+      rows: rent.map(r=>({ Patente:r.patente, Estado:r.estado, Ingreso:r.ingreso, Costo:r.costo, Neto:r.neto })) }));
+  };
+})();
+
+</script>
+  <script>
     (function(){
       var c=document.getElementById('conn'); if(!c) return;
       if(window.__FB){ c.classList.add('live'); document.getElementById('conn-txt').textContent='Firebase · en tiempo real'; }
