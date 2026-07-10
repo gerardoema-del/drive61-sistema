@@ -1086,6 +1086,29 @@ window.addEventListener('DOMContentLoaded', ()=>{
   if(!Array.isArray(DEMO.asignaciones)) DEMO.asignaciones = seed();
   const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(DEMO.asignaciones)); }catch(e){} };
 
+  // Importar reservas hechas por el conductor desde la webapp (vía app)
+  const QKEY_AG='drive61_agenda_intake_v1', IKEY_AG='drive61_agenda_intake_imported_v1';
+  const digitsAg = x => String(x||'').replace(/\D/g,'');
+  function importAgendaIntake(){
+    let q=[]; try{ q=JSON.parse(localStorage.getItem(QKEY_AG)||'[]'); }catch(e){ q=[]; }
+    if(!q.length) return 0;
+    let done; try{ done=new Set(JSON.parse(localStorage.getItem(IKEY_AG)||'[]')); }catch(e){ done=new Set(); }
+    let n=0;
+    q.forEach(r=>{
+      if(!r||!r.id||done.has(r.id)) return;
+      const c = DEMO.conductores.find(x=>x.id===r.conductorId) || DEMO.conductores.find(x=>digitsAg(x.dni)===digitsAg(r.dni) && digitsAg(r.dni));
+      const cid = c?c.id:r.conductorId;
+      if(!cid){ done.add(r.id); return; }
+      const dup = DEMO.asignaciones.some(a=>a.conductorId===cid && a.fecha===r.fecha && a.turno===r.turno);
+      if(!dup){ DEMO.asignaciones.push({ id:gid('AP'), conductorId:cid, autoId:(c?c.autoId:null), fecha:r.fecha, turno:r.turno||'diurno', tipo:'asignacion', origen:'app', nota:'Reserva vía app' }); n++; }
+      done.add(r.id);
+    });
+    try{ localStorage.setItem(IKEY_AG, JSON.stringify([...done])); }catch(e){}
+    if(n) save();
+    return n;
+  }
+  importAgendaIntake();
+
   Object.assign(DB, {
     async getAsignaciones(){ return DEMO.asignaciones; },
     async addAsignacion(d){ const a={ id:gid('AS'), conductorId:d.conductorId, autoId:d.autoId||null, fecha:d.fecha, turno:d.turno||'diurno', tipo:d.tipo||'asignacion', nota:d.nota||'' }; DEMO.asignaciones.push(a); save(); return a; },
@@ -1107,6 +1130,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
     .ag-slot .tt{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.4px;opacity:.75}
     .ag-slot.asig{background:#e7f6ec;border:1px solid #bfe6cd;color:#0f7a37;font-weight:700}
     .ag-slot.bloq{background:#eceef1;border:1px solid #d7dbe0;color:#4b5563;font-weight:700}
+    .ag-slot.viaapp{background:#fff3cd;border:1px solid #ffe08a;color:#8a5a00;font-weight:700}
+    .ag-slot .vapp{display:block;font-size:8px;font-weight:800;letter-spacing:.3px;margin-top:1px;color:#b5730a}
     .ag-slot.empty:hover{border-color:var(--red);color:var(--red);background:#fdf0f2}
     /* ==== vista SEMANA (conductores × días) ==== */
     .ag-table{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -1169,7 +1194,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       const list = asigs.filter(a=>a.conductorId===c.id && a.fecha===f && (a.turno===turno||a.turno==='ambos'));
       const bloq = list.find(a=>a.tipo==='bloqueo');
       if(bloq) return `<span class="ag-slot bloq" data-id="${bloq.id}" data-act="del"><span class="tt">${turno}</span>🔒 ${bloq.nota||'Bloqueado'}</span>`;
-      if(list.length){ const a=list[0]; return `<span class="ag-slot asig" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>${patente(a.autoId)}</span>`; }
+      if(list.length){ const a=list.find(x=>x.tipo!=='bloqueo')||list[0]; const app=a.origen==='app'; return `<span class="ag-slot ${app?'viaapp':'asig'}" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>${patente(a.autoId)}${app?'<span class="vapp">📱 vía app</span>':''}</span>`; }
       return `<span class="ag-slot empty" data-c="${c.id}" data-f="${f}" data-t="${turno}" data-act="add"><span class="tt">${turno}</span>+</span>`;
     };
 
@@ -1184,7 +1209,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
         <button class="btn-ghost" id="agNext">${agView==='mes'?'Mes':'Semana'} ›</button>
         <button class="btn-ghost" id="agBloq" style="color:#4b5563">🔒 Bloquear día / turno</button>
         <strong style="margin-left:8px;text-transform:capitalize">${label}</strong>
-        <span class="ag-legend">🟩 asignado · ⬜ libre · 🔒 bloqueado — turnos de 12 hs (diurno 06–18 · nocturno 18–06)</span>
+        <span class="ag-legend">🟩 asignado · 🟧 vía app · ⬜ libre · 🔒 bloqueado — turnos de 12 hs (diurno 06–18 · nocturno 18–06)</span>
       </div>`;
 
     const attach = () => {
@@ -1260,7 +1285,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       });
     };
 
-    const paint = () => (agView==='mes' ? paintMes() : paintSemana());
+    const paint = () => { importAgendaIntake(); return (agView==='mes' ? paintMes() : paintSemana()); };
     paint();
   };
 })();

@@ -187,15 +187,20 @@ var INTAKE_KEY = 'drive61_intake_v1';
 
 // ---------- Pantallas ----------
 var screens = {
-  inicio: function(){ return ''
+  inicio: function(){
+    var solicito=false; try{ solicito=!!localStorage.getItem('drive61_solicito'); }catch(e){}
+    var docsOk=misDocs().length>0, turnoOk=misTurnos().length>0;
+    var paso=function(n,txt,ok,dest){ return '<div class="row" style="cursor:pointer" onclick="nav(\''+dest+'\')"><span>'+(ok?'<b style="color:var(--green)">✓</b>':'<b style="color:var(--muted)">'+n+'</b>')+'&nbsp;&nbsp;'+txt+'</span>'+(ok?'<span class="badge g">listo</span>':'<span class="badge a">pendiente ›</span>')+'</div>'; };
+    return ''
     + '<div class="card hero"><div class="lbl">Empezá hoy</div>'
     + '<div class="big">Tu auto para Uber, sin comprarlo</div>'
-    + '<div style="color:#c7cbd3;font-size:13px;margin:8px 0 2px;line-height:1.5">Alquilás un Fiat Cronos por turnos de 12 hs, manejás para Uber y lo que ganás de más es tuyo. Nosotros ponemos el auto, seguro y soporte.</div>'
+    + '<div style="color:#c7cbd3;font-size:13px;margin:8px 0 2px;line-height:1.5">Alquilás un Fiat Cronos por turnos de 12 hs, manejás para Uber y lo que ganás de más es tuyo. Nosotros ponemos auto, seguro y soporte.</div>'
     + '<button class="btn" onclick="nav(\'solicitar\')">Solicitar mi auto</button></div>'
-    + '<div class="card"><h4>¿Cómo funciona?</h4>'
-    + '<div class="row"><span class="muted">1 · Registrate</span><span class="badge g">2 min</span></div>'
-    + '<div class="row"><span class="muted">2 · Agendás retiro</span><span>📍 en agencia</span></div>'
-    + '<div class="row"><span class="muted">3 · Vinculás y arrancás</span><span>🚗 Uber</span></div></div>'
+    + '<div class="card"><h4>Tus primeros pasos</h4><div class="muted" style="margin-bottom:8px">Seguí estos 3 pasos para arrancar. Tocá cada uno:</div>'
+    + paso(1,'Solicitá tu auto', solicito, 'solicitar')
+    + paso(2,'Cargá tus documentos (DNI, licencia)', docsOk, 'docs')
+    + paso(3,'Reservá tu primer turno', turnoOk, 'turnos')
+    + '</div>'
     + '<div class="card"><div class="lbl">Tarifa de referencia</div>'
     + '<div class="big" style="color:var(--red)">'+money(42000)+' <span style="font-size:14px;color:var(--muted);font-family:var(--font);font-weight:400">/ semana</span></div>'
     + '<div class="muted" style="margin-top:4px">Turnos diurno (06-18) o nocturno (18-06). Consultá promos vigentes.</div></div>';
@@ -253,11 +258,22 @@ var screens = {
       + '</div>' + galeria
       + '<input id="scan-file" type="file" accept="image/*" capture="environment" style="display:none">';
   },
-  turnos: function(){ return ''
-    + '<div class="card"><h4>Reservar turno</h4><div class="muted" style="margin-bottom:12px">Elegí tu turno de 12 hs.</div>'
-    + D.turnos.map(function(s,i){ return '<div class="slot '+(s.libre?'':'taken')+'"><span>'+s.t+'</span>'+(s.libre?'<button class="btn" style="width:auto;margin:0;padding:9px 16px;font-size:13px;box-shadow:none" onclick="reservar('+i+')">Reservar</button>':'<span class="badge a">ocupado</span>')+'</div>'; }).join('')
-    + '</div>'
-    + '<div class="steps">El flujo coincide con el del sitio: <b>Registrate &rarr; Agendá cita &rarr; Vinculate</b>. Lo que reserves acá queda en la Agenda del sistema.</div>';
+  turnos: function(){
+    var mis=misTurnos();
+    var out='<div class="card"><h4>Reservar turno</h4><div class="muted">Elegí tu turno de 12 hs para los <b>próximos 15 días</b>. Lo que reserves queda en la <b>Agenda de Drive61</b> al instante, marcado <b>vía app</b>.</div></div>';
+    var hoy=new Date(); hoy.setHours(0,0,0,0);
+    for(var i=0;i<15;i++){
+      var d=new Date(hoy); d.setDate(hoy.getDate()+i); var f=ymd(d);
+      var lab=(i===0?'Hoy':(i===1?'Mañana':DIAS[d.getDay()]))+' '+d.getDate()+'/'+(d.getMonth()+1);
+      out+='<div style="margin:14px 4px 6px;font-family:var(--head);font-weight:700;font-size:13px">'+lab+'</div>';
+      var tt=[['diurno','Diurno 06–18'],['nocturno','Nocturno 18–06']];
+      for(var j=0;j<tt.length;j++){
+        var t=tt[j][0], tl=tt[j][1], ya=false;
+        for(var k=0;k<mis.length;k++){ if(mis[k].fecha===f && mis[k].turno===t){ ya=true; break; } }
+        out+='<div class="slot'+(ya?' taken':'')+'"><span>'+tl+'</span>'+(ya?'<span class="badge g">reservado ✓</span>':'<button class="btn" style="width:auto;margin:0;padding:8px 14px;font-size:13px;box-shadow:none" onclick="reservarTurno(\''+f+'\',\''+t+'\')">Reservar</button>')+'</div>';
+      }
+    }
+    return out;
   }
 };
 
@@ -276,7 +292,18 @@ function draw(){
 }
 function nav(s){ cur=s; draw(); }
 function pagar(){ alert('DEMO: se abriría el pago (transferencia / MercadoPago). Al confirmar, el sistema interno lo registra automáticamente.'); }
-function reservar(i){ alert('DEMO: turno reservado ('+D.turnos[i].t+'). En el sistema real queda agendado.'); }
+var DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+var AG_KEY='drive61_agenda_intake_v1';
+function misTurnos(){ var q=[]; try{ q=JSON.parse(localStorage.getItem(AG_KEY)||'[]'); }catch(e){ q=[]; } return q.filter(function(r){ return digitsOnly(r.dni)===digitsOnly(D.dni); }); }
+function reservarTurno(f,t){
+  var q=[]; try{ q=JSON.parse(localStorage.getItem(AG_KEY)||'[]'); }catch(e){ q=[]; }
+  for(var i=0;i<q.length;i++){ if(q[i].fecha===f && q[i].turno===t && digitsOnly(q[i].dni)===digitsOnly(D.dni)){ alert('Ese turno ya lo reservaste.'); return; } }
+  q.push({ id:'RT'+Date.now().toString(36)+Math.floor(Math.random()*1000), conductorId:'C1', nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, fecha:f, turno:t, ts:new Date().toISOString() });
+  try{ localStorage.setItem(AG_KEY, JSON.stringify(q)); }catch(e){ alert('No se pudo guardar.'); return; }
+  alert('✓ Turno reservado. Ya figura en la Agenda de Drive61 como "vía app".');
+  draw();
+}
 
 function enviarSolicitud(){
   var nombre=(document.getElementById('f-nombre').value||'').trim();
@@ -288,7 +315,7 @@ function enviarSolicitud(){
   var q=[]; try{ q=JSON.parse(localStorage.getItem(INTAKE_KEY)||'[]'); }catch(e){ q=[]; }
   q.push({ id:'S'+Date.now().toString(36)+Math.floor(Math.random()*1000), nombre:nombre, telefono:tel, email:email, turno:turno, nota:nota, ts:new Date().toISOString() });
   try{ localStorage.setItem(INTAKE_KEY, JSON.stringify(q)); }catch(e){}
-  cur='enviado'; draw();
+  try{ localStorage.setItem('drive61_solicito','1'); }catch(e){} cur='enviado'; draw();
 }
 
 // ---------- Onboarding / plataforma ----------
