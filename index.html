@@ -212,7 +212,7 @@ button{font-family:inherit;cursor:pointer}
       <button class="nav-item" data-route="asistente"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 3h8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/></svg></span> Asistente IA</button>
 
       <div class="sidebar-foot">
-        Drive61 · Flota Uber<br>Sistema operativo inteligente
+        Drive61 · Flota<br>Sistema operativo inteligente
       </div>
     </aside>
 
@@ -542,6 +542,7 @@ window.DB = DB;
 const $  = (s, r=document) => r.querySelector(s);
 const money = (n) => (n<0?'-':'') + '$' + Math.abs(n).toLocaleString('es-AR');
 const initials = (name) => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const socioNro = (dni,nombre)=>{ const d=String(dni||'').replace(/\D/g,'').slice(-3); const ape=(String(nombre||'').trim().split(' ').slice(-1)[0]||''); return d+ape.slice(0,3).toUpperCase(); };
 const scoreDot = (s) => s>=80 ? 'g' : s>=65 ? 'y' : 'r';
 const scoreLabel = (s) => s>=80 ? 'Bajo riesgo' : s>=65 ? 'Riesgo medio' : 'Alto riesgo';
 const esc = (s) => String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;');
@@ -720,7 +721,7 @@ async function renderFicha(root, id){
     </span>
     <div class="ficha-head">
       <div class="ficha-ava">${initials(c.nombre)}</div>
-      <div class="ficha-id"><h2>${c.nombre}</h2><div class="meta">DNI ${c.dni} · ${c.telefono} · En Drive61 desde ${c.desde}</div><div style="margin-top:8px"><span class="badge ${c.estado}">${c.estado}</span></div></div>
+      <div class="ficha-id"><h2>${c.nombre}</h2><div class="meta">Socio N° <b>${socioNro(c.dni,c.nombre)}</b> · DNI ${c.dni} · ${c.telefono} · desde ${c.desde}</div><div style="margin-top:8px"><span class="badge ${c.estado}">${c.estado}</span></div></div>
       <div class="ficha-metrics">
         <div><div class="fm-val"><span class="dot ${scoreDot(c.scoring)}"></span>${c.scoring}</div><div class="fm-lab">Scoring</div></div>
         <div><div class="fm-val ${c.saldo<0?'money-neg':'money-pos'}">${c.saldo<0?money(c.saldo):'$0'}</div><div class="fm-lab">Saldo</div></div>
@@ -780,7 +781,7 @@ routes.flota = async (root, id) => {
   }
   root.innerHTML = `
     <div class="kpi-grid">
-      <div class="kpi green"><div class="kpi-label">Alquilados</div><div class="kpi-value">${autos.filter(a=>a.estado==='alquilado').length}</div><div class="kpi-sub">trabajando en Uber</div></div>
+      <div class="kpi green"><div class="kpi-label">Alquilados</div><div class="kpi-value">${autos.filter(a=>a.estado==='alquilado').length}</div><div class="kpi-sub">trabajando en apps de viajes</div></div>
       <div class="kpi"><div class="kpi-label">Disponibles</div><div class="kpi-value">${autos.filter(a=>a.estado==='disponible').length}</div><div class="kpi-sub">listos para asignar</div></div>
       <div class="kpi amber"><div class="kpi-label">En taller</div><div class="kpi-value">${autos.filter(a=>a.estado==='taller').length}</div><div class="kpi-sub">fuera de servicio</div></div>
       <div class="kpi dark"><div class="kpi-label">Total flota</div><div class="kpi-value">${autos.length}</div><div class="kpi-sub">escalable a 500+</div></div>
@@ -933,7 +934,7 @@ routes.crm = async (root) => {
     <div class="card"><div class="card-head"><h3>Comunicaciones recientes (WhatsApp)</h3><span class="count">bandeja unificada</span></div>
       <div class="card-body"><div class="chat">${coms.map(m=>`<div class="chat-msg">${m.texto}<div class="chat-meta"><strong>${m.conductor}</strong> · <span class="wa">${m.canal}</span> · ${m.fecha}</div></div>`).join('')}</div></div></div>`;
   $('#nuevoPros').addEventListener('click', ()=> formProspecto());
-  root.querySelectorAll('[data-wap]').forEach(b=> b.addEventListener('click', ()=> openWA(b.dataset.wap, `Hola ${b.dataset.wan}, te contactamos de Drive61 por tu consulta para alquilar un auto y trabajar en Uber. ¿Cómo estás?`)));
+  root.querySelectorAll('[data-wap]').forEach(b=> b.addEventListener('click', ()=> openWA(b.dataset.wap, `Hola ${b.dataset.wan}, te contactamos de Drive61 por tu consulta para alquilar un auto y trabajar en apps de viajes. ¿Cómo estás?`)));
   root.querySelectorAll('[data-delp]').forEach(b=> b.addEventListener('click', async ()=>{ if(confirm('¿Borrar este prospecto?')){ await DB.deleteProspecto(b.dataset.delp); toast('Prospecto borrado'); render(); } }));
 };
 
