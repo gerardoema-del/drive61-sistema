@@ -1086,27 +1086,35 @@ window.addEventListener('DOMContentLoaded', ()=>{
   if(!Array.isArray(DEMO.asignaciones)) DEMO.asignaciones = seed();
   const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(DEMO.asignaciones)); }catch(e){} };
 
-  // Importar reservas hechas por el conductor desde la webapp (vía app)
-  const QKEY_AG='drive61_agenda_intake_v1', IKEY_AG='drive61_agenda_intake_imported_v1';
+  // Sincronizar reservas hechas por el conductor desde la webapp (vía app)
+  const QKEY_AG='drive61_agenda_intake_v1';
   const digitsAg = x => String(x||'').replace(/\D/g,'');
+  const hhmm = iso => { try{ return new Date(iso).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } };
+  let agActividad = [];
   function importAgendaIntake(){
     let q=[]; try{ q=JSON.parse(localStorage.getItem(QKEY_AG)||'[]'); }catch(e){ q=[]; }
-    if(!q.length) return 0;
-    let done; try{ done=new Set(JSON.parse(localStorage.getItem(IKEY_AG)||'[]')); }catch(e){ done=new Set(); }
-    let n=0;
+    let changed=false;
     q.forEach(r=>{
-      if(!r||!r.id||done.has(r.id)) return;
+      if(!r||!r.id) return;
       const c = DEMO.conductores.find(x=>x.id===r.conductorId) || DEMO.conductores.find(x=>digitsAg(x.dni)===digitsAg(r.dni) && digitsAg(r.dni));
       const cid = c?c.id:r.conductorId;
-      if(!cid){ done.add(r.id); return; }
-      const dup = DEMO.asignaciones.some(a=>a.conductorId===cid && a.fecha===r.fecha && a.turno===r.turno);
-      if(!dup){ DEMO.asignaciones.push({ id:gid('AP'), conductorId:cid, autoId:(c?c.autoId:null), fecha:r.fecha, turno:r.turno||'diurno', tipo:'asignacion', origen:'app', nota:'Reserva vía app' }); n++; }
-      done.add(r.id);
+      const idx = DEMO.asignaciones.findIndex(a=>a.appRef===r.id);
+      if(r.estado==='cancelado'){ if(idx>=0){ DEMO.asignaciones.splice(idx,1); changed=true; } }
+      else if(cid && idx<0){ DEMO.asignaciones.push({ id:gid('AP'), appRef:r.id, conductorId:cid, autoId:(c?c.autoId:null), fecha:r.fecha, turno:r.turno||'diurno', tipo:'asignacion', origen:'app', reservadoTs:r.ts, nota:'Reserva vía app' }); changed=true; }
     });
-    try{ localStorage.setItem(IKEY_AG, JSON.stringify([...done])); }catch(e){}
-    if(n) save();
-    return n;
+    if(changed) save();
+    agActividad = q.slice().sort((a,b)=> String(b.cancelTs||b.ts||'').localeCompare(String(a.cancelTs||a.ts||''))).slice(0,6);
+    return q.length;
   }
+  const agActividadHTML = () => {
+    if(!agActividad.length) return '';
+    const item = r => { const nom=((r.nombre||'')+' '+(r.apellido||'')).trim(); const dm=r.fecha?(r.fecha.slice(8,10)+'/'+r.fecha.slice(5,7)):'';
+      return r.estado==='cancelado'
+        ? `<span class="ag-act cancel">✗ ${nom} · ${dm} ${r.turno} — canceló ${hhmm(r.cancelTs)}</span>`
+        : `<span class="ag-act ok">✓ ${nom} · ${dm} ${r.turno} — reservó ${hhmm(r.ts)}</span>`;
+    };
+    return `<div class="ag-actbar"><b>📱 Actividad vía app:</b> ${agActividad.map(item).join('')}</div>`;
+  };
   importAgendaIntake();
 
   Object.assign(DB, {
@@ -1132,6 +1140,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
     .ag-slot.bloq{background:#eceef1;border:1px solid #d7dbe0;color:#4b5563;font-weight:700}
     .ag-slot.viaapp{background:#fff3cd;border:1px solid #ffe08a;color:#8a5a00;font-weight:700}
     .ag-slot .vapp{display:block;font-size:8px;font-weight:800;letter-spacing:.3px;margin-top:1px;color:#b5730a}
+    .ag-actbar{font-size:11.5px;color:var(--muted);margin:-4px 0 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .ag-act{border-radius:20px;padding:2px 9px}
+    .ag-act.ok{background:#fff7e6;border:1px solid #ffe0a3;color:#8a5a00}
+    .ag-act.cancel{background:#fdecea;border:1px solid #f5c6c0;color:#b23}
     .ag-slot.empty:hover{border-color:var(--red);color:var(--red);background:#fdf0f2}
     /* ==== vista SEMANA (conductores × días) ==== */
     .ag-table{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -1194,7 +1206,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       const list = asigs.filter(a=>a.conductorId===c.id && a.fecha===f && (a.turno===turno||a.turno==='ambos'));
       const bloq = list.find(a=>a.tipo==='bloqueo');
       if(bloq) return `<span class="ag-slot bloq" data-id="${bloq.id}" data-act="del"><span class="tt">${turno}</span>🔒 ${bloq.nota||'Bloqueado'}</span>`;
-      if(list.length){ const a=list.find(x=>x.tipo!=='bloqueo')||list[0]; const app=a.origen==='app'; return `<span class="ag-slot ${app?'viaapp':'asig'}" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>${patente(a.autoId)}${app?'<span class="vapp">📱 vía app</span>':''}</span>`; }
+      if(list.length){ const a=list.find(x=>x.tipo!=='bloqueo')||list[0]; const app=a.origen==='app'; return `<span class="ag-slot ${app?'viaapp':'asig'}" data-id="${a.id}" data-act="del"><span class="tt">${turno}</span>${patente(a.autoId)}${app?`<span class="vapp">📱 vía app${a.reservadoTs?(' · '+hhmm(a.reservadoTs)):''}</span>`:''}</span>`; }
       return `<span class="ag-slot empty" data-c="${c.id}" data-f="${f}" data-t="${turno}" data-act="add"><span class="tt">${turno}</span>+</span>`;
     };
 
@@ -1243,7 +1255,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       const asigs = await DB.getAsignaciones();
       const days = []; for(let i=0;i<7;i++){ const d=new Date(agWeek); d.setDate(agWeek.getDate()+i); days.push(d); }
       const label = `${days[0].toLocaleDateString('es-AR')} — ${days[6].toLocaleDateString('es-AR')}`;
-      root.innerHTML = toolbar(label) + `
+      root.innerHTML = toolbar(label) + agActividadHTML() + `
         <div class="card" style="overflow:auto;padding:2px">
           <table class="ag-table">
             <thead><tr><th class="ag-cond">Conductor</th>${days.map(d=>`<th class="${ymd(d)===todayS?'ag-hoy':''}">${DNAMES[d.getDay()]}<br>${d.getDate()}/${d.getMonth()+1}</th>`).join('')}</tr></thead>
@@ -1269,7 +1281,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
           ${conds.map(c=>`<td class="ag-mcell">${slotHTML(asigs,c,f,'diurno')}${slotHTML(asigs,c,f,'nocturno')}</td>`).join('')}
         </tr>`);
       }
-      root.innerHTML = toolbar(label) + `
+      root.innerHTML = toolbar(label) + agActividadHTML() + `
         <div class="ag-scroll" id="ag-scroll">
           <table class="ag-mtable">
             <thead><tr><th class="corner ag-mday" style="position:sticky">Día</th>${conds.map(c=>`<th>${c.nombre.split(' ')[0]}<small>${patDe(c.id)}</small></th>`).join('')}</tr></thead>

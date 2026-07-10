@@ -57,6 +57,21 @@
   .appbar .hi{font-size:11.5px;color:#aeb3bd} .appbar .nm{font-family:var(--head);font-weight:700;font-size:16px}
   .appbar .brand{margin-left:auto;font-family:var(--head);font-weight:800;font-size:15px}.appbar .brand span{color:var(--red)}
   .demo-chip{position:absolute;top:8px;right:14px;background:rgba(255,255,255,.14);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.5px}
+  .appbar-back{background:none;border:0;color:#fff;font-size:28px;line-height:1;cursor:pointer;padding:0 4px 0 0}
+  .chat-fab{position:absolute;right:16px;bottom:calc(var(--nav-h) + 16px);z-index:70;width:54px;height:54px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:24px;box-shadow:0 8px 22px rgba(221,24,59,.45);cursor:pointer}
+  .chat-sheet{position:absolute;left:0;right:0;bottom:0;z-index:120;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;height:74%;transform:translateY(101%);transition:transform .3s ease}
+  .chat-sheet.show{transform:translateY(0)}
+  .chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);font-family:var(--head)}
+  .chat-x{background:none;border:0;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
+  .chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px}
+  .cmsg{max-width:82%;padding:9px 12px;border-radius:13px;font-size:13.5px;line-height:1.45;white-space:pre-wrap}
+  .cmsg.bot{background:#f1f3f6;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+  .cmsg.me{background:var(--red);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+  .chat-chips{display:flex;gap:7px;flex-wrap:wrap;padding:0 12px 8px}
+  .chat-chips button{background:#fff;border:1px solid var(--border);border-radius:20px;padding:6px 11px;font-size:11.5px;cursor:pointer;color:var(--text)}
+  .chat-input{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+  .chat-input input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;font-size:14px;font-family:var(--font)}
+  .chat-input button{background:var(--red);color:#fff;border:0;border-radius:12px;padding:0 16px;font-family:var(--head);font-weight:700;cursor:pointer}
 
   /* ===== SCREEN ===== */
   .screen{flex:1;overflow-y:auto;padding:16px 15px calc(var(--nav-h) + 22px);-webkit-overflow-scrolling:touch}
@@ -137,6 +152,7 @@
 
   <!-- APP BAR -->
   <div class="appbar">
+    <button class="appbar-back" id="appback" onclick="goBack()" aria-label="Volver" style="display:none">‹</button>
     <div class="ava" id="ava">MS</div>
     <div><div class="hi">Hola,</div><div class="nm" id="hello">Conductor</div></div>
     <div class="brand">Drive<span>61</span></div>
@@ -162,6 +178,19 @@
 
   <!-- BOTTOM NAV -->
   <div class="nav" id="nav"></div>
+
+  <button class="chat-fab" id="chatFab" onclick="openChat()" aria-label="Asistente">💬</button>
+  <div class="chat-sheet" id="chatSheet">
+    <div class="chat-head"><b>Asistente Drive61</b><button class="chat-x" onclick="closeChat()">&times;</button></div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-chips">
+      <button onclick="chip('¿Qué es Drive61 y cómo funciona?')">¿Qué es Drive61?</button>
+      <button onclick="chip('¿Cómo alquilo un auto?')">¿Cómo alquilo?</button>
+      <button onclick="chip('¿Qué días hay turno de noche disponible?')">Turnos de noche</button>
+      <button onclick="chip('¿Cómo cancelo un turno?')">Cancelar turno</button>
+    </div>
+    <div class="chat-input"><input id="chatInput" placeholder="Escribí tu pregunta…" onkeydown="chatKey(event)"><button onclick="sendChat()">Enviar</button></div>
+  </div>
 </div>
 
 <script>
@@ -207,7 +236,7 @@ var screens = {
   },
   solicitar: function(){ return ''
     + '<div class="card"><h4>Solicitar mi auto</h4>'
-    + '<div class="muted" style="margin-bottom:14px">Dejanos tus datos y un asesor te contacta por WhatsApp. Sin compromiso.</div>'
+    + '<div class="muted" style="margin-bottom:14px"><b>¿Primera vez?</b> No necesitás tener nada cargado todavía. Dejanos tus datos y te guiamos paso a paso; un asesor te contacta por WhatsApp.</div>'
     + '<div class="field"><label>Nombre y apellido *</label><input id="f-nombre" placeholder="Tu nombre"></div>'
     + '<div class="field"><label>WhatsApp *</label><input id="f-tel" inputmode="tel" placeholder="+54 9 11 ..."></div>'
     + '<div class="field"><label>Email</label><input id="f-email" inputmode="email" placeholder="tucorreo@mail.com"></div>'
@@ -216,12 +245,16 @@ var screens = {
     + '<button class="btn" onclick="enviarSolicitud()">Enviar solicitud</button>'
     + '<div class="muted" style="text-align:center;margin-top:10px;font-size:11.5px">Al enviar, tu solicitud entra al sistema de Drive61 marcada como <b>vía app</b>.</div></div>';
   },
-  enviado: function(){ return ''
+  enviado: function(){
+    var cod=''; try{ cod=localStorage.getItem('drive61_ult_solicitud')||''; }catch(e){}
+    return ''
     + '<div class="card"><div class="ok-wrap"><div class="ok-circ">✓</div>'
-    + '<h4 style="font-size:18px">¡Solicitud enviada!</h4>'
-    + '<div class="muted" style="margin-top:6px">Un asesor de Drive61 te va a contactar por WhatsApp a la brevedad. Ya quedó registrada en el sistema.</div>'
-    + '<span class="badge g" style="margin-top:12px;display:inline-block">📱 Cargada vía app</span></div>'
-    + '<button class="btn ghost" onclick="nav(\'inicio\')">Volver al inicio</button></div>';
+    + '<h4 style="font-size:18px">¡Tu solicitud llegó a Drive61!</h4>'
+    + '<div class="muted" style="margin-top:6px">Quedaste registrado'+(cod?(' con el N° <b>'+cod+'</b>'):'')+'. Un asesor te va a contactar por WhatsApp a la brevedad.</div>'
+    + '<span class="badge g" style="margin-top:12px;display:inline-block">📱 Recibida vía app</span></div>'
+    + '<div class="card"><h4>Seguí vos, es rápido</h4><div class="muted" style="margin-bottom:10px">Adelantá tu alta cargando tus documentos (DNI y licencia). Así arrancás antes:</div>'
+    + '<button class="btn" onclick="nav(\'docs\')">Cargar mis documentos →</button>'
+    + '<button class="btn ghost" onclick="nav(\'inicio\')">Ver mis 3 primeros pasos</button></div>';
   },
   cuenta: function(){ return ''
     + '<div class="card hero"><div class="lbl">Tu cuenta</div>'
@@ -256,6 +289,7 @@ var screens = {
       + '<div class="muted" style="margin-bottom:12px">Escaneá tus documentos con la cámara. Quedan cargados en el sistema de Drive61 al instante, marcados <b>vía app</b>.</div>'
       + filas
       + '</div>' + galeria
+      + '<div class="card"><div class="muted">Último paso: cuando tengas tus documentos cargados, <b>reservá tu turno</b>.</div><button class="btn" onclick="nav(\'turnos\')">Ir a reservar turno →</button></div>'
       + '<input id="scan-file" type="file" accept="image/*" capture="environment" style="display:none">';
   },
   turnos: function(){
@@ -268,9 +302,9 @@ var screens = {
       out+='<div style="margin:14px 4px 6px;font-family:var(--head);font-weight:700;font-size:13px">'+lab+'</div>';
       var tt=[['diurno','Diurno 06–18'],['nocturno','Nocturno 18–06']];
       for(var j=0;j<tt.length;j++){
-        var t=tt[j][0], tl=tt[j][1], ya=false;
-        for(var k=0;k<mis.length;k++){ if(mis[k].fecha===f && mis[k].turno===t){ ya=true; break; } }
-        out+='<div class="slot'+(ya?' taken':'')+'"><span>'+tl+'</span>'+(ya?'<span class="badge g">reservado ✓</span>':'<button class="btn" style="width:auto;margin:0;padding:8px 14px;font-size:13px;box-shadow:none" onclick="reservarTurno(\''+f+'\',\''+t+'\')">Reservar</button>')+'</div>';
+        var t=tt[j][0], tl=tt[j][1], rv=null;
+        for(var k=0;k<mis.length;k++){ if(mis[k].fecha===f && mis[k].turno===t){ rv=mis[k]; break; } }
+        out+='<div class="slot"><span>'+tl+(rv?' <span class="muted" style="font-size:11px">· reservado '+fmtHora(rv.ts)+'</span>':'')+'</span>'+(rv?'<button class="btn ghost" style="width:auto;margin:0;padding:7px 12px;font-size:12px;box-shadow:none;color:var(--red);border-color:#f3c4cd" onclick="cancelarTurno(\''+f+'\',\''+t+'\')">Cancelar</button>':'<button class="btn" style="width:auto;margin:0;padding:8px 14px;font-size:13px;box-shadow:none" onclick="reservarTurno(\''+f+'\',\''+t+'\')">Reservar</button>')+'</div>';
       }
     }
     return out;
@@ -285,23 +319,40 @@ var tabs = [
   ["turnos","Turnos",'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>']
 ];
 var cur = "inicio";
+var histStack=[];
 function draw(){
   document.getElementById('screen').innerHTML = screens[cur]();
   document.getElementById('screen').scrollTop = 0;
+  var ab=document.getElementById('appback'); if(ab) ab.style.display=(cur==='inicio'?'none':'block');
   document.getElementById('nav').innerHTML = tabs.map(function(t){ return '<div class="t '+(t[0]===cur?'active':'')+'" onclick="nav(\''+t[0]+'\')"><svg viewBox="0 0 24 24">'+t[2]+'</svg>'+t[1]+'</div>'; }).join('');
 }
-function nav(s){ cur=s; draw(); }
+function nav(s){ if(s===cur) return; histStack.push(cur); cur=s; draw(); try{ history.pushState({d61:s},''); }catch(e){} }
+function goBack(){ cur = histStack.length ? histStack.pop() : 'inicio'; draw(); }
+window.addEventListener('popstate', function(){ if(cur!=='inicio'){ goBack(); try{ history.pushState({d61:cur},''); }catch(e){} } });
 function pagar(){ alert('DEMO: se abriría el pago (transferencia / MercadoPago). Al confirmar, el sistema interno lo registra automáticamente.'); }
 var DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 var AG_KEY='drive61_agenda_intake_v1';
-function misTurnos(){ var q=[]; try{ q=JSON.parse(localStorage.getItem(AG_KEY)||'[]'); }catch(e){ q=[]; } return q.filter(function(r){ return digitsOnly(r.dni)===digitsOnly(D.dni); }); }
+function fmtHora(iso){ try{ return new Date(iso).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+function leerAg(){ var q=[]; try{ q=JSON.parse(localStorage.getItem(AG_KEY)||'[]'); }catch(e){ q=[]; } return q; }
+function guardarAg(q){ try{ localStorage.setItem(AG_KEY, JSON.stringify(q)); return true; }catch(e){ alert('No se pudo guardar (memoria llena).'); return false; } }
+function misTurnos(){ return leerAg().filter(function(r){ return digitsOnly(r.dni)===digitsOnly(D.dni) && r.estado!=='cancelado'; }); }
+function turnoActivo(f,t){ var m=misTurnos(); for(var i=0;i<m.length;i++){ if(m[i].fecha===f && m[i].turno===t) return m[i]; } return null; }
 function reservarTurno(f,t){
-  var q=[]; try{ q=JSON.parse(localStorage.getItem(AG_KEY)||'[]'); }catch(e){ q=[]; }
-  for(var i=0;i<q.length;i++){ if(q[i].fecha===f && q[i].turno===t && digitsOnly(q[i].dni)===digitsOnly(D.dni)){ alert('Ese turno ya lo reservaste.'); return; } }
-  q.push({ id:'RT'+Date.now().toString(36)+Math.floor(Math.random()*1000), conductorId:'C1', nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, fecha:f, turno:t, ts:new Date().toISOString() });
-  try{ localStorage.setItem(AG_KEY, JSON.stringify(q)); }catch(e){ alert('No se pudo guardar.'); return; }
-  alert('✓ Turno reservado. Ya figura en la Agenda de Drive61 como "vía app".');
+  if(turnoActivo(f,t)){ alert('Ese turno ya lo reservaste.'); return; }
+  var q=leerAg(), ahora=new Date().toISOString();
+  q.push({ id:'RT'+Date.now().toString(36)+Math.floor(Math.random()*1000), conductorId:'C1', nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, fecha:f, turno:t, ts:ahora, estado:'reservado', cancelTs:null });
+  if(!guardarAg(q)) return;
+  alert('✓ Turno reservado a las '+fmtHora(ahora)+'. Figura en la Agenda de Drive61 (vía app).');
+  draw();
+}
+function cancelarTurno(f,t){
+  if(!confirm('¿Cancelar este turno?')) return;
+  var q=leerAg(), ok=false, ahora=new Date().toISOString();
+  for(var i=0;i<q.length;i++){ if(q[i].fecha===f && q[i].turno===t && digitsOnly(q[i].dni)===digitsOnly(D.dni) && q[i].estado!=='cancelado'){ q[i].estado='cancelado'; q[i].cancelTs=ahora; ok=true; } }
+  if(!ok) return;
+  if(!guardarAg(q)) return;
+  alert('Turno cancelado a las '+fmtHora(ahora)+'. Se quita de la Agenda de Drive61.');
   draw();
 }
 
@@ -313,9 +364,10 @@ function enviarSolicitud(){
   var nota=(document.getElementById('f-nota').value||'').trim();
   if(!nombre || !tel){ alert('Completá al menos tu nombre y tu WhatsApp.'); return; }
   var q=[]; try{ q=JSON.parse(localStorage.getItem(INTAKE_KEY)||'[]'); }catch(e){ q=[]; }
-  q.push({ id:'S'+Date.now().toString(36)+Math.floor(Math.random()*1000), nombre:nombre, telefono:tel, email:email, turno:turno, nota:nota, ts:new Date().toISOString() });
+  var sid='S'+Date.now().toString(36)+Math.floor(Math.random()*1000), cod=sid.slice(-5).toUpperCase();
+  q.push({ id:sid, nombre:nombre, telefono:tel, email:email, turno:turno, nota:nota, ts:new Date().toISOString() });
   try{ localStorage.setItem(INTAKE_KEY, JSON.stringify(q)); }catch(e){}
-  try{ localStorage.setItem('drive61_solicito','1'); }catch(e){} cur='enviado'; draw();
+  try{ localStorage.setItem('drive61_solicito','1'); localStorage.setItem('drive61_ult_solicitud', cod); }catch(e){} cur='enviado'; draw();
 }
 
 // ---------- Onboarding / plataforma ----------
@@ -381,10 +433,43 @@ function scanDoc(tipo){
   inp.click();
 }
 
+
+// ---------- Asistente IA (conductor) ----------
+var chatMsgs=[], chatBusy=false;
+function dispContexto(){
+  var autos=[], asigs=[];
+  try{ var st=JSON.parse(localStorage.getItem('drive61_state_v1')||'null'); if(st&&st.autos) autos=st.autos; }catch(e){}
+  try{ asigs=JSON.parse(localStorage.getItem('drive61_agenda_v1')||'[]'); }catch(e){}
+  var total=autos.filter(function(a){return a.estado!=='baja'&&a.estado!=='taller';}).length;
+  var dias=[];
+  for(var i=0;i<10;i++){ var d=new Date(); d.setDate(d.getDate()+i); var f=ymd(d);
+    ['diurno','nocturno'].forEach(function(t){
+      var occ=asigs.filter(function(a){return a.tipo==='asignacion'&&a.autoId&&a.fecha===f&&(a.turno===t||a.turno==='ambos');}).length;
+      dias.push({ fecha:f, turno:t, hayLugar: total? (occ<total) : true });
+    });
+  }
+  return { hoy: ymd(new Date()), disponibilidad: dias, misReservas: misTurnos().map(function(r){ return {fecha:r.fecha, turno:r.turno}; }) };
+}
+function renderChat(){ var w=document.getElementById('chatBody'); w.innerHTML=chatMsgs.map(function(m){ return '<div class="cmsg '+m.r+'">'+m.t.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>'; }).join(''); w.scrollTop=w.scrollHeight; }
+function openChat(){ document.getElementById('chatSheet').classList.add('show'); if(!chatMsgs.length){ chatMsgs.push({r:'bot',t:'¡Hola! Soy el asistente de Drive61 👋 Te puedo contar qué es Drive61, cómo alquilar, para qué sirve cada sección, y ayudarte a elegir o cancelar turnos. ¿Qué querés saber?'}); } renderChat(); }
+function closeChat(){ document.getElementById('chatSheet').classList.remove('show'); }
+function chip(q){ document.getElementById('chatInput').value=q; sendChat(); }
+function chatKey(e){ if(e && e.key==='Enter') sendChat(); }
+function sendChat(){
+  var inp=document.getElementById('chatInput'); var q=(inp.value||'').trim(); if(!q||chatBusy) return;
+  chatMsgs.push({r:'me',t:q}); inp.value=''; chatBusy=true; chatMsgs.push({r:'bot',t:'Pensando…'}); renderChat();
+  var ep=(/vercel\.app$/.test(location.hostname)?'':'https://drive61-sistema.vercel.app')+'/api/chat';
+  fetch(ep,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pregunta:q,perfil:'conductor',contexto:JSON.stringify(dispContexto())})})
+   .then(function(r){return r.json();})
+   .then(function(d){ chatMsgs.pop(); chatMsgs.push({r:'bot',t:(d&&d.reply)||'No pude responder ahora, probá de nuevo.'}); chatBusy=false; renderChat(); })
+   .catch(function(){ chatMsgs.pop(); chatMsgs.push({r:'bot',t:'No me pude conectar. Probá de nuevo en un momento.'}); chatBusy=false; renderChat(); });
+}
+
 // ---------- Init ----------
 document.getElementById('ava').textContent = D.iniciales;
 document.getElementById('hello').textContent = D.nombre;
 draw();
+try{ history.pushState({d61:'inicio'},''); }catch(e){}
 var yaPlat = false; try{ yaPlat = !!localStorage.getItem('drive61_plat'); }catch(e){}
 if(isStandalone() || yaPlat){
   var sp0=document.getElementById('splash'); sp0.style.display='none';
