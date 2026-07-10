@@ -34,10 +34,23 @@
 
   /* ===== SPLASH / ONBOARDING ===== */
   #splash{position:absolute;inset:0;z-index:200;background:linear-gradient(160deg,#14161a 0%,#20232b 60%,#2a0b12 100%);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;color:#fff;transition:opacity .45s ease,transform .45s ease}
-  #splash.hide{opacity:0;transform:scale(1.04);pointer-events:none}
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;color:#fff;transition:opacity .55s ease,transform .55s ease,filter .55s ease}
+  #splash.hide{opacity:0;transform:scale(1.1);filter:blur(5px);pointer-events:none}
   .sp-logo{width:92px;height:92px;border-radius:24px;background:var(--red);display:flex;align-items:center;justify-content:center;
-    font-family:var(--head);font-weight:800;font-size:34px;box-shadow:0 12px 34px rgba(221,24,59,.5);margin-bottom:20px}
+    font-family:var(--head);font-weight:800;font-size:34px;box-shadow:0 12px 34px rgba(221,24,59,.5);margin-bottom:20px;
+    animation:spLogoIn .6s cubic-bezier(.34,1.56,.64,1) both, spFloat 3s ease-in-out .7s infinite}
+  .sp-logo.spin{animation:spSpin .8s cubic-bezier(.34,1.56,.64,1) forwards}
+  @keyframes spLogoIn{0%{opacity:0;transform:translateY(16px) scale(.8)}100%{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes spFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes spSpin{0%{transform:rotate(0) scale(1)}55%{transform:rotate(400deg) scale(1.18)}100%{transform:rotate(360deg) scale(1)}}
+  .sp-title,.sp-sub,.sp-tag,.sp-plats,.sp-skip{animation:spFadeUp .6s ease both}
+  .sp-sub{animation-delay:.12s}.sp-tag{animation-delay:.2s}.sp-plats{animation-delay:.28s}.sp-skip{animation-delay:.36s}
+  @keyframes spFadeUp{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+  @keyframes cardIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+  .screen .card{animation:cardIn .4s ease both}
+  .screen .card:nth-child(2){animation-delay:.06s}.screen .card:nth-child(3){animation-delay:.12s}.screen .card:nth-child(4){animation-delay:.18s}
+  .nav .t{transition:opacity .2s,color .2s,transform .12s}.nav .t:active{transform:scale(.9)}
+  .btn{transition:transform .12s,box-shadow .12s,filter .12s}.btn:hover{filter:brightness(1.05)}
   .sp-title{font-family:var(--head);font-weight:800;font-size:26px;letter-spacing:.3px}
   .sp-title span{color:var(--red)}
   .sp-sub{color:#c7cbd3;font-size:14px;margin:8px 0 4px;max-width:300px;line-height:1.5}
@@ -127,6 +140,8 @@
   .nav .t svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2}
   .nav .t.active{color:var(--red);opacity:1}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -213,6 +228,10 @@ var D = {
 };
 var money = function(n){ return (n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-AR'); };
 var INTAKE_KEY = 'drive61_intake_v1';
+// Firebase (sincroniza con el sistema del dueño en tiempo real)
+var FBWEB={apiKey:"AIzaSyCBEhiLdVovFTFdDhKxI0GN1cmHUxUekLk",authDomain:"flota-uber-admin.firebaseapp.com",projectId:"flota-uber-admin",storageBucket:"flota-uber-admin.firebasestorage.app",messagingSenderId:"292910166173",appId:"1:292910166173:web:e6f1c47add7f65f4cba474"};
+var FBDB=null; try{ if(typeof firebase!=='undefined'&&firebase.firestore){ firebase.initializeApp(FBWEB); FBDB=firebase.firestore(); } }catch(e){ FBDB=null; }
+function fbSet(col,id,obj){ try{ if(FBDB) FBDB.collection(col).doc(String(id)).set(obj,{merge:true}); }catch(e){} }
 
 // ---------- Pantallas ----------
 var screens = {
@@ -340,16 +359,18 @@ function misTurnos(){ return leerAg().filter(function(r){ return digitsOnly(r.dn
 function turnoActivo(f,t){ var m=misTurnos(); for(var i=0;i<m.length;i++){ if(m[i].fecha===f && m[i].turno===t) return m[i]; } return null; }
 function reservarTurno(f,t){
   if(turnoActivo(f,t)){ alert('Ese turno ya lo reservaste.'); return; }
-  var q=leerAg(), ahora=new Date().toISOString();
-  q.push({ id:'RT'+Date.now().toString(36)+Math.floor(Math.random()*1000), conductorId:'C1', nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, fecha:f, turno:t, ts:ahora, estado:'reservado', cancelTs:null });
+  var q=leerAg(), ahora=new Date().toISOString(), rid='RT'+Date.now().toString(36)+Math.floor(Math.random()*1000);
+  var robj={ id:rid, conductorId:'C1', nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, fecha:f, turno:t, ts:ahora, estado:'reservado', cancelTs:null };
+  q.push(robj);
   if(!guardarAg(q)) return;
+  fbSet('turnos', rid, robj);
   alert('✓ Turno reservado a las '+fmtHora(ahora)+'. Figura en la Agenda de Drive61 (vía app).');
   draw();
 }
 function cancelarTurno(f,t){
   if(!confirm('¿Cancelar este turno?')) return;
   var q=leerAg(), ok=false, ahora=new Date().toISOString();
-  for(var i=0;i<q.length;i++){ if(q[i].fecha===f && q[i].turno===t && digitsOnly(q[i].dni)===digitsOnly(D.dni) && q[i].estado!=='cancelado'){ q[i].estado='cancelado'; q[i].cancelTs=ahora; ok=true; } }
+  for(var i=0;i<q.length;i++){ if(q[i].fecha===f && q[i].turno===t && digitsOnly(q[i].dni)===digitsOnly(D.dni) && q[i].estado!=='cancelado'){ q[i].estado='cancelado'; q[i].cancelTs=ahora; ok=true; fbSet('turnos', q[i].id, {estado:'cancelado', cancelTs:ahora}); } }
   if(!ok) return;
   if(!guardarAg(q)) return;
   alert('Turno cancelado a las '+fmtHora(ahora)+'. Se quita de la Agenda de Drive61.');
@@ -366,6 +387,7 @@ function enviarSolicitud(){
   var q=[]; try{ q=JSON.parse(localStorage.getItem(INTAKE_KEY)||'[]'); }catch(e){ q=[]; }
   var sid='S'+Date.now().toString(36)+Math.floor(Math.random()*1000), cod=sid.slice(-5).toUpperCase();
   q.push({ id:sid, nombre:nombre, telefono:tel, email:email, turno:turno, nota:nota, ts:new Date().toISOString() });
+  fbSet('solicitudes', sid, { nombre:nombre, telefono:tel, email:email, turno:turno, nota:nota, ts:new Date().toISOString(), estado:'nuevo', origen:'app' });
   try{ localStorage.setItem(INTAKE_KEY, JSON.stringify(q)); }catch(e){}
   try{ localStorage.setItem('drive61_solicito','1'); localStorage.setItem('drive61_ult_solicitud', cod); }catch(e){} cur='enviado'; draw();
 }
@@ -378,8 +400,10 @@ var deferredPrompt = null, installDismissed = false;
 function choosePlat(plat){
   if(!plat) plat = isIOS() ? 'ios' : 'android';
   try{ localStorage.setItem('drive61_plat', plat); }catch(e){}
-  var sp=document.getElementById('splash'); sp.classList.add('hide'); setTimeout(function(){ sp.style.display='none'; },450);
-  if(!isStandalone()) setTimeout(function(){ showInstall(plat); }, 800);
+  var sp=document.getElementById('splash'); var lg=sp&&sp.querySelector('.sp-logo'); if(lg) lg.classList.add('spin');
+  setTimeout(function(){ if(sp) sp.classList.add('hide'); }, 540);
+  setTimeout(function(){ if(sp) sp.style.display='none'; }, 1080);
+  if(!isStandalone()) setTimeout(function(){ showInstall(plat); }, 1300);
 }
 function showInstall(plat){
   if(installDismissed || isStandalone()) return;
@@ -410,10 +434,10 @@ function misDocs(){
 function resizeImg(file, cb){
   var r=new FileReader();
   r.onload=function(e){ var img=new Image(); img.onload=function(){
-    var max=1000, sc=Math.min(1, max/Math.max(img.width,img.height));
+    var max=820, sc=Math.min(1, max/Math.max(img.width,img.height));
     var cv=document.createElement('canvas'); cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
     cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
-    try{ cb(cv.toDataURL('image/jpeg',0.6)); }catch(err){ cb(e.target.result); }
+    try{ cb(cv.toDataURL('image/jpeg',0.5)); }catch(err){ cb(e.target.result); }
   }; img.onerror=function(){ cb(e.target.result); }; img.src=e.target.result; };
   r.readAsDataURL(file);
 }
@@ -424,8 +448,11 @@ function scanDoc(tipo){
     if(!inp.files||!inp.files[0]) return;
     resizeImg(inp.files[0], function(dataUrl){
       var q=[]; try{ q=JSON.parse(localStorage.getItem(DOC_KEY)||'[]'); }catch(e){ q=[]; }
-      q.push({ id:'DX'+Date.now().toString(36)+Math.floor(Math.random()*1000), nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, tipo:tipo, archivo:dataUrl, ts:new Date().toISOString() });
+      var did='DX'+Date.now().toString(36)+Math.floor(Math.random()*1000);
+      var dobj={ id:did, nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, tipo:tipo, archivo:dataUrl, ts:new Date().toISOString() };
+      q.push(dobj);
       try{ localStorage.setItem(DOC_KEY, JSON.stringify(q)); }catch(e){ alert('No se pudo guardar (memoria llena).'); return; }
+      fbSet('documentos', did, dobj);
       alert('✓ '+tipo+' escaneado y enviado a Drive61.');
       draw();
     });

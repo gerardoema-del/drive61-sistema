@@ -178,6 +178,8 @@ button{font-family:inherit;cursor:pointer}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="demo-banner">
@@ -1115,6 +1117,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     };
     return `<div class="ag-actbar"><b>📱 Actividad vía app:</b> ${agActividad.map(item).join('')}</div>`;
   };
+  window.__agendaImport = importAgendaIntake;
   importAgendaIntake();
 
   Object.assign(DB, {
@@ -1579,6 +1582,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
     const maxSerie = Math.max(...serie.map(s=>s.monto));
     const prom = Math.round(serie.reduce((s,x)=>s+x.monto,0)/serie.length);
     const nombreDe = (id) => (conds.find(c=>c.id===id)||{}).nombre || '—';
+    const pros = await (DB.getProspectos ? DB.getProspectos() : Promise.resolve([]));
+    const nuevosApp = (pros||[]).filter(p=>/app/i.test(p.origen||''));
 
     // --- Disponibilidad según Agenda ---
     const asignables = autos.filter(a=>a.estado!=='baja');
@@ -1626,6 +1631,11 @@ window.addEventListener('DOMContentLoaded', ()=>{
         <div class="kpi"><div class="kpi-label">Conductores activos</div><div class="kpi-value">${k.conductoresActivos}</div><div class="kpi-sub">${k.disponibles} disponibles · ${k.taller} en taller</div></div>
       </div>
 
+      ${nuevosApp.length ? `<div class="card" style="border-left:4px solid var(--red);background:#fff5f6"><div class="card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:24px">🆕</span>
+        <div><b>${nuevosApp.length} solicitud(es) de conductor vía app</b><div class="muted" style="font-size:12.5px">${nuevosApp.slice(0,4).map(p=>esc(p.nombre)).join(', ')}${nuevosApp.length>4?'…':''} — esperando aprobación. Contactalos por WhatsApp desde el CRM.</div></div>
+        <button class="btn-primary" style="margin-left:auto" onclick="go('crm')">Ver en CRM →</button>
+      </div></div>` : ''}
       <div class="grid-2">
         <div class="card">
           <div class="card-head"><h3>Ingresos por semana</h3><span class="count">Últimas 8 semanas</span></div>
@@ -1948,6 +1958,62 @@ window.DRIVE61_DEMO_DOCS = {"dni_sosa": "data:image/jpeg;base64,/9j/4AAQSkZJRgAB
 
   // Exponer para la app / debugging
   window.__intakeImport = importIntake;
+})();
+
+</script>
+  <script>
+/* =====================================================================
+   Drive61 — Sincronización en la nube (Firebase / Firestore)
+   El SISTEMA escucha en tiempo real las colecciones que escribe la
+   webapp del conductor (solicitudes, turnos, documentos) y las vuelca
+   en las mismas colas locales (drive61_intake_v1, drive61_agenda_intake_v1,
+   drive61_docintake_v1) para reusar los importadores ya existentes.
+   Así, lo que el conductor carga desde SU celu aparece en el panel del
+   dueño en OTRO dispositivo, en tiempo real.
+   Requiere: Firestore habilitado + reglas publicadas (ver instrucciones).
+   Si Firestore no está disponible, la app sigue andando con localStorage.
+   Los scripts CDN de firebase se cargan en index.html antes que este archivo.
+   ===================================================================== */
+(function(){
+  var CFG = {
+    apiKey: "AIzaSyCBEhiLdVovFTFdDhKxI0GN1cmHUxUekLk",
+    authDomain: "flota-uber-admin.firebaseapp.com",
+    projectId: "flota-uber-admin",
+    storageBucket: "flota-uber-admin.firebasestorage.app",
+    messagingSenderId: "292910166173",
+    appId: "1:292910166173:web:e6f1c47add7f65f4cba474"
+  };
+  if (typeof firebase === 'undefined' || !firebase.firestore) return; // CDN no cargó
+  var db;
+  try { firebase.initializeApp(CFG); db = firebase.firestore(); window.__FB = true; window.__FBdb = db; }
+  catch (e) { return; }
+
+  // Reflejar en el indicador de conexión
+  try { var c = document.getElementById('conn'); if (c) { c.classList.add('live'); var t = document.getElementById('conn-txt'); if (t) t.textContent = 'Firebase · en tiempo real'; } } catch (e) {}
+
+  function mergeKey(key, docs) {
+    var arr; try { arr = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { arr = []; }
+    var byId = {}; arr.forEach(function (x) { if (x && x.id) byId[x.id] = x; });
+    docs.forEach(function (d) { byId[d.id] = Object.assign({}, byId[d.id] || {}, d); });
+    var out = Object.keys(byId).map(function (k) { return byId[k]; });
+    try { localStorage.setItem(key, JSON.stringify(out)); } catch (e) {}
+  }
+  function refresh() { try { if (typeof render === 'function') render(); } catch (e) {} }
+
+  function listen(col, key, importer) {
+    try {
+      db.collection(col).onSnapshot(function (snap) {
+        var d = []; snap.forEach(function (doc) { var o = doc.data() || {}; o.id = doc.id; d.push(o); });
+        mergeKey(key, d);
+        try { if (importer && typeof window[importer] === 'function') window[importer](); } catch (e) {}
+        refresh();
+      }, function (err) { /* Firestore no habilitado / sin permisos: se ignora, sigue local */ });
+    } catch (e) {}
+  }
+
+  listen('solicitudes', 'drive61_intake_v1', '__intakeImport');
+  listen('turnos', 'drive61_agenda_intake_v1', '__agendaImport');
+  listen('documentos', 'drive61_docintake_v1', '__docsImport');
 })();
 
 </script>
