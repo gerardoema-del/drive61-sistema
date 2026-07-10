@@ -2,135 +2,367 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Drive61 — App del Conductor (preview)</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+<title>Drive61 · Conductor</title>
+<meta name="description" content="Alquilá tu auto y trabajá en Uber con Drive61." />
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#14161a" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Drive61" />
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAANT0lEQVR4nO3da3QU5RnA8Zndmb1nkyy5sAkECFeJCXJJFBEQwYMQrKKIoqViRQvag1YKx4o15UgpB1svwSJWTlFqrShgAREpcgkCRxISJZEgd5KY+22z19mdnZl+iEcR8mze2cyys/D8vpm8885g/tndmXl3Q5/rPY5CqCuaaB8AUi+MA4EwDgTCOBAI40AgjAOBMA4EwjgQCONAIIwDgTAOBMI4EAjjQCCMA4EwDgTCOBAI40AgjAOBMA4EwjgQCONAIIwDgTAOBMI4EAjjQCCMA4EwDgTCOBAI40AgjAOBMA4EwjgQCONAIIwDgTAOBMI4EAjjQCCMA4EwDgTCOBAI40AgjAOBMA4EwjgQCONAIIwDgTAOBMI4EAjjQCCMA4EwDgTCOBAI40AgjAOBMA4EwjgQCONAIIwDgTAOBMI4EIiJ9gGoj0ajGzbAkJejG5bJ9ktj+to1VgttMmoMeskfEN1e0e0VHU7+Qg1/tjpwttp//LtgTX20Dzoi6HO9x3U/iNEOqCmSMaskSYJISSLFC1IgIHEB0ceJbq/o8ojtHUKrQ2hqC9Y1Br9v4M/VBOubKUkK/1+gFK3GeNsYy8wp5mkTNFaLrE35qjrfl8d8RSXeL45InF/Jg7LFG/JyDHk5+txs/YihNMuSbHWh/x2SP9DzvUcmDjlEtzfw7Wmu9AR3uMx3uEwK8BHaEYTWsXEP5Sc8/QiTYe/hVKLL49mx3/XRLq64POzi2cw+hrwRhtxsw8057MCMMGa4duK4lOh0e3YWubf+z3eo9CrsjqIo0+SxSasWM316KzttzfhH+LNVhINpltHdOMSQl2O4OceQm61NSuzh3pWKQ12vOTRWS9yc/Lg5+YETZ9pfe8/zWVHknnE0ZmPS6qWW++6M0Pzk4ubek/Tn30X7KLqg0rMVXdbg1PUr+uzZoB8xLBLzs/3T0z59Ww1lqJlK4+ikyxqUvvMfthcX0jqiF2KE2MH903as0w3LVHDOa5Kq46AoitJqEp5+xL65UNsrQZH52IEZaZsLe/68fj1QfRwURVGUITc7/bN32MH9eziPxmrp/a/V2hSbEgd17YuNOCiKYjLsaVsK2cw+4U9B0ylrC9gBPZjhOqOus5XQtMk2+0dv1N29MFjfFMbm1rn3mCaPlbWJ0Nzm+7KUO1bhP/6d2OoQHC7J46XNJk28RWtL0A3L1A0fqL9xiH5MFuHlqdgSS3FQFMWkp6auX1F371MSH5S1oTa1l23ZAvLxgZPnOtZ96P7kC4m//KKc1OESO1zB6nr/Nyc7v6IxG40Tck2Tx5rvniT36mpoosPJHfuWK6ngjpYbx49OXPxrBSfvlvJx1D/4rO/gsZ/+m6ZpvU5jNGiTE7X2ZN2QAbrsIcZxo5i0lPDm148abntxYWvBGllb2ZY+QfpjE0XH3z9oX/2OFBQIJxc9Ps+ug55dB1uWvWaeMSnu4RmUKMo6vEvxF2u5kgp/cTlXXB44U/XjlR5DXnbYc4Yn8o8ckiRxfoHzC+0d1OmLvqKSzi/rsgbFPTg9bs4MjcUkd8r4J2a7t+31l1USjmf62i0P3EU0VBAb5y/zfP6l3EPqJPkD7i273Vt2y9sswPu/ruRKKrjiCq6kXGhqC2/viovaC9LAibOtLxVWj7m/Y92HlCDz94ymk1Y+R2lIDz7hqYdplujXoOWFV8MuI2zO97fXTn+ytWCNZ+cB9ZRBRf1sRexwtS5/s3bGb4J18l5j6kcMs9w9iWQkrdcRXgn17Njv3PhfWYdxbVPFqaz/m5O10+aT36nqFL/gIZJh5ulEt+AlPti2cp2sA7jmqSIOiqKEprb6B56V9aCqv+kGQ273r9HMM4geYNybd/MXa8n3fj1QSxwURQUbmpueXi5rE/Mv7uhmhFZjvG00yVTu7ftk7fp6oK7rHL5Dpe6te8hvlprzJ7a+VBjitr5h5HCS5xSxw8Ud/mkFCc0y+hHDDLeONOTlMPYUrS1eY4unaEry+YWW9uD3jYFT5/1llb6DJUJbB+GhxiJ1xUFRVPvf/mmZOYWiaZLBjD2FHdSPP3MRGqAfeQPJPFxZZedVNW1SovWx+6yPzuzyPh/Nshqrhc3sa5wwhqIoShB9X33jfO8T766D5BdFYojq4uDP1/gOHjNOzCUcbxiTFSIO3fBBRDs9c5Fm2cTF8+IXPixjeYBWYxw3yjhuFH++pu3ltVf/HDjSVPSa40eenQfIBxtGZ4X4ri5rMMkktE6X/vn6hGceDW/hCJvZN3XDX1Le+pOy186jTo1x+A7LWEDK9A91l5UlWzNsnTdTN3wg+U67ZLl3Svqn65i+PV2lrB5qjIO/UCs63YSDWfiHQet1mvg4hQ6K7GAG90/bvlbx5crRosY4KEniq+sIx2rtydC3mN5JCh2QDEzvZPum16+N5xdVxkFRQl0z4UiaZaAXCtH6CbGZfZJffT4qu1aWSuMQPT7ywbTJ2PXXDXqFDkc2c/7t5mkTorV3pag0Dskv402FtL7rRw7aoFPocMJhK/gtpVXp/15CqrvO0YnWy/illzjg3V3E9/QvIzS3OTds9RYVB6vqRKdbY7UwGWmmibnWefdpU3sRTsL2SzPn3+6J5avyKo1D1gogyct1/fWw3nbr3ra3ZfGqS5/XhFaH0Orwf13peHtT8uollllTCaeyzsmP6ThU+rhHvohQ4vkrl3n+8C35cXj3H216ajn0ikfycU2LVpBfCTXcNiamT1tUGQdNM/3SCMcGa8FVQpKv60cUcDwfbFmyupvln5LU8vxfCd+mTDNaw5gbZR2DqqgxDnZQP/KnlWBNA/QtodUha7/eL44Eaxu7HSY0tnp2HSScM0Lv9b061BiHifiuG0VR/MXvoW8JLe2yVoF79xxWfCT5Q6AKqTEOc/5E8sGh1qALotDiIJ8qUHGGdKfEI6NylVYpqotDd8NAwy03kY/njn0b4rv8uWryqcjfSCc0EF/ABS7QxQTVxZG45HHywcG6ptA//gC81ONKostDOtLtJXzCosO91qIG6jp005RbZV119uzs5qN/ApXnenxQALK1aqLMMyZVUVEcTIY9uXCZrE082/eGHsAdPU4+mybOTDrSYiKNg3jtgQqpJQ4mLcX+0RvaxHjyTfzHvwv9goOiqMCpC0I76Rpgxk565U3bG1wncJmY/ohSVcRhyMtJ37WelXnW1/HWf7ofJEm+fV8RTqjLJlpTSFGUnngkfx4801a/KMehtcX3WvFs2idvyv20HX/5KfeO/SQjCYdRFGW6s/tP3ZQ7kivt5rFNzaJ2402fM9Qye5p1zgzaZJC9sSS1vPAq4fmCb/9R0eHUJFi7HWmaciuTntrtRVJtai/CV82iwxk4eZ5kpDpFPg6apnUsbdBrk21MWrJu6ABd9lDj+NEM8dP2lTrWf+wvPUE4WArwzo3bEhbN7f5IWSbplaUNv1wSKjuaTlr1e1pPtFLEs7OoJx/UEXXKx2Hf9Lric17KX1bZ9vJaWZt0bNgSv/Ahkk9mMk26OWVtwWW37H9EGw3Jq5eY7xpPuF/Xps9kHafaqHQ9ByRY29g4/0W5n/kkNLQ412+OXziHZLDlnsnGsSOd7271HigOVtWKLo8mzsxkpBkn5sU/JmOxD1dSwZVUkIzUptj6Hd9OOC2JARe7X0Ti3ra3aUFB6DGxFIfQ3FY/+5nwPi2u/bV3LbOmapOJXvZqU2yJS+cnLp0fxo5+IEltK94Kf3N1UMWpLAm+qq7u/kVhnxmKLk/z4lXKHlIIrg92cMXlV213ERIbcXAlFXX5T4Z4TywJ754jHe98rNARhRI4ea7lj4VXYUeRpvY4pKDgWPN+/axFclfudKl1+ZpIv9052NDcMO95uYvQ1EnVcfgrTtdNf6Jt5TrF/kKPIDYtKPAdOKrMbFcI1jfV378oWB3Dl8wvpdI4/OWnGh/7Q+3Ux/0Vp5WdWfIHGuYudb6v5NlBJ39ZZe1d8/nzNYrPHC3qOlsRO1yenUXuLbt9R76O3F6koNCyZDV3qLTXyue0Nhm3+sAJ+aDjjY2Owo1yz7FVLvpxiC5P4MQZ7tgJ3+Ey7nAZ9D4Dxbm37fUdKk1YNNf6q3vDf+OkKLq37Wt/ZT1/IYZvsEEiFocoSqJEBYNSgJe4gOj1iW6P6Pz5X4esaeDPR/OvQwqtjtaCNY43/x03e5pl1lRZf56HP1vl3r7P9cGnJAvWYxTRHwC8TjB97cZbRuhHZbED0pmMNG2ilTYaaJaRArzo44TmdqGuMXC2OlB+iisu56tIPyQidmEcCKTSsxWkBhgHAmEcCIRxIBDGgUAYBwJhHAiEcSAQxoFAGAcCYRwIhHEgEMaBQBgHAmEcCIRxIBDGgUAYBwJhHAiEcSAQxoFAGAcCYRwIhHEgEMaBQBgHAmEcCIRxIBDGgUAYBwJhHAiEcSAQxoFAGAcCYRwIhHEgEMaBQBgHAmEcCIRxIBDGgUAYBwJhHAiEcSAQxoFAGAcCYRwIhHEgEMaBQBgHAmEcCIRxIBDGgUAYBwJhHAiEcSAQxoFAGAcCYRwIhHEgEMaBQP8HnDmX44lKM3QAAAAASUVORK5CYII=" />
+<link rel="icon" href="data:image/png;base64,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" />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet" />
 <style>
-  :root{ --dark:#1a1a1a; --red:#dd183b; --red-2:#e21824; --green:#16a34a; --amber:#f59e0b;
-         --muted:#6b7280; --border:#e5e7eb; --bg:#eceef1; --font:'Inter',sans-serif; --head:'Montserrat',sans-serif; }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--font);background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 12px}
-  .demo-banner{background:linear-gradient(90deg,var(--red),var(--red-2));color:#fff;font-size:12px;font-weight:600;text-align:center;padding:7px 14px;border-radius:8px;margin-bottom:18px;max-width:420px}
-  .intro{max-width:420px;text-align:center;margin-bottom:16px;color:var(--muted);font-size:13px}
-  .intro b{color:var(--dark)}
-  /* phone */
-  .phone{width:360px;max-width:100%;background:#fff;border-radius:34px;box-shadow:0 12px 50px rgba(0,0,0,.22);overflow:hidden;border:9px solid #111;position:relative}
-  .status-bar{height:26px;background:var(--dark)}
-  .app-head{background:var(--dark);color:#fff;padding:14px 18px 20px;display:flex;align-items:center;gap:12px}
-  .ava{width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--head);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
-  .app-head .hi{font-size:12px;color:#bdbdbd} .app-head .nm{font-family:var(--head);font-weight:700;font-size:16px}
-  .brand{margin-left:auto;font-family:var(--head);font-weight:800;font-size:15px}.brand span{color:var(--red)}
-  .screen{padding:16px;min-height:430px}
-  .card{border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:13px}
-  .card.dark{background:var(--dark);color:#fff;border:none}
-  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-family:var(--head);font-weight:600}
-  .dark .lbl{color:#bdbdbd}
-  .big{font-family:var(--head);font-weight:800;font-size:27px;margin-top:5px}
-  .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+  :root{
+    --red:#dd183b; --red-d:#b3122f; --dark:#14161a; --dark-2:#242832;
+    --green:#16a34a; --amber:#f59e0b; --muted:#6b7280; --border:#e6e8ec;
+    --surface:#f4f5f7; --card:#ffffff; --text:#14161a;
+    --font:'Roboto',system-ui,sans-serif; --head:'Montserrat',sans-serif;
+    --nav-h:62px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:var(--font);background:#0e0f12;color:var(--text)}
+  .wrap{max-width:430px;margin:0 auto;min-height:100vh;background:var(--surface);position:relative;overflow:hidden;display:flex;flex-direction:column}
+  @media(min-width:540px){
+    body{padding:26px 12px;display:flex;justify-content:center}
+    .wrap{border-radius:34px;border:10px solid #0a0a0a;box-shadow:0 24px 70px rgba(0,0,0,.55);height:840px;max-height:94vh;overflow:hidden}
+  }
+
+  /* ===== SPLASH / ONBOARDING ===== */
+  #splash{position:absolute;inset:0;z-index:200;background:linear-gradient(160deg,#14161a 0%,#20232b 60%,#2a0b12 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;color:#fff;transition:opacity .45s ease,transform .45s ease}
+  #splash.hide{opacity:0;transform:scale(1.04);pointer-events:none}
+  .sp-logo{width:92px;height:92px;border-radius:24px;background:var(--red);display:flex;align-items:center;justify-content:center;
+    font-family:var(--head);font-weight:800;font-size:34px;box-shadow:0 12px 34px rgba(221,24,59,.5);margin-bottom:20px}
+  .sp-title{font-family:var(--head);font-weight:800;font-size:26px;letter-spacing:.3px}
+  .sp-title span{color:var(--red)}
+  .sp-sub{color:#c7cbd3;font-size:14px;margin:8px 0 4px;max-width:300px;line-height:1.5}
+  .sp-tag{color:#8b909b;font-size:12px;margin-top:2px}
+  .sp-plats{display:flex;gap:14px;margin-top:34px}
+  .sp-plat{width:118px;padding:18px 10px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+    display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;transition:transform .15s,background .15s}
+  .sp-plat:active{transform:scale(.95)} .sp-plat:hover{background:rgba(255,255,255,.12)}
+  .sp-plat svg{width:34px;height:34px;fill:#fff}
+  .sp-plat b{font-size:13px;font-weight:700}
+  .sp-plat small{font-size:10.5px;color:#9aa0ab}
+  .sp-skip{margin-top:26px;color:#8b909b;font-size:12.5px;text-decoration:underline;cursor:pointer;background:none;border:0}
+
+  /* ===== APP BAR ===== */
+  .appbar{background:var(--dark);color:#fff;padding:16px 18px 15px;display:flex;align-items:center;gap:12px;position:relative;z-index:5}
+  .appbar .ava{width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--head);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .appbar .hi{font-size:11.5px;color:#aeb3bd} .appbar .nm{font-family:var(--head);font-weight:700;font-size:16px}
+  .appbar .brand{margin-left:auto;font-family:var(--head);font-weight:800;font-size:15px}.appbar .brand span{color:var(--red)}
+  .demo-chip{position:absolute;top:8px;right:14px;background:rgba(255,255,255,.14);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.5px}
+
+  /* ===== SCREEN ===== */
+  .screen{flex:1;overflow-y:auto;padding:16px 15px calc(var(--nav-h) + 22px);-webkit-overflow-scrolling:touch}
+  .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,22,26,.07),0 1px 2px rgba(20,22,26,.05)}
+  .card.hero{background:linear-gradient(150deg,var(--dark),#23262f);color:#fff}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700}
+  .hero .lbl{color:#aeb3bd}
+  .big{font-family:var(--head);font-weight:800;font-size:26px;margin-top:6px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);font-size:14px}
   .row:last-child{border-bottom:none}
-  .btn{display:block;width:100%;background:var(--red);color:#fff;border:none;border-radius:11px;padding:13px;font-family:var(--head);font-weight:700;font-size:14px;margin-top:8px;cursor:pointer}
-  .btn.ghost{background:#fff;color:var(--dark);border:1.5px solid var(--border)}
+  .muted{color:var(--muted);font-size:13px}
+  h4{font-family:var(--head);font-size:15px;margin-bottom:4px}
   .pos{color:var(--green);font-weight:700}.neg{color:var(--red);font-weight:700}
-  .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;font-family:var(--head)}
+  .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:var(--head)}
   .badge.g{background:#e7f6ec;color:#0f7a37}.badge.a{background:#fff2e0;color:#b5730a}
-  .score-ring{width:96px;height:96px;border-radius:50%;margin:6px auto;display:flex;align-items:center;justify-content:center;
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--red);color:#fff;border:none;border-radius:13px;
+    padding:15px;font-family:var(--head);font-weight:700;font-size:15px;margin-top:10px;cursor:pointer;box-shadow:0 6px 16px rgba(221,24,59,.28);transition:transform .12s,box-shadow .12s}
+  .btn:active{transform:translateY(1px) scale(.995);box-shadow:0 3px 9px rgba(221,24,59,.3)}
+  .btn.ghost{background:#fff;color:var(--dark);border:1.5px solid var(--border);box-shadow:none}
+  .btn.dark{background:var(--dark);box-shadow:0 6px 16px rgba(20,22,26,.25)}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-family:var(--font);font-size:15px;background:#fff;color:var(--text)}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--red)}
+  .field textarea{min-height:74px;resize:vertical}
+  .score-ring{width:104px;height:104px;border-radius:50%;margin:8px auto;display:flex;align-items:center;justify-content:center;
     background:conic-gradient(var(--green) 0turn .92turn,#e5e7eb .92turn 1turn)}
-  .score-ring div{width:74px;height:74px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .score-ring .n{font-family:var(--head);font-weight:800;font-size:24px;line-height:1}
+  .score-ring div{width:80px;height:80px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score-ring .n{font-family:var(--head);font-weight:800;font-size:26px;line-height:1}
   .score-ring .t{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-  h4{font-family:var(--head);font-size:14px;margin-bottom:4px}
-  .muted{color:var(--muted);font-size:12.5px}
-  .tabbar{display:flex;border-top:1px solid var(--border);background:#fff}
-  .tab{flex:1;padding:10px 4px 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600}
-  .tab .i{display:block;font-size:19px;margin-bottom:2px}
-  .tab.active{color:var(--red)}
-  .slot{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:9px;font-size:13px}
+  .slot{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:9px;font-size:13.5px}
   .slot.taken{opacity:.45}
+  .steps{background:#eef1f6;border-radius:12px;padding:12px 14px;font-size:12.5px;color:#374151;line-height:1.6}
+  .steps b{color:var(--red)}
+  .ok-wrap{text-align:center;padding:26px 8px}
+  .ok-circ{width:76px;height:76px;border-radius:50%;background:#e7f6ec;color:var(--green);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 14px}
+
+  /* ===== INSTALL PROMPT ===== */
+  #install{position:absolute;left:12px;right:12px;bottom:calc(var(--nav-h) + 14px);z-index:60;background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.22);display:none}
+  #install.show{display:block;animation:sheet .3s ease}
+  @keyframes sheet{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .inst-top{display:flex;align-items:center;gap:11px}
+  .inst-top img{width:42px;height:42px;border-radius:11px}
+  .inst-t{font-family:var(--head);font-weight:700;font-size:14px}
+  .inst-s{font-size:11.5px;color:var(--muted)}
+  .inst-x{margin-left:auto;background:none;border:0;font-size:20px;color:var(--muted);cursor:pointer;line-height:1}
+  #inst-ios{display:none;margin-top:10px}
+
+  /* ===== BOTTOM NAV ===== */
+  .nav{position:sticky;bottom:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
+    display:flex;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:40}
+  .nav .t{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:10.5px;font-weight:600;cursor:pointer;opacity:.7;user-select:none}
+  .nav .t svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2}
+  .nav .t.active{color:var(--red);opacity:1}
 </style>
 </head>
 <body>
-  <div class="demo-banner">DEMO · App del CONDUCTOR (fase 2) — datos de muestra</div>
-  <div class="intro">Así vería <b>el conductor</b> su cuenta desde el celular: pagar el alquiler, ver multas, su scoring y reservar turno. Es el <b>complemento</b> del sistema interno.</div>
+<div class="wrap">
 
-  <div class="phone">
-    <div class="status-bar"></div>
-    <div class="app-head">
-      <div class="ava">MS</div>
-      <div><div class="hi">Hola,</div><div class="nm">Martín Sosa</div></div>
-      <div class="brand">Drive<span>61</span></div>
+  <!-- ONBOARDING -->
+  <div id="splash">
+    <div class="sp-logo">D61</div>
+    <div class="sp-title">Drive<span>61</span></div>
+    <div class="sp-sub">Alquilá tu auto y empezá a generar con Uber. Sin comprar el auto, sin vueltas.</div>
+    <div class="sp-tag">Elegí tu teléfono para instalar la app</div>
+    <div class="sp-plats">
+      <div class="sp-plat" onclick="choosePlat('android')">
+        <svg viewBox="0 0 24 24"><path d="M6 9v8a2 2 0 002 2h8a2 2 0 002-2V9H6zm-3 0a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0V9zm15 0a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0V9zM9 21a1.5 1.5 0 003 0m0 0a1.5 1.5 0 003 0M7.5 7a5 5 0 019 0"/></svg>
+        <b>Android</b><small>Instalar app</small>
+      </div>
+      <div class="sp-plat" onclick="choosePlat('ios')">
+        <svg viewBox="0 0 24 24"><path d="M16 3c.1 1.3-.4 2.5-1.2 3.4-.8.9-2 1.6-3.2 1.5-.1-1.2.5-2.5 1.2-3.3C13.6 3.6 14.9 3 16 3zm3.5 14.6c-.5 1.2-.8 1.7-1.5 2.7-1 1.4-2.4 3.2-4.1 3.2-1.5 0-1.9-1-3.9-1-2 0-2.5 1-4 1-1.7 0-3-1.6-4-3C2.4 19 2 15.5 3.4 13.3c.9-1.5 2.5-2.4 4-2.4 1.6 0 2.6 1 3.9 1 1.3 0 2-1 3.9-1 1.3 0 2.7.7 3.6 2-3.2 1.7-2.7 6 .7 7.7z"/></svg>
+        <b>iPhone</b><small>Instalar app</small>
+      </div>
     </div>
-    <div class="screen" id="screen"></div>
-    <div class="tabbar" id="tabbar"></div>
+    <button class="sp-skip" onclick="choosePlat()">Continuar sin instalar &rarr;</button>
   </div>
 
-<script>
-const D = {
-  saldo: 0, proximaCuota: 42000, vence: "Lun 13/07",
-  auto: { patente:"AF461KT", modelo:"Fiat Cronos", km:41250 },
-  scoring: 92,
-  multas: [],
-  cuenta: [
-    { c:"Alquiler semana 27", f:"07/07", m:-42000, e:"pagado" },
-    { c:"Telepeajes sem. 27", f:"07/07", m:-2080, e:"pagado" },
-    { c:"Pago recibido", f:"07/07", m:44080, e:"ok" },
-  ],
-  turnos: [
-    { t:"Lun 14/07 · Diurno 06–18", libre:true },
-    { t:"Lun 14/07 · Nocturno 18–06", libre:false },
-    { t:"Mar 15/07 · Diurno 06–18", libre:true },
-  ],
-};
-const money = n => (n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-AR');
+  <!-- APP BAR -->
+  <div class="appbar">
+    <div class="ava" id="ava">MS</div>
+    <div><div class="hi">Hola,</div><div class="nm" id="hello">Conductor</div></div>
+    <div class="brand">Drive<span>61</span></div>
+    <div class="demo-chip">DEMO</div>
+  </div>
 
-const screens = {
-  inicio: () => `
-    <div class="card dark">
-      <div class="lbl">Tu cuenta</div>
-      <div class="big" style="color:#7Cf0a0">Al día ✓</div>
-      <div style="font-size:12px;color:#bdbdbd;margin-top:4px">Próxima cuota: <b style="color:#fff">${money(D.proximaCuota)}</b> · vence ${D.vence}</div>
-      <button class="btn" onclick="pay()">Pagar ahora</button>
+  <!-- SCREEN -->
+  <div class="screen" id="screen"></div>
+
+  <!-- INSTALL PROMPT -->
+  <div id="install">
+    <div class="inst-top">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAQi0lEQVR4nO3de5QU1Z0H8G9VP2d6el7Me2AkDOLEGR7rgGAQFTRRCeiJuGKWaIK7gjmI4eyJiiYhi5jk5AQ3jrorAZIs65qTSAQXI6IoygZEUHkPyGNUmGHez55+VndX7R8DHAbm0XWruqu77u9zjv946t5bwO/bt563BCSZuqLpitH7QOKnvHm3YPQ+XMrQnaFiJ4CxoUj4wFT0ZCiJDkPCBqPCJ2okKghxH4QKn2gR7yDErXMqfKKneAVB906p8Ek86R0EUc/OqPhJvOldY7qkiQqfGEGP2UDzDEDFT4yiR+1pCgAVPzGa1hpkDgAVP0kWWmqRKQBU/CTZsNak6gBQ8ZNkxVKbqgJAxU+SndoajTkAVPwkVaip1ZgCQMVPUk2sNTtsAKj4SaqKpXZ1fRSCkFQzZADo15+kuuFqeNAAUPETsxiqlukQiHBtwADQrz8xm8FqmmYAwrUrAkC//sSsBqptmgEI1/oFgH79idldXuM0AxCuXQwA/foTXlxa6zQDEK5RAAjXRIAOfwh/LtQ8zQCEaxQAwjUKAOEaBYBwTaATYMIzmgEI1ygAhGsUAMI1CgDhGgWAcI0CQLhGASBcowAQrlEACNcoAIRrFADCNQoA4RoFgHCNAkC4RgEgXKMAEK5RAAjXKACEaxQAwjUKAOEaBYBwjQJAuEYBIFyjABCuUQAI1ygAhGsUAMI1CgDhGgWAcM1q9A4QwDIiG84p4+GYVAHrVaWwXVUCS2EexHQnhDQnBKsViiRBCUlQghJknx+Rlg5EWzoQbW1H+GwTwie/gnTiS0TbOo3+46QU5gAUrFmJjLtv1TZ6VIYiy0A0CkUKQwlKUEIhyF5/3389vYh29kDu7EGkqQ2RxlZE6psQ/qIecq9P29gGs429ChnfuQ2uOTNhHzd62O2FtL4wAIAFgK28bMDt5G4PggeOI7j3EIJ7DyN04BiUkKTjng/OUpALZ3UVHNWVcE6ugmNiBQSnQ3U/kYZmnJ1ybxz28ErGzgAWEYJFBGzWvr+ozNibRprbIB0+idCBYwjs3o/g/logKsdvX3WSdstU5Cx7EM6pE+PSv5idifSZU5E+cyoAoGfNn9Gx8iXdxxFsVtgrr+4r9OpKOKsrYR1VrPs48Zayh0DWonxYi/KR/q3pyAEQbe+Cb8sOeDdvR/DTo0bv3hUcVeOQ9+sfw3HdtUbvChNLUR6c153/ZZ9cBceEayA47EbvlmYpG4DLWfJykPnQPGQ+NA9S7Wl0/fa/4Nu6E1CM/QCOYLMh96lFyFo0H7Ck7jWHsr0bIdhtRu+G7lL3X2QI9sqxKFz/LEbu2IC0myYbth+WglwUv/4Csn743ZQufjMz9b+KvWIMiv/yPPJXPwHR7Uro2LbyMox85w9wThmf0HGJOqYOwAXuBXdh5I4NsH+9PCHj2caMQsnrL8JSlJeQ8Qg7LgIAANaRRSjZ8vLFqyPxYsnPRfFfa2ApHBHXcYg+uAkAAIgZ6Sh65TfIuOebcelfsFlRuG4VrMUFcemf6M80V4FiZhGRX/NTyL4A/O/s0rXrnOWLdLm+Hzpy8uKNrPCXDZC7PZC7PVCkMES3C2JmBix5ObCNGw17xRjYK8rhnFLFdNOJd/wFAIBgtaBw7So0fmcJQvuP6dKnY/w4ZC++n7m9Eo7A97/vo/vlP0E6VjfodtHOHkQ7exD+6ly/+x2Cww7ntElIv+V6uGbfDGtZ6t2UMoIhAWj78a/R++qbV/x/wWaDkOaAmJkBa3E+rKOKYa8cC2d1JRzVVRCsFt32QbDbULh2FRpuWwi526OtM1FE3nPLmS91hr+oR8uin0GqPc28C0pIQmDnPgR27kPHM/8B57SJcP/jnQl9ZCTa0Y3QZ7UI7q9F6NOjsI4uRf7qJxM2PoukmgGUcBhKOAzZ40WkoRn45Aiw6V0AfcfvrjtvgnvBXN0eI7CWFqLg+afR/IPlmvrJmDsTjvHjmNr6t3+E1h/+HLIvoGkf+lEUBPccRHDPQf36vHyIcATS8bq+gv/0KEL7axH+6ly/bTLyc+M2vl6SKgBDkb1+9G7cht6N2+CcNgkjfr4Ejklf19xv+u03wnXHDPi2/Z2tA0FA9rLvMzUNHfocLYtXQAkE2cZOoEhTG6RjpxH69CiCn9UidOhzKMGQ0bulWcoE4FLBjw/i3JzFyF6yALlPPgyI2i5mjVj5GPwf7GV6ajJ91jTYK8aobhft6kHzg0+kRPEDQP20+4zehbhI3cugURndL7yC5u8v1/y4r7WsGO75s5nauu9na9dd8wqirfTsvtFSNwDn+d/7CC0P/1Tzo9BZi+cDgqCqjZidifTbb1Q9VuRcCzx/fF11O6K/lA8A0Hci2bX695r6sI0ZhfRbrlfVxvXNb0CwqX9CsvcvW6FIYdXtiP5MEQAA6HrhFYSOnNTUh+uuWaq2T7t5CtM4vq3/x9SO6C8lT4IHJMvo/LcXUfz6i8xduO68Ce1P/AZKOBLT9mkz1Acg0tAMqfZU//8pCLCNvQrO6yfAOXUC7GPLIGZnwpKbBTHDBUWSIPsCiLa0I1zfDOnoKYT21yKw56AprsQYyTwBABD46ABCh0/AMeEapvZilhuOiRUxvVFmHVUMS4H669yXzlJiRjrc82cj86F5sI0ZNWgbIc0JS5oTlrwc2CuvhuuOGQAAJRCE//098Gx4A4Fdn6neF2KiQ6ALev/0N03tHdVVsW1XOZap//CpMxCsFmQv/R7KDryBEc8uG7L4hyKkOeGaMxPFG2tQum09nDdMYuqHZ6YLgNYH3JzVlTFtZ7+WLQBCmgMlb69D7tOPQMxIZ+pjII6JFSjZ9BLyVz8JId2pW79mZ7oARJrbEP6ygbm9bezAy41csd3XRjL1n/XwfXBUsT02EQv3grkofXs9rCOL4jaGmZguAEDfIwasYl3aI5nf9rKPG43St9YyH1rxxJQB0DIDiBnpELOHX6DImsQBAM6/kL+xBtaifKN3JamZMgCRc62a2luy3cNuI47I1jRGIlhLClCw9hldHyM3G1MGQO71amp/YQnCoYgxbJMMnFPGI3vpA0bvRtIyZQC0PmEppA3/amEqLRKV/dgDdFI8CFPdCLtI5UNtVxhmMTnBZtX8CHb/8RR4t+yA760PETpwHNGObgiiAEteDhzVVXDNnXnx5hcLwelA9qML0L78Of322SRMGQCthyfDzSCKrN8ivJHmNrQsfBqhg8f7jwFA9gUQPtMI76Z34bxhEgp//wtYcrKYxnHPn43OX/4Oskfb4aHZmPIQSMwa/iR2KMMeQkVlXVailj1eNN2z9IriH0hwz0E03fsY87M/gtOhaRYxK1MGwFqibV2eaNfwL8krkvY19zt/9TtVl2ylY3Xoev6/mcdL/9Z05rZmZcoA2MrZbwDJHm9Mhwmy1888BgDIPb3ofVX9c0ueP/yV+Q0455QJTO3MzJQBcEysYG4bqW+OabtoWxfzGADge2snlLD6l2LkXh/8733ENKalIBeWvBymtmZlugBYy4o1falEOvVVTNtF2zqYxwDQ90UbRqEDw58zDIYWzOrPdAFw3a7tRC8UY2FGmto0jSMdH3z1t3i2taTAWj2JZLoAuBfM1dQ++FlsAQifPqtpHLmzh7ltVENbkR6V7sdUAUi/9QbYr/kac/toVw+kwydi2lY6+SXzOIC2k2hNyx0Kpvon18w0fxuC1YLcFUs09eHftgtKJBrTtlrW8TSS4tdxCUYTME0Acp54OKbv7Q7Fu2VHzNtGGlsROdfCPJaWt8G0fO5J6+VbszFFAFx3zUL2kn/S1Ee47iwCO/epaqNl8Vkxl+2RBgCwaGgbqW9ibmtGKR8A15yZKHjpZ5ofTutZ82fVn1T1f7CXeTwt3ytjbauEI5pmLTNK2QAIVgtyHv9nFK59hml1tktFzjahd+M21e387+5ivyt7XWwv3w/E8Q9sq2JLR07GfI7Di5QMQNqMapRuW4+cf12o/dFnAO0rapgKWfb64d/xMdOYrm/fzBRc0e1C+m3fYBozuO8wUzszS5kAiJkZcN//bZS8uQbFr9XAXnm1Lv3639mlaSkVz4bNTO3ELDfcC+aobpf50L0QHHamMX1bdzK1M7Okeh9AsFkhOOwQs9x9n0gqK+n7RNLkKjiuq9T93dZIYytal/1SUx+BnZ9AOl7HdFye+9RiBHZ+EvMTofZry5Gz7EHV4wB9SzLGsuIdb4S6ounqzvzOK1izEhl336r3/iSMIoXReM+jCMV453corrkzUbh2FVPbwV6IuZzWF2I6VryAnnWvMbUFgPyan8B9353M7ROhfsYChE+fUdUmqWaARFEiUbQuXqFL8QOA780PENx7iOnbZdaifJRuXdv3SuTfPkTo4HFE27uA869EOidXwTV3lqaXWaKtnfC8uoW5vZnxF4CojLYfPcv+TbBBtP/ktyh9ex3bFSlBQMbdt8ZtRu1Y+SIUf2p8iinRUuYkWA9yrw9N33sc3k3bde9bqj2NzlUv696vVr5tf4/Ln9csuAlA5GwTGuc+gsCH7DevhtOz7jX43vwgbv2rFf6iAW0/+oXRu5HUzB8ARYFnw2Y0zHoQ0gltT3DGovXRZ5Jirf7IuRY0zV9Gq0AMw9QBkGpPoXHeUrQvf07fD1EPQZHCaPnBck2PSWgVrjuLpnlL+z42ToZkygCEDn2OloVPoeG2hXH9WvpgZF8AzQ88Ds8fNyV8bP+Oj3Fu9iKEzzQmfOxUZJqrQNGWDni37IB383aEDhwzeneAqIz2p/8d/vf3IH/1k3FfTl32eNG56j/h+R+63KlGygYg0tQK6cgpBPfXIrh7P4L7jwE6rtimF//7e1B/43eR+S/3IfuR+TEtva6G7PXDs2Ezul96FXL38OsZkf6MDYCiQInKQDQKRQpDCUlQAkHIvgDkXh9kjxfRzh7I7V2INLcj0tSKyJlGhL+oT6kXO2RfAN01G+BZ/xpcd81Cxr13IG3aROZHuJVwBMF9h+F74z14N29P2PmNGTE/CkG0ETMz4Jw6Ac7qKtjGlsE2uhSW/BEQ0p0Q05xQZBlKMATZ60O0qb3v86rH6xA6fALBT45oey+YXEQBIFwz5VUgQmJFASBcowAQrlEACNcoAIRrFADCNQoA4RoFgHCNAkC4RgEgXKMAEK5RAAjXKACEaxQAwjUKAOEaBYBwjQJAuEYBIFyjABCuUQAI1ygAhGsUAMI1CgDhGgWAcI0CQLhGASBcowAQrlEACNcoAIRrYnnzbsHonSDECOXNuwWaAQjXKACEaxQAwjUKAOGaCPSdDBi9I4Qk0oWapxmAcI0CQLh2MQB0GER4cWmt0wxAuNYvADQLELO7vMZpBiBcuyIANAsQsxqotmkGIFwbMAA0CxCzGaymaQYgXBs0ADQLELMYqpaHnAEoBCTVDVfDdAhEuDZsAGgWIKkqltqNaQagEJBUE2vNxnwIRCEgqUJNrao6B6AQkGSntkZVnwRTCEiyYqlNpqtAFAKSbFhrkvkyKIWAJAsttajpPgCFgBhNaw1qvhFGISBG0aP2dC3euqLpip79ETIQPX90dX0UgmYDEm9611jcCpZmA6KneP24xv0Xm4JAtIj3UUXCDlkoCESNRB1OJ/yYnYJAhpLo80hDT1opDAQw9uJJ0l21oVCYW7JdKfx/6nR1Jmqnao4AAAAASUVORK5CYII=" alt="Drive61" />
+      <div>
+        <div class="inst-t">Instalá Drive61</div>
+        <div class="inst-s">Guardá la app en tu pantalla de inicio</div>
+      </div>
+      <button class="inst-x" onclick="dismissInstall()">&times;</button>
     </div>
-    <div class="card">
-      <div class="row"><span class="muted">Tu auto</span><b>${D.auto.patente}</b></div>
-      <div class="row"><span class="muted">Modelo</span>${D.auto.modelo}</div>
-      <div class="row"><span class="muted">Multas activas</span><span class="badge g">0</span></div>
-      <div class="row"><span class="muted">Scoring de manejo</span><b class="pos">${D.scoring}</b></div>
-    </div>`,
-  pagar: () => `
-    <div class="card dark"><div class="lbl">A pagar esta semana</div><div class="big">${money(D.proximaCuota)}</div>
-      <div style="font-size:12px;color:#bdbdbd;margin-top:4px">Vence ${D.vence}</div></div>
-    <div class="card"><h4>Estado de cuenta</h4>
-      ${D.cuenta.map(x=>`<div class="row"><span>${x.c}<div class="muted">${x.f}</div></span><span class="${x.m<0?'neg':'pos'}">${money(x.m)}</span></div>`).join('')}
-    </div>
-    <button class="btn" onclick="pay()">Pagar con transferencia</button>
-    <button class="btn ghost" onclick="alert('DEMO: pago con tarjeta / MercadoPago')">Otro medio de pago</button>`,
-  multas: () => `
-    <div class="card"><h4>Mis multas</h4>
-      ${D.multas.length? D.multas.map(m=>`<div class="row"><span>${m.inf}<div class="muted">${m.f}</div></span><span class="neg">${money(-m.monto)}</span></div>`).join('')
-      : '<div style="text-align:center;padding:22px 0"><div style="font-size:34px">🎉</div><div class="muted">No tenés multas. ¡Seguí así!</div></div>'}
-    </div>
-    <div class="card"><div class="lbl">Scoring de manejo</div>
-      <div class="score-ring"><div><div class="n">${D.scoring}</div><div class="t">/ 100</div></div></div>
-      <div class="muted" style="text-align:center">Buen manejo = mejores condiciones y beneficios.</div>
-    </div>`,
-  reservar: () => `
-    <div class="card"><h4>Reservar turno</h4><div class="muted" style="margin-bottom:10px">Elegí tu turno de 12 hs.</div>
-      ${D.turnos.map((s,i)=>`<div class="slot ${s.libre?'':'taken'}">
-        <span>${s.t}</span>${s.libre?`<button class="btn" style="width:auto;margin:0;padding:7px 14px" onclick="reservar(${i})">Reservar</button>`:'<span class="badge a">ocupado</span>'}</div>`).join('')}
-    </div>
-    <div class="muted" style="text-align:center">Coincide con el flujo del sitio: Registrate → Agendá cita → Vinculate.</div>`,
+    <div id="inst-ios" class="steps">Tocá <b>Compartir</b> en Safari y luego <b>&ldquo;Agregar a pantalla de inicio&rdquo;</b>.</div>
+    <button id="inst-android" class="btn" style="display:none;margin-top:12px" onclick="triggerInstall()">Instalar ahora</button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="nav" id="nav"></div>
+</div>
+
+<script>
+// ---------- Datos demo (cuenta del conductor) ----------
+var D = {
+  nombre:"Martín Sosa", apellido:"Sosa", nombreCorto:"Martín", dni:"34.201.556", iniciales:"MS",
+  proximaCuota:42000, vence:"Lun 13/07",
+  auto:{ patente:"AF461KT", modelo:"Fiat Cronos", km:41250 },
+  scoring:92, multas:[],
+  cuenta:[
+    { c:"Alquiler semana 27", f:"07/07", m:-42000 },
+    { c:"Telepeajes sem. 27", f:"07/07", m:-2080 },
+    { c:"Pago recibido", f:"07/07", m:44080 }
+  ],
+  turnos:[
+    { t:"Lun 14/07 · Diurno 06-18", libre:true },
+    { t:"Lun 14/07 · Nocturno 18-06", libre:false },
+    { t:"Mar 15/07 · Diurno 06-18", libre:true }
+  ]
 };
-const tabs = [["inicio","🏠","Inicio"],["pagar","💳","Pagar"],["multas","🚗","Multas"],["reservar","📅","Reservar"]];
-let cur = "inicio";
+var money = function(n){ return (n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-AR'); };
+var INTAKE_KEY = 'drive61_intake_v1';
+
+// ---------- Pantallas ----------
+var screens = {
+  inicio: function(){ return ''
+    + '<div class="card hero"><div class="lbl">Empezá hoy</div>'
+    + '<div class="big">Tu auto para Uber, sin comprarlo</div>'
+    + '<div style="color:#c7cbd3;font-size:13px;margin:8px 0 2px;line-height:1.5">Alquilás un Fiat Cronos por turnos de 12 hs, manejás para Uber y lo que ganás de más es tuyo. Nosotros ponemos el auto, seguro y soporte.</div>'
+    + '<button class="btn" onclick="nav(\'solicitar\')">Solicitar mi auto</button></div>'
+    + '<div class="card"><h4>¿Cómo funciona?</h4>'
+    + '<div class="row"><span class="muted">1 · Registrate</span><span class="badge g">2 min</span></div>'
+    + '<div class="row"><span class="muted">2 · Agendás retiro</span><span>📍 en agencia</span></div>'
+    + '<div class="row"><span class="muted">3 · Vinculás y arrancás</span><span>🚗 Uber</span></div></div>'
+    + '<div class="card"><div class="lbl">Tarifa de referencia</div>'
+    + '<div class="big" style="color:var(--red)">'+money(42000)+' <span style="font-size:14px;color:var(--muted);font-family:var(--font);font-weight:400">/ semana</span></div>'
+    + '<div class="muted" style="margin-top:4px">Turnos diurno (06-18) o nocturno (18-06). Consultá promos vigentes.</div></div>';
+  },
+  solicitar: function(){ return ''
+    + '<div class="card"><h4>Solicitar mi auto</h4>'
+    + '<div class="muted" style="margin-bottom:14px">Dejanos tus datos y un asesor te contacta por WhatsApp. Sin compromiso.</div>'
+    + '<div class="field"><label>Nombre y apellido *</label><input id="f-nombre" placeholder="Tu nombre"></div>'
+    + '<div class="field"><label>WhatsApp *</label><input id="f-tel" inputmode="tel" placeholder="+54 9 11 ..."></div>'
+    + '<div class="field"><label>Email</label><input id="f-email" inputmode="email" placeholder="tucorreo@mail.com"></div>'
+    + '<div class="field"><label>Turno que te interesa</label><select id="f-turno"><option>Diurno (06-18)</option><option>Nocturno (18-06)</option><option>Ambos / me da igual</option></select></div>'
+    + '<div class="field"><label>¿Algo que quieras aclarar?</label><textarea id="f-nota" placeholder="Ej: ya manejo en Uber, tengo licencia profesional..."></textarea></div>'
+    + '<button class="btn" onclick="enviarSolicitud()">Enviar solicitud</button>'
+    + '<div class="muted" style="text-align:center;margin-top:10px;font-size:11.5px">Al enviar, tu solicitud entra al sistema de Drive61 marcada como <b>vía app</b>.</div></div>';
+  },
+  enviado: function(){ return ''
+    + '<div class="card"><div class="ok-wrap"><div class="ok-circ">✓</div>'
+    + '<h4 style="font-size:18px">¡Solicitud enviada!</h4>'
+    + '<div class="muted" style="margin-top:6px">Un asesor de Drive61 te va a contactar por WhatsApp a la brevedad. Ya quedó registrada en el sistema.</div>'
+    + '<span class="badge g" style="margin-top:12px;display:inline-block">📱 Cargada vía app</span></div>'
+    + '<button class="btn ghost" onclick="nav(\'inicio\')">Volver al inicio</button></div>';
+  },
+  cuenta: function(){ return ''
+    + '<div class="card hero"><div class="lbl">Tu cuenta</div>'
+    + '<div class="big" style="color:#7Cf0a0">Al día ✓</div>'
+    + '<div style="font-size:12.5px;color:#c7cbd3;margin-top:4px">Próxima cuota: <b style="color:#fff">'+money(D.proximaCuota)+'</b> · vence '+D.vence+'</div>'
+    + '<button class="btn" onclick="pagar()">Pagar ahora</button></div>'
+    + '<div class="card">'
+    + '<div class="row"><span class="muted">Tu auto</span><b>'+D.auto.patente+'</b></div>'
+    + '<div class="row"><span class="muted">Modelo</span>'+D.auto.modelo+'</div>'
+    + '<div class="row"><span class="muted">Multas activas</span><span class="badge g">0</span></div>'
+    + '<div class="row"><span class="muted">Scoring de manejo</span><b class="pos">'+D.scoring+'</b></div></div>'
+    + '<div class="card"><h4>Movimientos</h4>'
+    + D.cuenta.map(function(x){ return '<div class="row"><span>'+x.c+'<div class="muted">'+x.f+'</div></span><span class="'+(x.m<0?'neg':'pos')+'">'+money(x.m)+'</span></div>'; }).join('')
+    + '</div>'
+    + '<div class="card"><div class="lbl">Scoring de manejo (Ituran)</div>'
+    + '<div class="score-ring"><div><div class="n">'+D.scoring+'</div><div class="t">/ 100</div></div></div>'
+    + '<div class="muted" style="text-align:center">Buen manejo = mejores condiciones y descuentos.</div></div>';
+  },
+  docs: function(){
+    var mis = misDocs();
+    var tipos = ['DNI','Licencia de conducir','Contrato de alquiler'];
+    var filas = tipos.map(function(t){
+      var hecho = mis.filter(function(d){ return d.tipo===t; }).length>0;
+      return '<div class="row"><span>'+t+'</span>'+(hecho
+        ? '<span class="badge g">enviado ✓</span>'
+        : '<button class="btn" style="width:auto;margin:0;padding:8px 14px;font-size:13px;box-shadow:none" onclick="scanDoc(\''+t+'\')">Escanear</button>')+'</div>';
+    }).join('');
+    var galeria = mis.length ? '<div class="card"><h4>Enviados</h4>'+mis.map(function(d){
+        return '<div class="row"><span>'+d.tipo+'<div class="muted">'+(d.ts||'').slice(0,10)+'</div></span><img src="'+d.archivo+'" style="width:54px;height:40px;object-fit:cover;border-radius:7px"></div>';
+      }).join('')+'</div>' : '';
+    return '<div class="card"><h4>Mis documentos</h4>'
+      + '<div class="muted" style="margin-bottom:12px">Escaneá tus documentos con la cámara. Quedan cargados en el sistema de Drive61 al instante, marcados <b>vía app</b>.</div>'
+      + filas
+      + '</div>' + galeria
+      + '<input id="scan-file" type="file" accept="image/*" capture="environment" style="display:none">';
+  },
+  turnos: function(){ return ''
+    + '<div class="card"><h4>Reservar turno</h4><div class="muted" style="margin-bottom:12px">Elegí tu turno de 12 hs.</div>'
+    + D.turnos.map(function(s,i){ return '<div class="slot '+(s.libre?'':'taken')+'"><span>'+s.t+'</span>'+(s.libre?'<button class="btn" style="width:auto;margin:0;padding:9px 16px;font-size:13px;box-shadow:none" onclick="reservar('+i+')">Reservar</button>':'<span class="badge a">ocupado</span>')+'</div>'; }).join('')
+    + '</div>'
+    + '<div class="steps">El flujo coincide con el del sitio: <b>Registrate &rarr; Agendá cita &rarr; Vinculate</b>. Lo que reserves acá queda en la Agenda del sistema.</div>';
+  }
+};
+
+var tabs = [
+  ["inicio","Inicio",'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'],
+  ["solicitar","Solicitar",'<path d="M12 5v14M5 12h14"/>'],
+  ["cuenta","Mi cuenta",'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/>'],
+  ["docs","Docs",'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>'],
+  ["turnos","Turnos",'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>']
+];
+var cur = "inicio";
 function draw(){
   document.getElementById('screen').innerHTML = screens[cur]();
-  document.getElementById('tabbar').innerHTML = tabs.map(t=>`<div class="tab ${t[0]===cur?'active':''}" onclick="nav('${t[0]}')"><span class="i">${t[1]}</span>${t[2]}</div>`).join('');
+  document.getElementById('screen').scrollTop = 0;
+  document.getElementById('nav').innerHTML = tabs.map(function(t){ return '<div class="t '+(t[0]===cur?'active':'')+'" onclick="nav(\''+t[0]+'\')"><svg viewBox="0 0 24 24">'+t[2]+'</svg>'+t[1]+'</div>'; }).join('');
 }
 function nav(s){ cur=s; draw(); }
-function pay(){ alert('DEMO: se abriría el pago (transferencia / MercadoPago). Al confirmar, el saldo queda en cero y el sistema interno lo registra automáticamente.'); }
-function reservar(i){ alert('DEMO: turno reservado ('+D.turnos[i].t+'). En el sistema real queda agendado y el auto asignado.'); }
+function pagar(){ alert('DEMO: se abriría el pago (transferencia / MercadoPago). Al confirmar, el sistema interno lo registra automáticamente.'); }
+function reservar(i){ alert('DEMO: turno reservado ('+D.turnos[i].t+'). En el sistema real queda agendado.'); }
+
+function enviarSolicitud(){
+  var nombre=(document.getElementById('f-nombre').value||'').trim();
+  var tel=(document.getElementById('f-tel').value||'').trim();
+  var email=(document.getElementById('f-email').value||'').trim();
+  var turno=(document.getElementById('f-turno').value||'').trim();
+  var nota=(document.getElementById('f-nota').value||'').trim();
+  if(!nombre || !tel){ alert('Completá al menos tu nombre y tu WhatsApp.'); return; }
+  var q=[]; try{ q=JSON.parse(localStorage.getItem(INTAKE_KEY)||'[]'); }catch(e){ q=[]; }
+  q.push({ id:'S'+Date.now().toString(36)+Math.floor(Math.random()*1000), nombre:nombre, telefono:tel, email:email, turno:turno, nota:nota, ts:new Date().toISOString() });
+  try{ localStorage.setItem(INTAKE_KEY, JSON.stringify(q)); }catch(e){}
+  cur='enviado'; draw();
+}
+
+// ---------- Onboarding / plataforma ----------
+var isIOS = function(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); };
+var isStandalone = function(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; };
+var deferredPrompt = null, installDismissed = false;
+
+function choosePlat(plat){
+  if(!plat) plat = isIOS() ? 'ios' : 'android';
+  try{ localStorage.setItem('drive61_plat', plat); }catch(e){}
+  var sp=document.getElementById('splash'); sp.classList.add('hide'); setTimeout(function(){ sp.style.display='none'; },450);
+  if(!isStandalone()) setTimeout(function(){ showInstall(plat); }, 800);
+}
+function showInstall(plat){
+  if(installDismissed || isStandalone()) return;
+  plat = plat || (isIOS()?'ios':'android');
+  var box=document.getElementById('install');
+  if(plat==='ios' || isIOS()){ document.getElementById('inst-ios').style.display='block'; document.getElementById('inst-android').style.display='none'; box.classList.add('show'); }
+  else if(deferredPrompt){ document.getElementById('inst-android').style.display='block'; box.classList.add('show'); }
+}
+function triggerInstall(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(){ deferredPrompt=null; document.getElementById('install').classList.remove('show'); });
+}
+function dismissInstall(){ document.getElementById('install').classList.remove('show'); installDismissed=true; }
+
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredPrompt=e; var b=document.getElementById('inst-android'); if(b) b.style.display='block'; });
+
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
+
+
+// ---------- Escaneo de documentos (vía app) ----------
+var DOC_KEY = 'drive61_docintake_v1';
+function digitsOnly(x){ return String(x||'').replace(/\D/g,''); }
+function misDocs(){
+  var q=[]; try{ q=JSON.parse(localStorage.getItem(DOC_KEY)||'[]'); }catch(e){ q=[]; }
+  return q.filter(function(d){ return digitsOnly(d.dni)===digitsOnly(D.dni); });
+}
+function resizeImg(file, cb){
+  var r=new FileReader();
+  r.onload=function(e){ var img=new Image(); img.onload=function(){
+    var max=1000, sc=Math.min(1, max/Math.max(img.width,img.height));
+    var cv=document.createElement('canvas'); cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    try{ cb(cv.toDataURL('image/jpeg',0.6)); }catch(err){ cb(e.target.result); }
+  }; img.onerror=function(){ cb(e.target.result); }; img.src=e.target.result; };
+  r.readAsDataURL(file);
+}
+function scanDoc(tipo){
+  var inp=document.getElementById('scan-file'); if(!inp) return;
+  inp.value='';
+  inp.onchange=function(){
+    if(!inp.files||!inp.files[0]) return;
+    resizeImg(inp.files[0], function(dataUrl){
+      var q=[]; try{ q=JSON.parse(localStorage.getItem(DOC_KEY)||'[]'); }catch(e){ q=[]; }
+      q.push({ id:'DX'+Date.now().toString(36)+Math.floor(Math.random()*1000), nombre:D.nombreCorto, apellido:D.apellido, dni:D.dni, tipo:tipo, archivo:dataUrl, ts:new Date().toISOString() });
+      try{ localStorage.setItem(DOC_KEY, JSON.stringify(q)); }catch(e){ alert('No se pudo guardar (memoria llena).'); return; }
+      alert('✓ '+tipo+' escaneado y enviado a Drive61.');
+      draw();
+    });
+  };
+  inp.click();
+}
+
+// ---------- Init ----------
+document.getElementById('ava').textContent = D.iniciales;
+document.getElementById('hello').textContent = D.nombre;
 draw();
+var yaPlat = false; try{ yaPlat = !!localStorage.getItem('drive61_plat'); }catch(e){}
+if(isStandalone() || yaPlat){
+  var sp0=document.getElementById('splash'); sp0.style.display='none';
+  if(!isStandalone()) setTimeout(function(){ showInstall(); }, 1500);
+}
 </script>
 </body>
 </html>
- 
