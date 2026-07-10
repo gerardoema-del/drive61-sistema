@@ -4,6 +4,10 @@
    (ANTHROPIC_API_KEY en Vercel), nunca en el cliente.
    ===================================================================== */
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'content-type');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  if (req.method === 'OPTIONS') { res.status(204).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ reply: 'Método no permitido.' }); return; }
 
   const key = process.env.ANTHROPIC_API_KEY;
@@ -71,17 +75,4 @@ export default async function handler(req, res) {
     } else if (r.status === 429) {
       reply = '😅 Estoy recibiendo muchas consultas al mismo tiempo. Esperá unos segundos y volvé a preguntar. (Es un límite del proveedor de IA, no una falla del sistema.)';
     } else if (r.status === 529) {
-      reply = 'El servicio de IA está momentáneamente saturado. Probá de nuevo en unos segundos.';
-    } else if (!r.ok) {
-      const msg = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + r.status);
-      reply = 'El asistente tuvo un inconveniente (' + msg + '). Probá de nuevo en un momento.';
-    } else {
-      const stop = data && data.stop_reason;
-      const errMsg = data && data.error && data.error.message;
-      reply = 'No pude generar una respuesta esta vez, probá de nuevo.' + (errMsg ? ' (' + errMsg + ')' : (stop ? ' [motivo: ' + stop + ']' : ''));
-    }
-    res.status(200).json({ reply });
-  } catch (e) {
-    res.status(200).json({ reply: 'No pude consultar al asistente en este momento (' + e.message + '). Probá de nuevo en unos segundos.' });
-  }
-}
+      reply = 'El servicio de IA está momentáneamente saturado. Probá de n
