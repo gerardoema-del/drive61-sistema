@@ -1,9 +1,9 @@
 /* =====================================================================
    Drive61 — Backend seguro del Asistente IA (Claude Sonnet)
-   Función serverless de Vercel. La API key vive SOLO acá
+   Función serverless de Vercel (CommonJS). La API key vive SOLO acá
    (ANTHROPIC_API_KEY en Vercel), nunca en el cliente.
    ===================================================================== */
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'content-type');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -78,9 +78,8 @@ export default async function handler(req, res) {
   try {
     let { r, data } = await callClaude();
 
-    // Reintento automático 1 vez ante rate limit / saturación / respuesta vacía
     if (r.status === 429 || r.status === 529 || (r.ok && !extractText(data))) {
-      await new Promise(res => setTimeout(res, 1200));
+      await new Promise(rr => setTimeout(rr, 1200));
       ({ r, data } = await callClaude());
     }
 
@@ -89,6 +88,19 @@ export default async function handler(req, res) {
     if (text) {
       reply = text;
     } else if (r.status === 429) {
-      reply = '😅 Estoy recibiendo muchas consultas al mismo tiempo. Esperá unos segundos y volvé a preguntar. (Es un límite del proveedor de IA, no una falla del sistema.)';
+      reply = 'Estoy recibiendo muchas consultas al mismo tiempo. Espera unos segundos y volve a preguntar.';
     } else if (r.status === 529) {
-      reply = 'El servicio de IA está momentáneamente saturado. Probá de n
+      reply = 'El servicio de IA esta momentaneamente saturado. Proba de nuevo en unos segundos.';
+    } else if (!r.ok) {
+      const msg = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + r.status);
+      reply = 'El asistente tuvo un inconveniente (' + msg + '). Proba de nuevo en un momento.';
+    } else {
+      const stop = data && data.stop_reason;
+      const errMsg = data && data.error && data.error.message;
+      reply = 'No pude generar una respuesta esta vez, proba de nuevo.' + (errMsg ? ' (' + errMsg + ')' : (stop ? ' [motivo: ' + stop + ']' : ''));
+    }
+    res.status(200).json({ reply });
+  } catch (e) {
+    res.status(200).json({ reply: 'No pude consultar al asistente en este momento (' + e.message + '). Proba de nuevo en unos segundos.' });
+  }
+};
