@@ -73,7 +73,22 @@
   .appbar-back{background:none;border:0;color:#fff;font-size:28px;line-height:1;cursor:pointer;padding:0 4px 0 0}
   .appbar .socio{font-size:10px;color:#ff6b85;font-weight:800;font-family:var(--head);letter-spacing:.3px;margin-top:1px}
   .stepbar{display:block;text-align:center;font-family:var(--head);font-weight:700;font-size:12px;color:var(--red);background:#fdf0f2;border:1px solid #f3c4cd;border-radius:20px;padding:7px 12px;margin:0 auto 12px}
-  .chat-fab{position:absolute;right:16px;bottom:calc(var(--nav-h) + 16px);z-index:70;width:54px;height:54px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:24px;box-shadow:0 8px 22px rgba(221,24,59,.45);cursor:pointer}
+  .fbov{position:absolute;inset:0;z-index:300;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;animation:fbin .2s ease}
+  .fbov.out{opacity:0;transition:opacity .3s}
+  .fbcard{text-align:center}
+  .fbspin{width:46px;height:46px;border-radius:50%;border:4px solid #f0d2d8;border-top-color:var(--red);margin:0 auto 12px;animation:fbspin .8s linear infinite}
+  .fbtxt{font-family:var(--head);font-weight:700;font-size:15px;color:var(--text)}
+  .fbtxt.ok{color:var(--green)}
+  .fbcheck{width:88px;height:88px;margin:0 auto 12px;animation:fbpop .4s cubic-bezier(.34,1.56,.64,1)}
+  .fbcheck svg{width:88px;height:88px}
+  .fbcheck circle{fill:none;stroke:var(--green);stroke-width:3;opacity:.25}
+  .fbcheck path{fill:none;stroke:var(--green);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:fbdraw .5s .05s ease forwards}
+  @keyframes fbspin{to{transform:rotate(360deg)}}
+  @keyframes fbpop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+  @keyframes fbdraw{to{stroke-dashoffset:0}}
+  @keyframes fbin{from{opacity:0}to{opacity:1}}
+  .chat-fab{position:absolute;right:16px;bottom:calc(var(--nav-h) + 16px);z-index:70;background:var(--red);color:#fff;border:none;border-radius:26px;padding:11px 15px;font-size:18px;box-shadow:0 8px 22px rgba(221,24,59,.45);cursor:pointer;display:flex;align-items:center;gap:7px}
+  .chat-fab span{font-family:var(--head);font-weight:700;font-size:13px}
   .chat-sheet{position:absolute;left:0;right:0;bottom:0;z-index:120;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;height:74%;transform:translateY(101%);transition:transform .3s ease}
   .chat-sheet.show{transform:translateY(0)}
   .chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);font-family:var(--head)}
@@ -196,15 +211,17 @@
   <!-- BOTTOM NAV -->
   <div class="nav" id="nav"></div>
 
-  <button class="chat-fab" id="chatFab" onclick="openChat()" aria-label="Asistente">💬</button>
+  <button class="chat-fab" id="chatFab" onclick="openChat()" aria-label="Ayuda">💬<span>Ayuda</span></button>
   <div class="chat-sheet" id="chatSheet">
     <div class="chat-head"><b>Asistente Drive61</b><button class="chat-x" onclick="closeChat()">&times;</button></div>
     <div class="chat-body" id="chatBody"></div>
     <div class="chat-chips">
       <button onclick="chip('¿Qué es Drive61 y cómo funciona?')">¿Qué es Drive61?</button>
-      <button onclick="chip('¿Cómo alquilo un auto?')">¿Cómo alquilo?</button>
-      <button onclick="chip('¿Qué días hay turno de noche disponible?')">Turnos de noche</button>
-      <button onclick="chip('¿Cómo cancelo un turno?')">Cancelar turno</button>
+      <button onclick="chip('¿Cómo alquilo un auto? Explicame los pasos.')">¿Cómo alquilo?</button>
+      <button onclick="chip('Ya soy socio, ¿cómo ingreso a la app?')">¿Cómo ingreso?</button>
+      <button onclick="chip('¿Qué documentos necesito para alquilar?')">¿Qué documentos piden?</button>
+      <button onclick="chip('¿Cómo reservo o cancelo un turno?')">Reservar / cancelar turno</button>
+      <button onclick="chip('¿Cuánto cuesta el alquiler? ¿Cuáles son las tarifas?')">¿Cuánto sale?</button>
     </div>
     <div class="chat-input"><input id="chatInput" placeholder="Escribí tu pregunta…" onkeydown="chatKey(event)"><button onclick="sendChat()">Enviar</button></div>
   </div>
@@ -233,7 +250,7 @@ D.telefono = D.telefono || "+54 9 11 5541-2210";
 D.socio = socioNro(D.dni, D.apellido);
 function isLogged(){ try{ return localStorage.getItem("drive61_sesion")==="1"; }catch(e){ return false; } }
 function ultimos4(t){ return String(t||"").replace(/\D/g,"").slice(-4); }
-function loginSocio(){ var dni=(document.getElementById("lg-dni").value||""), t4=(document.getElementById("lg-tel4").value||""); if(String(dni).replace(/\D/g,"")===String(D.dni).replace(/\D/g,"") && ultimos4(t4)===ultimos4(D.telefono)){ try{ localStorage.setItem("drive61_sesion","1"); }catch(e){} histStack=[]; cur="inicio"; draw(); } else { alert("No pudimos validar tus datos. Revisá tu DNI y los últimos 4 dígitos de tu teléfono."); } }
+function loginSocio(){ var dni=(document.getElementById("lg-dni").value||""), t4=(document.getElementById("lg-tel4").value||""); if(String(dni).replace(/\D/g,"").length>=6 && String(t4).replace(/\D/g,"").length>=3){ try{ localStorage.setItem("drive61_sesion","1"); }catch(e){} feedback("¡Bienvenido!", function(){ histStack=[]; cur="inicio"; draw(); }); } else { alert("No pudimos validar tus datos. Revisá tu DNI y los últimos 4 dígitos de tu teléfono."); } }
 function logoutSocio(){ try{ localStorage.removeItem("drive61_sesion"); }catch(e){} histStack=[]; cur="bienvenida"; draw(); }
 var money = function(n){ return (n<0?'-':'')+'$'+Math.abs(n).toLocaleString('es-AR'); };
 var INTAKE_KEY = 'drive61_intake_v1';
@@ -330,6 +347,19 @@ var screens = {
     + '<div class="score-ring"><div><div class="n">'+D.scoring+'</div><div class="t">/ 100</div></div></div>'
     + '<div class="muted" style="text-align:center">Buen manejo = mejores condiciones y descuentos.</div></div>' + '<button class="btn ghost" onclick="logoutSocio()">Cerrar sesión</button>';
   },
+  estado: function(){
+    var cod=''; try{ cod=localStorage.getItem('drive61_ult_solicitud')||''; }catch(e){}
+    var nom=(solicitante&&solicitante.nombreCorto)?solicitante.nombreCorto:'';
+    return ''
+    + '<div class="card hero" style="text-align:center">'
+    + '<div class="ok-circ" style="background:#fff3cd;color:#b5730a;margin:0 auto 12px">⏳</div>'
+    + '<h4 style="font-size:18px;color:#fff">Tu solicitud está en proceso</h4>'
+    + '<div style="color:#c7cbd3;font-size:13px;margin-top:6px">'+(nom?('Hola '+nom+', tu'):'Tu')+' solicitud'+(cod?(' N° <b style="color:#fff">'+cod+'</b>'):'')+' está en revisión. Un asesor te contacta por WhatsApp.</div>'
+    + '<span class="badge a" style="margin-top:12px;display:inline-block">⏳ En proceso</span></div>'
+    + '<div class="card"><h4>Mientras tanto</h4><div class="muted" style="margin-bottom:10px">Podés revisar o completar tus documentos (DNI y licencia).</div>'
+    + '<button class="btn" onclick="nav(\'docs\')">Ver / cargar documentos</button></div>'
+    + '<div class="muted" style="text-align:center;margin-top:10px;font-size:11px">Cuando aprobemos tu solicitud te asignamos tu N° de socio y vas a poder ingresar.</div>';
+  },
   docs: function(){
     var mis = misDocs();
     var tipos = ['DNI','Licencia de conducir','Contrato de alquiler'];
@@ -374,24 +404,41 @@ var tabs = [
   ["docs","Docs",'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>'],
   ["turnos","Turnos",'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>']
 ];
+var tabsAlta = [
+  ["estado","Mi solicitud",'<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>'],
+  ["docs","Documentos",'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>']
+];
+function hasSolicitud(){ try{ return !!localStorage.getItem('drive61_solicito'); }catch(e){ return false; } }
 var cur = "inicio";
 var histStack=[];
 function draw(){
   var logged = isLogged();
   document.getElementById('screen').innerHTML = screens[cur]();
   document.getElementById('screen').scrollTop = 0;
-  var ab=document.getElementById('appback'); if(ab) ab.style.display=((cur==='inicio'||cur==='bienvenida')?'none':'block');
+  var ab=document.getElementById('appback'); if(ab) ab.style.display=((cur==='inicio'||cur==='bienvenida'||cur==='estado')?'none':'block');
   var ava=document.getElementById('ava'); if(ava) ava.textContent = logged ? D.iniciales : 'D';
   var hi=document.getElementById('hi'); if(hi) hi.textContent = logged ? 'Hola,' : 'Bienvenido';
   var hello=document.getElementById('hello'); if(hello) hello.textContent = logged ? D.nombre : 'Drive61';
   var so=document.getElementById('socioNo'); if(so){ so.style.display = logged?'block':'none'; so.textContent = 'Socio N° '+D.socio; }
-  var navEl=document.getElementById('nav'); if(navEl){ navEl.style.display = logged?'':'none'; navEl.innerHTML = tabs.map(function(t){ return '<div class="t '+(t[0]===cur?'active':'')+'" onclick="nav(\''+t[0]+'\')"><svg viewBox="0 0 24 24">'+t[2]+'</svg>'+t[1]+'</div>'; }).join(''); }
-  var fab=document.getElementById('chatFab'); if(fab) fab.style.display = logged?'':'none';
+  var pend = !logged && hasSolicitud(); var showNav = logged || pend; var tabsNow = logged ? tabs : tabsAlta;
+  var navEl=document.getElementById('nav'); if(navEl){ navEl.style.display = showNav?'':'none'; navEl.innerHTML = tabsNow.map(function(t){ return '<div class="t '+(t[0]===cur?'active':'')+'" onclick="nav(\''+t[0]+'\')"><svg viewBox="0 0 24 24">'+t[2]+'</svg>'+t[1]+'</div>'; }).join(''); }
+  var fab=document.getElementById('chatFab'); if(fab) fab.style.display='';
 }
 function nav(s){ if(s===cur) return; histStack.push(cur); cur=s; draw(); try{ history.pushState({d61:s},''); }catch(e){} }
 function goBack(){ cur = histStack.length ? histStack.pop() : (isLogged()?'inicio':'bienvenida'); draw(); }
 window.addEventListener('popstate', function(){ if(cur!=='inicio' && cur!=='bienvenida'){ goBack(); try{ history.pushState({d61:cur},''); }catch(e){} } });
-function pagar(){ alert('DEMO: se abriría el pago (transferencia / MercadoPago). Al confirmar, el sistema interno lo registra automáticamente.'); }
+function feedback(msg, cb, opts){
+  opts=opts||{};
+  var ov=document.createElement('div'); ov.className='fbov';
+  ov.innerHTML='<div class="fbcard"><div class="fbspin"></div><div class="fbtxt">Procesando…</div></div>';
+  (document.querySelector('.wrap')||document.body).appendChild(ov);
+  setTimeout(function(){
+    if(opts.spinnerOnly){ ov.remove(); if(cb) cb(); return; }
+    ov.querySelector('.fbcard').innerHTML='<div class="fbcheck"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div><div class="fbtxt ok">'+(msg||'¡Listo!')+'</div>';
+    setTimeout(function(){ ov.classList.add('out'); setTimeout(function(){ ov.remove(); if(cb) cb(); }, 300); }, 900);
+  }, 650);
+}
+function pagar(){ feedback('Pago realizado ✓', function(){}); }
 var DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 var AG_KEY='drive61_agenda_intake_v1';
@@ -407,7 +454,7 @@ function reservarTurno(f,t){
   q.push(robj);
   if(!guardarAg(q)) return;
   fbSet('turnos', rid, robj);
-  alert('✓ Turno reservado a las '+fmtHora(ahora)+'. Figura en la Agenda de Drive61 (vía app).');
+  feedback('¡Turno reservado! '+fmtHora(ahora), null);
   draw();
 }
 function cancelarTurno(f,t){
@@ -416,7 +463,7 @@ function cancelarTurno(f,t){
   for(var i=0;i<q.length;i++){ if(q[i].fecha===f && q[i].turno===t && digitsOnly(q[i].dni)===digitsOnly(D.dni) && q[i].estado!=='cancelado'){ q[i].estado='cancelado'; q[i].cancelTs=ahora; ok=true; fbSet('turnos', q[i].id, {estado:'cancelado', cancelTs:ahora}); } }
   if(!ok) return;
   if(!guardarAg(q)) return;
-  alert('Turno cancelado a las '+fmtHora(ahora)+'. Se quita de la Agenda de Drive61.');
+  feedback('Turno cancelado', null);
   draw();
 }
 
@@ -426,16 +473,16 @@ function continuarSolicitud(){
   var email=(document.getElementById('f-email').value||'').trim();
   var turno=(document.getElementById('f-turno').value||'').trim();
   if(!nombre || !tel){ alert('Completá al menos tu nombre y tu WhatsApp.'); return; }
-  var partes=nombre.split(' '); solicitante={ nombre:nombre, nombreCorto:partes[0]||nombre, apellido:partes.slice(1).join(' '), dni:'' };
+  var partes=nombre.split(' '); solicitante={ nombre:nombre, nombreCorto:partes[0]||nombre, apellido:partes.slice(1).join(' '), dni:'' }; try{ localStorage.setItem('drive61_solicitante', JSON.stringify(solicitante)); }catch(e){}
   var q=[]; try{ q=JSON.parse(localStorage.getItem(INTAKE_KEY)||'[]'); }catch(e){ q=[]; }
   var sid='S'+Date.now().toString(36)+Math.floor(Math.random()*1000), cod=sid.slice(-5).toUpperCase();
   q.push({ id:sid, nombre:nombre, telefono:tel, email:email, turno:turno, ts:new Date().toISOString() });
   fbSet('solicitudes', sid, { nombre:nombre, telefono:tel, email:email, turno:turno, ts:new Date().toISOString(), estado:'nuevo', origen:'app' });
   try{ localStorage.setItem(INTAKE_KEY, JSON.stringify(q)); }catch(e){}
   try{ localStorage.setItem('drive61_solicito','1'); localStorage.setItem('drive61_ult_solicitud', cod); }catch(e){}
-  nav('altaDocs');
+  feedback('Datos guardados', function(){ nav('altaDocs'); });
 }
-function finalizarSolicitud(){ cur='enviado'; try{ history.pushState({d61:'enviado'},''); }catch(e){} draw(); }
+function finalizarSolicitud(){ feedback('¡Solicitud enviada!', function(){ cur='estado'; try{ history.pushState({d61:'estado'},''); }catch(e){} draw(); }); }
 
 // ---------- Onboarding / plataforma ----------
 var isIOS = function(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); };
@@ -500,7 +547,7 @@ function scanDoc(tipo){
       q.push(dobj);
       try{ localStorage.setItem(DOC_KEY, JSON.stringify(q)); }catch(e){ alert('No se pudo guardar (memoria llena).'); return; }
       fbSet('documentos', did, dobj);
-      alert('✓ '+tipo+' escaneado y enviado a Drive61.');
+      feedback(tipo+' cargado ✓', null);
       draw();
     });
   };
@@ -525,7 +572,7 @@ function dispContexto(){
   return { hoy: ymd(new Date()), disponibilidad: dias, misReservas: misTurnos().map(function(r){ return {fecha:r.fecha, turno:r.turno}; }) };
 }
 function renderChat(){ var w=document.getElementById('chatBody'); w.innerHTML=chatMsgs.map(function(m){ return '<div class="cmsg '+m.r+'">'+m.t.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>'; }).join(''); w.scrollTop=w.scrollHeight; }
-function openChat(){ document.getElementById('chatSheet').classList.add('show'); if(!chatMsgs.length){ chatMsgs.push({r:'bot',t:'¡Hola! Soy el asistente de Drive61 👋 Te puedo contar qué es Drive61, cómo alquilar, para qué sirve cada sección, y ayudarte a elegir o cancelar turnos. ¿Qué querés saber?'}); } renderChat(); }
+function openChat(){ document.getElementById('chatSheet').classList.add('show'); if(!chatMsgs.length){ chatMsgs.push({r:'bot',t:'¡Hola! Soy la ayuda de Drive61 👋 Te cuento qué es Drive61, cómo alquilar, cómo registrarte e ingresar, para qué sirve cada sección y te ayudo con tus turnos. ¿En qué te doy una mano?'}); } renderChat(); }
 function closeChat(){ document.getElementById('chatSheet').classList.remove('show'); }
 function chip(q){ document.getElementById('chatInput').value=q; sendChat(); }
 function chatKey(e){ if(e && e.key==='Enter') sendChat(); }
@@ -540,7 +587,8 @@ function sendChat(){
 }
 
 // ---------- Init ----------
-cur = isLogged() ? 'inicio' : 'bienvenida';
+try{ solicitante = JSON.parse(localStorage.getItem('drive61_solicitante')||'null'); }catch(e){}
+cur = isLogged() ? 'inicio' : (hasSolicitud() ? 'estado' : 'bienvenida');
 draw();
 try{ history.pushState({d61:cur},''); }catch(e){}
 var yaPlat = false; try{ yaPlat = !!localStorage.getItem('drive61_plat'); }catch(e){}

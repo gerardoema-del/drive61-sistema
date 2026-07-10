@@ -674,7 +674,7 @@ routes.conductores = async (root, id) => {
   let vista = conds.slice();
   const rows = (list) => list.map(c=>`
     <tr class="click" data-id="${c.id}">
-      <td><strong>${c.nombre}</strong><div class="empty" style="font-style:normal">DNI ${c.dni}</div></td>
+      <td><strong>${c.nombre}</strong><div class="empty" style="font-style:normal">Socio N° ${socioNro(c.dni,c.nombre)} · DNI ${c.dni}</div></td>
       <td><span class="badge ${c.estado}">${c.estado}</span></td>
       <td><span class="dot ${scoreDot(c.scoring)}"></span><span class="score">${c.scoring}</span><div class="empty" style="font-style:normal">${scoreLabel(c.scoring)}</div></td>
       <td>${c.autoId||'—'}</td>
