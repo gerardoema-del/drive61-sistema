@@ -1545,7 +1545,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
   if(!DB) return;
   const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const kfmt = n => '$' + Math.round(n/1000) + 'k';
-  const TARIFA_SEM = 42000; // tarifa semanal de referencia (demo)
+  const TARIFA_SEM = 150000; // tarifa por turno (medio día, 12 hs) de referencia (demo)
 
   const st = document.createElement('style');
   st.textContent = `
@@ -1615,7 +1615,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       const btn = d => `<div class="of-btn" data-of="1" data-tel="${c.telefono}" data-nom="${c.nombre}" data-pat="${a.patente}" data-mod="${a.modelo}" data-desc="${d}">-${d}%<small>$${precioCon(d).toLocaleString('es-AR')}</small></div>`;
       return `<div class="of-row">
         <div class="of-car">${a.patente}<div style="font-weight:600;font-size:11px;color:var(--muted)">${a.modelo}</div></div>
-        <div class="of-mid">Sugerido para <b>${c.nombre}</b> · scoring <b>${c.scoring||'—'}</b> · ${Number(c.saldo||0)>=0?'al día ✓':'con saldo'} <span style="opacity:.6">— tarifa full $${TARIFA_SEM.toLocaleString('es-AR')}/sem</span></div>
+        <div class="of-mid">Sugerido para <b>${c.nombre}</b> · scoring <b>${c.scoring||'—'}</b> · ${Number(c.saldo||0)>=0?'al día ✓':'con saldo'} <span style="opacity:.6">— tarifa full $${TARIFA_SEM.toLocaleString('es-AR')} / turno</span></div>
         <div class="of-btns">${btn(10)}${btn(20)}${btn(30)}</div>
       </div>`;
     };
@@ -1690,7 +1690,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     // WhatsApp de ofertas
     root.querySelectorAll('[data-of]').forEach(b=> b.addEventListener('click', ()=>{
       const d=b.dataset; const precio=precioCon(+d.desc);
-      const msg = `Hola ${d.nom}! Tenemos el ${d.mod} (${d.pat}) libre y te lo ofrecemos con ${d.desc}% OFF esta semana: $${precio.toLocaleString('es-AR')} en lugar de $${TARIFA_SEM.toLocaleString('es-AR')}. Cupo limitado, ¿lo tomás? — Drive61`;
+      const msg = `Hola ${d.nom}! Tenemos el ${d.mod} (${d.pat}) libre y te lo ofrecemos con ${d.desc}% OFF por un turno (medio día): $${precio.toLocaleString('es-AR')} por turno, en lugar de $${TARIFA_SEM.toLocaleString('es-AR')}. Cupo limitado, ¿lo tomás? — Drive61`;
       openWA(d.tel, msg);
     }));
   };
